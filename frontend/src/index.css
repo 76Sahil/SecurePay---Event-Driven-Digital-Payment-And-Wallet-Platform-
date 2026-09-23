@@ -38,3 +38,87 @@ a {
 #root {
   min-height: 100vh;
 }
+
+.public-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header {
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.site-header__container,
+.site-main__container,
+.site-footer__container {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.site-header__container {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.site-header__brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.site-header__nav a {
+  color: #374151;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.site-header__nav a:hover {
+  color: #111827;
+}
+
+.site-main {
+  flex: 1;
+}
+
+.site-main__container {
+  padding: 48px 0;
+}
+
+.site-footer {
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.site-footer__container {
+  padding: 20px 0;
+}
+
+.site-footer p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .site-header__container {
+    min-height: 56px;
+  }
+
+  .site-header__nav {
+    gap: 12px;
+  }
+
+  .site-main__container {
+    padding: 32px 0;
+  }
+}
