@@ -8,6 +8,13 @@ type RegisterFormData = {
     confirmPassword: string
 }
 
+type RegisterFormErrors = {
+    fullName?: string
+    email?: string
+    password?: string
+    confirmPassword?: string
+}
+
 function RegisterPage() {
     const [formData, setFormData] = useState<RegisterFormData>({
         fullName: '',
@@ -16,7 +23,7 @@ function RegisterPage() {
         confirmPassword: '',
     })
 
-    const [errors, setErrors] = useState<string[]>([])
+    const [errors, setErrors] = useState<RegisterFormErrors>({})
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     function handleChange(
@@ -30,23 +37,28 @@ function RegisterPage() {
         }))
     }
 
-    function validateForm(): string[] {
-        const validationErrors: string[] = []
+    function validateForm(): RegisterFormErrors {
+        const validationErrors: RegisterFormErrors = {}
 
         if (!formData.fullName.trim()) {
-            validationErrors.push('Full name is required.')
+            validationErrors.fullName = 'Full name is required.'
         }
 
         if (!formData.email.trim()) {
-            validationErrors.push('Email is required.')
+            validationErrors.email = 'Email is required.'
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            validationErrors.email = 'Please enter a valid email address.'
         }
 
         if (!formData.password) {
-            validationErrors.push('Password is required.')
+            validationErrors.password = 'Password is required.'
+        } else if (formData.password.length < 8) {
+            validationErrors.password =
+                'Password must be at least 8 characters.'
         }
 
         if (!formData.confirmPassword) {
-            validationErrors.push('Please confirm your password.')
+            validationErrors.confirmPassword = 'Please confirm your password.'
         }
 
         if (
@@ -54,7 +66,7 @@ function RegisterPage() {
             formData.confirmPassword &&
             formData.password !== formData.confirmPassword
         ) {
-            validationErrors.push('Passwords do not match.')
+            validationErrors.confirmPassword = 'Passwords do not match.'
         }
 
         return validationErrors
@@ -67,7 +79,7 @@ function RegisterPage() {
 
         setErrors(validationErrors)
 
-        if (validationErrors.length > 0) {
+        if (Object.keys(validationErrors).length > 0) {
             return
         }
 
@@ -86,6 +98,7 @@ function RegisterPage() {
             <form onSubmit={handleSubmit} noValidate>
                 <div>
                     <label htmlFor="fullName">Full name</label>
+
                     <input
                         id="fullName"
                         name="fullName"
@@ -93,11 +106,22 @@ function RegisterPage() {
                         value={formData.fullName}
                         onChange={handleChange}
                         autoComplete="name"
+                        aria-invalid={Boolean(errors.fullName)}
+                        aria-describedby={
+                            errors.fullName ? 'fullName-error' : undefined
+                        }
                     />
+
+                    {errors.fullName && (
+                        <p id="fullName-error" role="alert">
+                            {errors.fullName}
+                        </p>
+                    )}
                 </div>
 
                 <div>
                     <label htmlFor="email">Email address</label>
+
                     <input
                         id="email"
                         name="email"
@@ -105,11 +129,22 @@ function RegisterPage() {
                         value={formData.email}
                         onChange={handleChange}
                         autoComplete="email"
+                        aria-invalid={Boolean(errors.email)}
+                        aria-describedby={
+                            errors.email ? 'email-error' : undefined
+                        }
                     />
+
+                    {errors.email && (
+                        <p id="email-error" role="alert">
+                            {errors.email}
+                        </p>
+                    )}
                 </div>
 
                 <div>
                     <label htmlFor="password">Password</label>
+
                     <input
                         id="password"
                         name="password"
@@ -117,11 +152,22 @@ function RegisterPage() {
                         value={formData.password}
                         onChange={handleChange}
                         autoComplete="new-password"
+                        aria-invalid={Boolean(errors.password)}
+                        aria-describedby={
+                            errors.password ? 'password-error' : undefined
+                        }
                     />
+
+                    {errors.password && (
+                        <p id="password-error" role="alert">
+                            {errors.password}
+                        </p>
+                    )}
                 </div>
 
                 <div>
                     <label htmlFor="confirmPassword">Confirm password</label>
+
                     <input
                         id="confirmPassword"
                         name="confirmPassword"
@@ -129,16 +175,20 @@ function RegisterPage() {
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         autoComplete="new-password"
+                        aria-invalid={Boolean(errors.confirmPassword)}
+                        aria-describedby={
+                            errors.confirmPassword
+                                ? 'confirmPassword-error'
+                                : undefined
+                        }
                     />
-                </div>
 
-                {errors.length > 0 && (
-                    <div role="alert">
-                        {errors.map((error) => (
-                            <p key={error}>{error}</p>
-                        ))}
-                    </div>
-                )}
+                    {errors.confirmPassword && (
+                        <p id="confirmPassword-error" role="alert">
+                            {errors.confirmPassword}
+                        </p>
+                    )}
+                </div>
 
                 <button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? 'Creating account...' : 'Create account'}
