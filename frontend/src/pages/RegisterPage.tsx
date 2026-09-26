@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 
@@ -46,7 +47,9 @@ function RegisterPage() {
 
         if (!formData.email.trim()) {
             validationErrors.email = 'Email is required.'
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        } else if (
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+        ) {
             validationErrors.email = 'Please enter a valid email address.'
         }
 
@@ -58,7 +61,8 @@ function RegisterPage() {
         }
 
         if (!formData.confirmPassword) {
-            validationErrors.confirmPassword = 'Please confirm your password.'
+            validationErrors.confirmPassword =
+                'Please confirm your password.'
         }
 
         if (
@@ -66,7 +70,8 @@ function RegisterPage() {
             formData.confirmPassword &&
             formData.password !== formData.confirmPassword
         ) {
-            validationErrors.confirmPassword = 'Passwords do not match.'
+            validationErrors.confirmPassword =
+                'Passwords do not match.'
         }
 
         return validationErrors
@@ -92,108 +97,143 @@ function RegisterPage() {
     }
 
     return (
-        <section>
-            <h1>Create your SecurePay account</h1>
+        <section className="auth-page">
+            <div className="auth-card">
+                <div className="auth-card__header">
+                    <p className="auth-card__brand">SecurePay</p>
 
-            <form onSubmit={handleSubmit} noValidate>
-                <div>
-                    <label htmlFor="fullName">Full name</label>
+                    <h1>Create your SecurePay account</h1>
 
-                    <input
-                        id="fullName"
-                        name="fullName"
-                        type="text"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                        autoComplete="name"
-                        aria-invalid={Boolean(errors.fullName)}
-                        aria-describedby={
-                            errors.fullName ? 'fullName-error' : undefined
-                        }
-                    />
-
-                    {errors.fullName && (
-                        <p id="fullName-error" role="alert">
-                            {errors.fullName}
-                        </p>
-                    )}
+                    <p className="auth-card__description">
+                        Create your account to securely manage payments
+                        and your wallet.
+                    </p>
                 </div>
 
-                <div>
-                    <label htmlFor="email">Email address</label>
+                <form onSubmit={handleSubmit} noValidate>
+                    <div className="form-field">
+                        <label htmlFor="fullName">Full name</label>
 
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        autoComplete="email"
-                        aria-invalid={Boolean(errors.email)}
-                        aria-describedby={
-                            errors.email ? 'email-error' : undefined
-                        }
-                    />
+                        <input
+                            id="fullName"
+                            name="fullName"
+                            type="text"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                            autoComplete="name"
+                            aria-invalid={Boolean(errors.fullName)}
+                            aria-describedby={
+                                errors.fullName
+                                    ? 'fullName-error'
+                                    : undefined
+                            }
+                        />
 
-                    {errors.email && (
-                        <p id="email-error" role="alert">
-                            {errors.email}
-                        </p>
-                    )}
-                </div>
+                        {errors.fullName && (
+                            <p id="fullName-error" role="alert">
+                                {errors.fullName}
+                            </p>
+                        )}
+                    </div>
 
-                <div>
-                    <label htmlFor="password">Password</label>
+                    <div className="form-field">
+                        <label htmlFor="email">Email address</label>
 
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        autoComplete="new-password"
-                        aria-invalid={Boolean(errors.password)}
-                        aria-describedby={
-                            errors.password ? 'password-error' : undefined
-                        }
-                    />
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            autoComplete="email"
+                            aria-invalid={Boolean(errors.email)}
+                            aria-describedby={
+                                errors.email
+                                    ? 'email-error'
+                                    : undefined
+                            }
+                        />
 
-                    {errors.password && (
-                        <p id="password-error" role="alert">
-                            {errors.password}
-                        </p>
-                    )}
-                </div>
+                        {errors.email && (
+                            <p id="email-error" role="alert">
+                                {errors.email}
+                            </p>
+                        )}
+                    </div>
 
-                <div>
-                    <label htmlFor="confirmPassword">Confirm password</label>
+                    <div className="form-field">
+                        <label htmlFor="password">Password</label>
 
-                    <input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        autoComplete="new-password"
-                        aria-invalid={Boolean(errors.confirmPassword)}
-                        aria-describedby={
-                            errors.confirmPassword
-                                ? 'confirmPassword-error'
-                                : undefined
-                        }
-                    />
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            autoComplete="new-password"
+                            aria-invalid={Boolean(errors.password)}
+                            aria-describedby={
+                                errors.password
+                                    ? 'password-error'
+                                    : undefined
+                            }
+                        />
 
-                    {errors.confirmPassword && (
-                        <p id="confirmPassword-error" role="alert">
-                            {errors.confirmPassword}
-                        </p>
-                    )}
-                </div>
+                        {errors.password && (
+                            <p id="password-error" role="alert">
+                                {errors.password}
+                            </p>
+                        )}
+                    </div>
 
-                <button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Creating account...' : 'Create account'}
-                </button>
-            </form>
+                    <div className="form-field">
+                        <label htmlFor="confirmPassword">
+                            Confirm password
+                        </label>
+
+                        <input
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            type="password"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            autoComplete="new-password"
+                            aria-invalid={Boolean(
+                                errors.confirmPassword,
+                            )}
+                            aria-describedby={
+                                errors.confirmPassword
+                                    ? 'confirmPassword-error'
+                                    : undefined
+                            }
+                        />
+
+                        {errors.confirmPassword && (
+                            <p
+                                id="confirmPassword-error"
+                                role="alert"
+                            >
+                                {errors.confirmPassword}
+                            </p>
+                        )}
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="auth-submit"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting
+                            ? 'Creating account...'
+                            : 'Create account'}
+                    </button>
+                </form>
+
+                <p className="auth-card__footer">
+                    Already have an account?{' '}
+                    <Link to="/login">Log in</Link>
+                </p>
+            </div>
         </section>
     )
 }
