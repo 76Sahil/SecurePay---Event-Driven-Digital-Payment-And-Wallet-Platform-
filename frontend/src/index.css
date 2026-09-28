@@ -1781,3 +1781,515 @@ a {
     flex-direction: column;
   }
 }
+
+/* ================================
+   Send Money Page
+   ================================ */
+
+.send-money-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.send-money-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.send-money-page__header h1 {
+  margin: 6px 0 8px;
+  font-size: 36px;
+  line-height: 1.15;
+}
+
+.send-money-page__description {
+  margin: 0;
+  color: #60708a;
+  font-size: 16px;
+}
+
+.send-money-card,
+.transfer-review-card {
+  background: #ffffff;
+  border: 1px solid #dfe7f2;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 8px 24px rgba(20, 45, 90, 0.05);
+}
+
+.send-money-card__header h2,
+.transfer-review-card__header h2 {
+  margin: 0 0 8px;
+  color: #102342;
+  font-size: 22px;
+}
+
+.send-money-card__header p,
+.transfer-review-card__header p {
+  margin: 0;
+  color: #71809a;
+  font-size: 14px;
+}
+
+.send-money-state {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px dashed #d4deeb;
+  border-radius: 12px;
+  background: #f8faff;
+  color: #6a7b93;
+  text-align: center;
+}
+
+/* Beneficiaries */
+
+.beneficiary-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.beneficiary-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #d7e1ee;
+  border-radius: 13px;
+  background: #ffffff;
+  color: #182b49;
+  text-align: left;
+  cursor: pointer;
+  transition:
+          border-color 0.2s ease,
+          background 0.2s ease,
+          box-shadow 0.2s ease,
+          transform 0.2s ease;
+}
+
+.beneficiary-option:hover:not(:disabled) {
+  border-color: #3478e5;
+  background: #f7faff;
+  transform: translateY(-1px);
+}
+
+.beneficiary-option--selected {
+  border-color: #3478e5;
+  background: #f1f6ff;
+  box-shadow: 0 0 0 3px rgba(52, 120, 229, 0.1);
+}
+
+.beneficiary-option--disabled {
+  background: #f6f8fb;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.beneficiary-option__radio {
+  display: flex;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid #c8d4e4;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.beneficiary-option--selected .beneficiary-option__radio {
+  border-color: #3478e5;
+  background: #3478e5;
+}
+
+.beneficiary-option__content {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.beneficiary-option__content strong {
+  overflow: hidden;
+  color: #172d4d;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.beneficiary-option__content span {
+  overflow: hidden;
+  color: #73839a;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.beneficiary-option__status {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #e3f5e9;
+  color: #24764a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.beneficiary-option__status--blocked {
+  background: #fbe4e4;
+  color: #b13a3a;
+}
+
+/* Form */
+
+.send-money-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-top: 30px;
+}
+
+.send-money-form__field {
+  min-width: 0;
+}
+
+.send-money-form__label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: #253957;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.send-money-form__label span {
+  color: #8492a7;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.send-money-form__amount-wrapper {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  border: 1px solid #cfd9e8;
+  border-radius: 12px;
+  background: #ffffff;
+  transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+}
+
+.send-money-form__amount-wrapper:focus-within {
+  border-color: #3478e5;
+  box-shadow: 0 0 0 4px rgba(52, 120, 229, 0.12);
+}
+
+.send-money-form__currency {
+  padding-left: 16px;
+  color: #536781;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.send-money-form__amount {
+  width: 100%;
+  height: 100%;
+  padding: 0 16px 0 10px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #102342;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.send-money-form__amount::placeholder {
+  color: #a5b0c0;
+}
+
+.send-money-form__textarea {
+  width: 100%;
+  min-height: 116px;
+  padding: 14px 16px;
+  border: 1px solid #cfd9e8;
+  border-radius: 12px;
+  outline: 0;
+  background: #ffffff;
+  color: #102342;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+  transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+}
+
+.send-money-form__textarea:focus {
+  border-color: #3478e5;
+  box-shadow: 0 0 0 4px rgba(52, 120, 229, 0.12);
+}
+
+.send-money-form__error,
+.send-money-page__error {
+  margin: 8px 0 0;
+  color: #c33c3c;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.send-money-page__error {
+  margin-top: 22px;
+  padding: 12px 14px;
+  border: 1px solid #f0cccc;
+  border-radius: 10px;
+  background: #fff6f6;
+}
+
+/* Review button */
+
+.send-money-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid #e4eaf2;
+}
+
+.send-money-card__review-button {
+  min-width: 190px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2874e6, #4437d4);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(48, 82, 214, 0.2);
+  transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+}
+
+.send-money-card__review-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(48, 82, 214, 0.27);
+}
+
+/* Transfer review */
+
+.transfer-review-card {
+  border-color: #d8e3f0;
+}
+
+.transfer-review-card__header {
+  margin-bottom: 24px;
+}
+
+.transfer-review-card__details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid #e1e8f1;
+  border-radius: 12px;
+  background: #e1e8f1;
+}
+
+.transfer-review-card__details > div {
+  display: flex;
+  min-height: 82px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 18px;
+  background: #ffffff;
+}
+
+.transfer-review-card__details span {
+  color: #74849b;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.transfer-review-card__details strong {
+  color: #172d4d;
+  font-size: 15px;
+}
+
+.transfer-review-card__details > div:nth-child(3) strong {
+  color: #1d5fd1;
+  font-size: 19px;
+}
+
+.transfer-review-card__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 14px 16px;
+  border: 1px solid #dce7f5;
+  border-radius: 10px;
+  background: #f5f9ff;
+}
+
+.transfer-review-card__notice span {
+  color: #3478e5;
+  font-size: 16px;
+}
+
+.transfer-review-card__notice p {
+  margin: 0;
+  color: #60728b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.transfer-review-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+.transfer-review-card__confirm {
+  min-width: 190px;
+  min-height: 48px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2874e6, #4437d4);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(48, 82, 214, 0.2);
+}
+
+/* Responsive */
+
+@media (max-width: 1000px) {
+  .beneficiary-list {
+    grid-template-columns: 1fr;
+  }
+
+  .send-money-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .send-money-page__header h1 {
+    font-size: 30px;
+  }
+
+  .send-money-card,
+  .transfer-review-card {
+    padding: 22px;
+  }
+
+  .transfer-review-card__details {
+    grid-template-columns: 1fr;
+  }
+
+  .send-money-card__actions,
+  .transfer-review-card__actions {
+    justify-content: stretch;
+  }
+
+  .send-money-card__review-button,
+  .transfer-review-card__confirm {
+    width: 100%;
+  }
+}
+.transfer-result-card {
+  background: #ffffff;
+  border: 1px solid #d8e3f0;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 8px 24px rgba(20, 45, 90, 0.05);
+}
+
+.transfer-result-card__header {
+  margin-bottom: 24px;
+}
+
+.transfer-result-card__header h2 {
+  margin: 4px 0 8px;
+  color: #102342;
+  font-size: 24px;
+}
+
+.transfer-result-card__header p:last-child {
+  margin: 0;
+  color: #71809a;
+  font-size: 14px;
+}
+
+.transfer-result-card__details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid #e1e8f1;
+  border-radius: 12px;
+  background: #e1e8f1;
+}
+
+.transfer-result-card__details > div {
+  display: flex;
+  min-height: 78px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 18px;
+  background: #ffffff;
+}
+
+.transfer-result-card__details span {
+  color: #74849b;
+  font-size: 12px;
+}
+
+.transfer-result-card__details strong {
+  color: #172d4d;
+  font-size: 15px;
+}
+
+.transfer-result-card__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 14px 16px;
+  border: 1px solid #dce7f5;
+  border-radius: 10px;
+  background: #f5f9ff;
+}
+
+.transfer-result-card__notice span {
+  color: #3478e5;
+}
+
+.transfer-result-card__notice p {
+  margin: 0;
+  color: #60728b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+  .transfer-result-card__details {
+    grid-template-columns: 1fr;
+  }
+}

@@ -13,6 +13,7 @@ import MerchantPortalPage from '../pages/MerchantPortalPage'
 import AdminPortalPage from '../pages/AdminPortalPage'
 import WalletPage from '../pages/WalletPage'
 import AddMoneyPage from '../pages/AddMoneyPage'
+import SendMoneyPage from '../pages/SendMoneyPage'
 
 import ProtectedRoute from '../routes/ProtectedRoute'
 import RoleRoute from '../routes/RoleRoute'
@@ -70,6 +71,10 @@ function AppRouter() {
                                 <Route
                                     path="/customer/add-money"
                                     element={<AddMoneyPage />}
+                                />
+                                <Route
+                                    path="/customer/send-money"
+                                    element={<SendMoneyPage />}
                                 />
                             </Route>
                         </Route>
