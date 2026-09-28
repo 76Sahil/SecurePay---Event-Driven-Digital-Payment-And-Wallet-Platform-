@@ -11,10 +11,11 @@ import ForgotPasswordPage from '../pages/ForgotPasswordPage'
 import CustomerPortalPage from '../pages/CustomerPortalPage'
 import MerchantPortalPage from '../pages/MerchantPortalPage'
 import AdminPortalPage from '../pages/AdminPortalPage'
+import WalletPage from '../pages/WalletPage'
+import AddMoneyPage from '../pages/AddMoneyPage'
 
 import ProtectedRoute from '../routes/ProtectedRoute'
 import RoleRoute from '../routes/RoleRoute'
-import WalletPage from '../pages/WalletPage'
 
 function AppRouter() {
     return (
@@ -61,9 +62,14 @@ function AppRouter() {
                                     path="/customer"
                                     element={<CustomerPortalPage />}
                                 />
+
                                 <Route
                                     path="/customer/wallet"
                                     element={<WalletPage />}
+                                />
+                                <Route
+                                    path="/customer/add-money"
+                                    element={<AddMoneyPage />}
                                 />
                             </Route>
                         </Route>
