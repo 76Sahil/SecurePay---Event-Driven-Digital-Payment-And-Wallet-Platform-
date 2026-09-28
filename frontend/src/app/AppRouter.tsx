@@ -14,6 +14,7 @@ import AdminPortalPage from '../pages/AdminPortalPage'
 
 import ProtectedRoute from '../routes/ProtectedRoute'
 import RoleRoute from '../routes/RoleRoute'
+import WalletPage from '../pages/WalletPage'
 
 function AppRouter() {
     return (
@@ -59,6 +60,10 @@ function AppRouter() {
                                 <Route
                                     path="/customer"
                                     element={<CustomerPortalPage />}
+                                />
+                                <Route
+                                    path="/customer/wallet"
+                                    element={<WalletPage />}
                                 />
                             </Route>
                         </Route>
