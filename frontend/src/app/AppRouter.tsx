@@ -30,6 +30,8 @@ import MerchantLayout from '../layouts/MerchantLayout'
 import MerchantPaymentsPage from '../pages/MerchantPaymentsPage'
 import MerchantPaymentDetailsPage from '../pages/MerchantPaymentDetailsPage'
 
+import AdminLayout from '../layouts/AdminLayout'
+
 function AppRouter() {
     return (
         <BrowserRouter>
@@ -143,17 +145,13 @@ function AppRouter() {
                         </Route>
 
                         {/* Admin routes */}
-                        <Route
-                            element={
-                                <RoleRoute
-                                    allowedRoles={['ADMIN']}
+                        <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
+                            <Route element={<AdminLayout />}>
+                                <Route
+                                    path="/admin"
+                                    element={<AdminPortalPage />}
                                 />
-                            }
-                        >
-                            <Route
-                                path="/admin"
-                                element={<AdminPortalPage />}
-                            />
+                            </Route>
                         </Route>
 
                     </Route>
