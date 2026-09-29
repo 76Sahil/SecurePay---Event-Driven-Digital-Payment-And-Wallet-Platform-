@@ -1,6 +1,9 @@
-import { Link } from 'react-router'
-import { useState } from 'react'
+
+import { Link, useLocation, useNavigate } from 'react-router'
+import { useContext, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
+import { AuthContext, type UserRole } from '../context/AuthContext'
+import { apiRequest } from '../services/api'
 
 type LoginFormData = {
     email: string
@@ -12,7 +15,28 @@ type LoginFormErrors = {
     password?: string
 }
 
+type LoginResponse = {
+    id: number
+    fullName: string
+    email: string
+    role: UserRole
+    accessToken: string
+    tokenType: string
+    expiresIn: number
+}
+
+type NavigationState = {
+    message?: string
+}
+
 function LoginPage() {
+    const auth = useContext(AuthContext)
+    const navigate = useNavigate()
+    const location = useLocation()
+
+    const navigationState = location.state as NavigationState | null
+    const registrationMessage = navigationState?.message
+
     const [formData, setFormData] = useState<LoginFormData>({
         email: '',
         password: '',
@@ -20,10 +44,9 @@ function LoginPage() {
 
     const [errors, setErrors] = useState<LoginFormErrors>({})
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [apiError, setApiError] = useState('')
 
-    function handleChange(
-        event: ChangeEvent<HTMLInputElement>,
-    ) {
+    function handleChange(event: ChangeEvent<HTMLInputElement>) {
         const { name, value } = event.target
 
         setFormData((current) => ({
@@ -51,23 +74,64 @@ function LoginPage() {
         return validationErrors
     }
 
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
 
         const validationErrors = validateForm()
-
         setErrors(validationErrors)
+        setApiError('')
 
         if (Object.keys(validationErrors).length > 0) {
             return
         }
 
+        if (!auth) {
+            setApiError('Authentication is unavailable. Please refresh the page.')
+            return
+        }
+
         setIsSubmitting(true)
 
-        // Real authentication will be connected later.
-        setTimeout(() => {
+        try {
+            const response = await apiRequest<LoginResponse>(
+                '/auth/login',
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        email: formData.email.trim(),
+                        password: formData.password,
+                    }),
+                },
+            )
+
+            auth.login(
+                {
+                    id: String(response.id),
+                    fullName: response.fullName,
+                    email: response.email,
+                    role: response.role,
+                },
+                response.accessToken,
+            )
+
+            const dashboardByRole: Record<UserRole, string> = {
+                CUSTOMER: '/customer',
+                MERCHANT: '/merchant',
+                ADMIN: '/admin',
+            }
+
+            navigate(dashboardByRole[response.role], {
+                replace: true,
+            })
+        } catch (error) {
+            setApiError(
+                error instanceof Error
+                    ? error.message
+                    : 'Login failed. Please check your credentials and try again.',
+            )
+        } finally {
             setIsSubmitting(false)
-        }, 500)
+        }
     }
 
     return (
@@ -83,7 +147,19 @@ function LoginPage() {
                     </p>
                 </div>
 
+                {registrationMessage && (
+                    <p role="status" className="form-success">
+                        {registrationMessage}
+                    </p>
+                )}
+
                 <form onSubmit={handleSubmit} noValidate>
+                    {apiError && (
+                        <p role="alert" className="form-error">
+                            {apiError}
+                        </p>
+                    )}
+
                     <div className="form-field">
                         <label htmlFor="email">Email address</label>
 
@@ -103,10 +179,7 @@ function LoginPage() {
                         />
 
                         {errors.email && (
-                            <p
-                                id="login-email-error"
-                                role="alert"
-                            >
+                            <p id="login-email-error" role="alert">
                                 {errors.email}
                             </p>
                         )}
@@ -142,10 +215,7 @@ function LoginPage() {
                         />
 
                         {errors.password && (
-                            <p
-                                id="login-password-error"
-                                role="alert"
-                            >
+                            <p id="login-password-error" role="alert">
                                 {errors.password}
                             </p>
                         )}
@@ -156,9 +226,7 @@ function LoginPage() {
                         className="auth-submit"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting
-                            ? 'Signing in...'
-                            : 'Sign in'}
+                        {isSubmitting ? 'Signing in...' : 'Sign in'}
                     </button>
                 </form>
 

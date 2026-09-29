@@ -1,6 +1,8 @@
-import { Link } from 'react-router'
+
+import { Link, useNavigate } from 'react-router'
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
+import { apiRequest } from '../services/api'
 
 type RegisterFormData = {
     fullName: string
@@ -17,6 +19,8 @@ type RegisterFormErrors = {
 }
 
 function RegisterPage() {
+    const navigate = useNavigate()
+
     const [formData, setFormData] = useState<RegisterFormData>({
         fullName: '',
         email: '',
@@ -26,6 +30,7 @@ function RegisterPage() {
 
     const [errors, setErrors] = useState<RegisterFormErrors>({})
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [apiError, setApiError] = useState('')
 
     function handleChange(
         event: ChangeEvent<HTMLInputElement>,
@@ -50,7 +55,8 @@ function RegisterPage() {
         } else if (
             !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
         ) {
-            validationErrors.email = 'Please enter a valid email address.'
+            validationErrors.email =
+                'Please enter a valid email address.'
         }
 
         if (!formData.password) {
@@ -63,11 +69,7 @@ function RegisterPage() {
         if (!formData.confirmPassword) {
             validationErrors.confirmPassword =
                 'Please confirm your password.'
-        }
-
-        if (
-            formData.password &&
-            formData.confirmPassword &&
+        } else if (
             formData.password !== formData.confirmPassword
         ) {
             validationErrors.confirmPassword =
@@ -77,12 +79,15 @@ function RegisterPage() {
         return validationErrors
     }
 
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    async function handleSubmit(
+        event: FormEvent<HTMLFormElement>,
+    ) {
         event.preventDefault()
 
         const validationErrors = validateForm()
 
         setErrors(validationErrors)
+        setApiError('')
 
         if (Object.keys(validationErrors).length > 0) {
             return
@@ -90,10 +95,37 @@ function RegisterPage() {
 
         setIsSubmitting(true)
 
-        // Backend registration will be connected later.
-        setTimeout(() => {
+        try {
+            await apiRequest<{
+                id: number
+                fullName: string
+                email: string
+                role: string
+                createdAt: string
+            }>('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({
+                    fullName: formData.fullName.trim(),
+                    email: formData.email.trim(),
+                    password: formData.password,
+                }),
+            })
+
+            navigate('/login', {
+                state: {
+                    message:
+                        'Account created successfully. Please sign in.',
+                },
+            })
+        } catch (error) {
+            setApiError(
+                error instanceof Error
+                    ? error.message
+                    : 'Registration failed. Please try again.',
+            )
+        } finally {
             setIsSubmitting(false)
-        }, 500)
+        }
     }
 
     return (
@@ -111,6 +143,12 @@ function RegisterPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} noValidate>
+                    {apiError && (
+                        <p role="alert" className="form-error">
+                            {apiError}
+                        </p>
+                    )}
+
                     <div className="form-field">
                         <label htmlFor="fullName">Full name</label>
 
