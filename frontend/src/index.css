@@ -3912,3 +3912,298 @@ a {
     width: auto;
   }
 }
+
+/* Security Page */
+
+.security-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.security-header h1 {
+  margin: 0;
+}
+
+.security-header p {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.security-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.security-state {
+  padding: 32px;
+  text-align: center;
+  color: #64748b;
+}
+
+.security-error {
+  color: #dc2626;
+}
+
+.security-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.security-overview-grid .security-card {
+  padding: 22px;
+}
+
+.security-card-label {
+  display: block;
+  margin-bottom: 12px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.security-score {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.security-score strong {
+  color: #0f172a;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.security-score span {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.security-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.security-status-secure {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.security-status-attention_required {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.security-card-value {
+  display: block;
+  margin-bottom: 8px;
+  color: #0f172a;
+  font-size: 22px;
+}
+
+.security-card-description {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.security-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.security-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.security-section-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.security-section-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.security-section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.security-device-list,
+.security-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.security-device-item,
+.security-activity-item {
+  padding: 18px 20px;
+}
+
+.security-device-main,
+.security-activity-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.security-device-icon,
+.security-activity-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.security-device-main > div:last-child,
+.security-activity-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.security-device-title-row,
+.security-activity-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.security-device-title-row h3,
+.security-activity-title-row h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.security-device-title-row p {
+  margin: 7px 0 5px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.security-device-date {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.security-device-status,
+.security-activity-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 7px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.security-device-status-current {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.security-device-status-trusted {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.security-device-status-revoked {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.security-activity-title-row {
+  justify-content: space-between;
+}
+
+.security-activity-status-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.security-activity-status-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.security-activity-status-failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.security-activity-content > p {
+  margin: 7px 0 9px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.security-activity-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+@media (max-width: 1000px) {
+  .security-overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .security-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .security-section-header {
+    align-items: flex-start;
+  }
+
+  .security-device-main,
+  .security-activity-main {
+    flex-direction: column;
+  }
+
+  .security-activity-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

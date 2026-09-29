@@ -21,6 +21,7 @@ import BeneficiaryDetailsPage from '../pages/BeneficiaryDetailsPage'
 import CardsPage from '../pages/CardsPage'
 import CardDetailsPage from '../pages/CardDetailsPage'
 import NotificationsPage from '../pages/NotificationsPage'
+import SecurityPage from '../pages/SecurityPage'
 
 import ProtectedRoute from '../routes/ProtectedRoute'
 import RoleRoute from '../routes/RoleRoute'
@@ -108,6 +109,7 @@ function AppRouter() {
                                     path="/customer/notifications"
                                     element={<NotificationsPage />}
                                 />
+                                <Route path="/customer/security" element={<SecurityPage />} />
                             </Route>
                         </Route>
 

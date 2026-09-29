@@ -22,6 +22,7 @@ function CustomerLayout() {
                         <p className="customer-sidebar__brand-name">
                             SecurePay
                         </p>
+
                         <p className="customer-sidebar__brand-subtitle">
                             Customer Portal
                         </p>
@@ -40,6 +41,7 @@ function CustomerLayout() {
                         <span className="customer-sidebar__icon">
                             ◫
                         </span>
+
                         <span>Dashboard</span>
                     </NavLink>
 
@@ -50,6 +52,7 @@ function CustomerLayout() {
                         <span className="customer-sidebar__icon">
                             ▣
                         </span>
+
                         <span>Wallet</span>
                     </NavLink>
 
@@ -60,6 +63,7 @@ function CustomerLayout() {
                         <span className="customer-sidebar__icon">
                             ⊕
                         </span>
+
                         <span>Add Money</span>
                     </NavLink>
 
@@ -70,6 +74,7 @@ function CustomerLayout() {
                         <span className="customer-sidebar__icon">
                             ↗
                         </span>
+
                         <span>Send Money</span>
                     </NavLink>
 
@@ -80,6 +85,7 @@ function CustomerLayout() {
                         <span className="customer-sidebar__icon">
                             ♙
                         </span>
+
                         <span>Beneficiaries</span>
                     </NavLink>
 
@@ -90,6 +96,7 @@ function CustomerLayout() {
                         <span className="customer-sidebar__icon">
                             ☷
                         </span>
+
                         <span>Transactions</span>
                     </NavLink>
 
@@ -100,6 +107,7 @@ function CustomerLayout() {
                         <span className="customer-sidebar__icon">
                             ▤
                         </span>
+
                         <span>Cards</span>
                     </NavLink>
 
@@ -110,6 +118,7 @@ function CustomerLayout() {
                         <span className="customer-sidebar__icon">
                             ♧
                         </span>
+
                         <span>Notifications</span>
                     </NavLink>
 
@@ -120,6 +129,7 @@ function CustomerLayout() {
                         <span className="customer-sidebar__icon">
                             ◈
                         </span>
+
                         <span>Security</span>
                     </NavLink>
 
@@ -130,6 +140,7 @@ function CustomerLayout() {
                         <span className="customer-sidebar__icon">
                             ○
                         </span>
+
                         <span>Profile</span>
                     </NavLink>
                 </nav>
@@ -162,6 +173,7 @@ function CustomerLayout() {
                             aria-label="Notifications"
                         >
                             ♧
+
                             <span className="customer-topbar__notification-badge">
                                 3
                             </span>
@@ -178,11 +190,12 @@ function CustomerLayout() {
                                 <p>
                                     {user?.email ?? 'Customer'}
                                 </p>
+
                                 <span>Customer</span>
                             </div>
 
                             <span className="customer-topbar__chevron">
-                               ⌄
+                                ⌄
                             </span>
                         </div>
                     </div>
