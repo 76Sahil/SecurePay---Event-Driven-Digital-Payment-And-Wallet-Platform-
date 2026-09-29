@@ -4314,3 +4314,77 @@ a {
   color: #94a3b8;
   font-size: 11px;
 }
+.details-back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.details-back-link:hover {
+  text-decoration: underline;
+}
+
+.payment-details-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.payment-details-card__amount {
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.payment-details-card__amount span,
+.payment-detail span {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.payment-details-card__amount strong {
+  color: #0f172a;
+  font-size: 28px;
+}
+
+.payment-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.payment-detail strong {
+  display: block;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.payment-detail small {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.merchant-payment-reference {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.merchant-payment-reference:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 700px) {
+  .payment-details-grid {
+    grid-template-columns: 1fr;
+  }
+}

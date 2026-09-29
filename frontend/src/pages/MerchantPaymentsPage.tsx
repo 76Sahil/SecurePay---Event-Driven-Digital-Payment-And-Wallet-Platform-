@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import type {
     MerchantPayment,
     MerchantPaymentStatus,
@@ -114,9 +115,12 @@ function MerchantPaymentsPage() {
                                             </div>
 
                                             <div>
-                                                <strong>
+                                                <Link
+                                                    to={`/merchant/payments/${payment.id}`}
+                                                    className="merchant-payment-reference"
+                                                >
                                                     {payment.reference}
-                                                </strong>
+                                                </Link>
 
                                                 <span>
                                                         {payment.id}

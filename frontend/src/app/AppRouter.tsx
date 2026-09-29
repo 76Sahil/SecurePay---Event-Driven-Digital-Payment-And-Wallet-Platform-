@@ -28,6 +28,7 @@ import RoleRoute from '../routes/RoleRoute'
 
 import MerchantLayout from '../layouts/MerchantLayout'
 import MerchantPaymentsPage from '../pages/MerchantPaymentsPage'
+import MerchantPaymentDetailsPage from '../pages/MerchantPaymentDetailsPage'
 
 function AppRouter() {
     return (
@@ -133,6 +134,10 @@ function AppRouter() {
                                 <Route
                                     path="/merchant/payments"
                                     element={<MerchantPaymentsPage />}
+                                />
+                                <Route
+                                    path="/merchant/payments/:paymentId"
+                                    element={<MerchantPaymentDetailsPage />}
                                 />
                             </Route>
                         </Route>

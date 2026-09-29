@@ -58,6 +58,18 @@ const mockMerchantPayments: MerchantPayment[] = [
     },
 ]
 
-export async function getMerchantPayments(): Promise<MerchantPayment[]> {
+export async function getMerchantPayments(): Promise<
+    MerchantPayment[]
+> {
     return Promise.resolve(mockMerchantPayments)
+}
+
+export async function getMerchantPaymentById(
+    paymentId: string,
+): Promise<MerchantPayment | null> {
+    const payments = await getMerchantPayments()
+
+    return (
+        payments.find((payment) => payment.id === paymentId) ?? null
+    )
 }
