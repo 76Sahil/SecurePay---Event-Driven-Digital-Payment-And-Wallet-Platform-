@@ -3385,3 +3385,151 @@ a {
     flex-direction: column;
   }
 }
+/* =========================
+   Card Details
+   ========================= */
+
+.card-details-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card-details-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-details-header h1 {
+  margin: 14px 0 0;
+}
+
+.card-details-header p {
+  margin: 8px 0 0;
+  color: #64748b;
+}
+
+.card-details-back {
+  display: inline-flex;
+  width: fit-content;
+  color: #475569;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.card-details-back:hover {
+  color: #2563eb;
+}
+
+.card-details-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+
+.card-details-preview {
+  min-width: 0;
+}
+
+.card-details-preview .card-visual {
+  min-height: 260px;
+}
+
+.card-details-information {
+  padding: 24px;
+}
+
+.card-details-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.card-details-section-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.card-details-section-header p {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.card-details-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid #e2e8f0;
+}
+
+.card-details-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 18px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.card-details-field:nth-child(odd) {
+  padding-right: 24px;
+}
+
+.card-details-field:nth-child(even) {
+  padding-left: 24px;
+  border-left: 1px solid #e2e8f0;
+}
+
+.card-details-field span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.card-details-field strong {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.card-security-notice {
+  display: flex;
+  align-items: center;
+  padding: 22px 24px;
+}
+
+.card-security-notice h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.card-security-notice p {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+@media (max-width: 700px) {
+  .card-details-section-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .card-details-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .card-details-field:nth-child(odd),
+  .card-details-field:nth-child(even) {
+    padding-left: 0;
+    padding-right: 0;
+    border-left: none;
+  }
+
+  .card-details-preview .card-visual {
+    min-height: 220px;
+  }
+}

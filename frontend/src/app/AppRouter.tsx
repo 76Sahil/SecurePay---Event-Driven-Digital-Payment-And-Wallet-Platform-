@@ -19,6 +19,7 @@ import TransactionDetailsPage from '../pages/TransactionDetailsPage'
 import BeneficiariesPage from '../pages/BeneficiariesPage'
 import BeneficiaryDetailsPage from '../pages/BeneficiaryDetailsPage'
 import CardsPage from '../pages/CardsPage'
+import CardDetailsPage from '../pages/CardDetailsPage'
 
 import ProtectedRoute from '../routes/ProtectedRoute'
 import RoleRoute from '../routes/RoleRoute'
@@ -98,6 +99,10 @@ function AppRouter() {
                                     element={<BeneficiaryDetailsPage />}
                                 />
                                 <Route path="/customer/cards" element={<CardsPage />} />
+                                <Route
+                                    path="/customer/cards/:cardId"
+                                    element={<CardDetailsPage />}
+                                />
                             </Route>
                         </Route>
 
