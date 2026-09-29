@@ -1,6 +1,7 @@
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
+import { useAuth } from '../context/useAuth'
 
 type LoginFormData = {
     email: string
@@ -12,7 +13,12 @@ type LoginFormErrors = {
     password?: string
 }
 
+type DemoUserRole = 'CUSTOMER' | 'MERCHANT' | 'ADMIN'
+
 function LoginPage() {
+    const navigate = useNavigate()
+    const { login } = useAuth()
+
     const [formData, setFormData] = useState<LoginFormData>({
         email: '',
         password: '',
@@ -51,6 +57,34 @@ function LoginPage() {
         return validationErrors
     }
 
+    function getDemoUserRole(email: string): DemoUserRole {
+        const normalizedEmail = email.trim().toLowerCase()
+
+        if (normalizedEmail === 'admin@securepay.com') {
+            return 'ADMIN'
+        }
+
+        if (normalizedEmail === 'merchant@securepay.com') {
+            return 'MERCHANT'
+        }
+
+        return 'CUSTOMER'
+    }
+
+    function getPortalPath(role: DemoUserRole): string {
+        switch (role) {
+            case 'ADMIN':
+                return '/admin'
+
+            case 'MERCHANT':
+                return '/merchant'
+
+            case 'CUSTOMER':
+            default:
+                return '/customer'
+        }
+    }
+
     function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
 
@@ -64,9 +98,25 @@ function LoginPage() {
 
         setIsSubmitting(true)
 
-        // Real authentication will be connected later.
+        /*
+         * Temporary frontend-only authentication for evaluation.
+         *
+         * Real authentication will later be handled by
+         * Keycloak/OIDC and the backend.
+         */
         setTimeout(() => {
+            const email = formData.email.trim().toLowerCase()
+            const role = getDemoUserRole(email)
+            const portalPath = getPortalPath(role)
+
+            login({
+                id: `demo-${role.toLowerCase()}`,
+                email,
+                role,
+            })
+
             setIsSubmitting(false)
+            navigate(portalPath)
         }, 500)
     }
 
@@ -85,7 +135,9 @@ function LoginPage() {
 
                 <form onSubmit={handleSubmit} noValidate>
                     <div className="form-field">
-                        <label htmlFor="email">Email address</label>
+                        <label htmlFor="email">
+                            Email address
+                        </label>
 
                         <input
                             id="email"
@@ -164,7 +216,9 @@ function LoginPage() {
 
                 <p className="auth-card__footer">
                     Don't have an account?{' '}
-                    <Link to="/register">Create an account</Link>
+                    <Link to="/register">
+                        Create an account
+                    </Link>
                 </p>
             </div>
         </section>
