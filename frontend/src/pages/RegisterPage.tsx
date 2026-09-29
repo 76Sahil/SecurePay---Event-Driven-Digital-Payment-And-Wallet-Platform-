@@ -2,11 +2,14 @@ import { Link } from 'react-router'
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 
+type RegisterRole = 'CUSTOMER' | 'MERCHANT'
+
 type RegisterFormData = {
     fullName: string
     email: string
     password: string
     confirmPassword: string
+    role: RegisterRole | ''
 }
 
 type RegisterFormErrors = {
@@ -14,6 +17,7 @@ type RegisterFormErrors = {
     email?: string
     password?: string
     confirmPassword?: string
+    role?: string
 }
 
 function RegisterPage() {
@@ -22,6 +26,7 @@ function RegisterPage() {
         email: '',
         password: '',
         confirmPassword: '',
+        role: '',
     })
 
     const [errors, setErrors] = useState<RegisterFormErrors>({})
@@ -36,25 +41,51 @@ function RegisterPage() {
             ...current,
             [name]: value,
         }))
+
+        setErrors((current) => ({
+            ...current,
+            [name]: undefined,
+        }))
+    }
+
+    function handleRoleChange(
+        event: ChangeEvent<HTMLInputElement>,
+    ) {
+        const role = event.target.value as RegisterRole
+
+        setFormData((current) => ({
+            ...current,
+            role,
+        }))
+
+        setErrors((current) => ({
+            ...current,
+            role: undefined,
+        }))
     }
 
     function validateForm(): RegisterFormErrors {
         const validationErrors: RegisterFormErrors = {}
 
         if (!formData.fullName.trim()) {
-            validationErrors.fullName = 'Full name is required.'
+            validationErrors.fullName =
+                'Full name is required.'
         }
 
         if (!formData.email.trim()) {
             validationErrors.email = 'Email is required.'
         } else if (
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                formData.email,
+            )
         ) {
-            validationErrors.email = 'Please enter a valid email address.'
+            validationErrors.email =
+                'Please enter a valid email address.'
         }
 
         if (!formData.password) {
-            validationErrors.password = 'Password is required.'
+            validationErrors.password =
+                'Password is required.'
         } else if (formData.password.length < 8) {
             validationErrors.password =
                 'Password must be at least 8 characters.'
@@ -74,23 +105,31 @@ function RegisterPage() {
                 'Passwords do not match.'
         }
 
+        if (!formData.role) {
+            validationErrors.role =
+                'Please select an account type.'
+        }
+
         return validationErrors
     }
 
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    function handleSubmit(
+        event: FormEvent<HTMLFormElement>,
+    ) {
         event.preventDefault()
 
         const validationErrors = validateForm()
 
         setErrors(validationErrors)
 
-        if (Object.keys(validationErrors).length > 0) {
+        if (
+            Object.keys(validationErrors).length > 0
+        ) {
             return
         }
 
         setIsSubmitting(true)
 
-        // Backend registration will be connected later.
         setTimeout(() => {
             setIsSubmitting(false)
         }, 500)
@@ -100,19 +139,28 @@ function RegisterPage() {
         <section className="auth-page">
             <div className="auth-card">
                 <div className="auth-card__header">
-                    <p className="auth-card__brand">SecurePay</p>
+                    <p className="auth-card__brand">
+                        SecurePay
+                    </p>
 
-                    <h1>Create your SecurePay account</h1>
+                    <h1>
+                        Create your SecurePay account
+                    </h1>
 
                     <p className="auth-card__description">
-                        Create your account to securely manage payments
-                        and your wallet.
+                        Create your account to securely
+                        manage payments and your wallet.
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit} noValidate>
+                <form
+                    onSubmit={handleSubmit}
+                    noValidate
+                >
                     <div className="form-field">
-                        <label htmlFor="fullName">Full name</label>
+                        <label htmlFor="fullName">
+                            Full name
+                        </label>
 
                         <input
                             id="fullName"
@@ -121,7 +169,9 @@ function RegisterPage() {
                             value={formData.fullName}
                             onChange={handleChange}
                             autoComplete="name"
-                            aria-invalid={Boolean(errors.fullName)}
+                            aria-invalid={Boolean(
+                                errors.fullName,
+                            )}
                             aria-describedby={
                                 errors.fullName
                                     ? 'fullName-error'
@@ -130,14 +180,19 @@ function RegisterPage() {
                         />
 
                         {errors.fullName && (
-                            <p id="fullName-error" role="alert">
+                            <p
+                                id="fullName-error"
+                                role="alert"
+                            >
                                 {errors.fullName}
                             </p>
                         )}
                     </div>
 
                     <div className="form-field">
-                        <label htmlFor="email">Email address</label>
+                        <label htmlFor="email">
+                            Email address
+                        </label>
 
                         <input
                             id="email"
@@ -146,7 +201,9 @@ function RegisterPage() {
                             value={formData.email}
                             onChange={handleChange}
                             autoComplete="email"
-                            aria-invalid={Boolean(errors.email)}
+                            aria-invalid={Boolean(
+                                errors.email,
+                            )}
                             aria-describedby={
                                 errors.email
                                     ? 'email-error'
@@ -155,14 +212,99 @@ function RegisterPage() {
                         />
 
                         {errors.email && (
-                            <p id="email-error" role="alert">
+                            <p
+                                id="email-error"
+                                role="alert"
+                            >
                                 {errors.email}
                             </p>
                         )}
                     </div>
 
                     <div className="form-field">
-                        <label htmlFor="password">Password</label>
+                        <label>
+                            Account type
+                        </label>
+
+                        <div
+                            className="register-role-options"
+                            role="radiogroup"
+                            aria-label="Account type"
+                            aria-describedby={
+                                errors.role
+                                    ? 'role-error'
+                                    : undefined
+                            }
+                        >
+                            <label className="register-role-option">
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="CUSTOMER"
+                                    checked={
+                                        formData.role ===
+                                        'CUSTOMER'
+                                    }
+                                    onChange={
+                                        handleRoleChange
+                                    }
+                                />
+
+                                <span>
+                                    <strong>
+                                        Customer
+                                    </strong>
+
+                                    <small>
+                                        Manage your wallet,
+                                        payments and
+                                        transactions.
+                                    </small>
+                                </span>
+                            </label>
+
+                            <label className="register-role-option">
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="MERCHANT"
+                                    checked={
+                                        formData.role ===
+                                        'MERCHANT'
+                                    }
+                                    onChange={
+                                        handleRoleChange
+                                    }
+                                />
+
+                                <span>
+                                    <strong>
+                                        Merchant
+                                    </strong>
+
+                                    <small>
+                                        Manage your
+                                        business payments
+                                        and transactions.
+                                    </small>
+                                </span>
+                            </label>
+                        </div>
+
+                        {errors.role && (
+                            <p
+                                id="role-error"
+                                role="alert"
+                            >
+                                {errors.role}
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="form-field">
+                        <label htmlFor="password">
+                            Password
+                        </label>
 
                         <input
                             id="password"
@@ -171,7 +313,9 @@ function RegisterPage() {
                             value={formData.password}
                             onChange={handleChange}
                             autoComplete="new-password"
-                            aria-invalid={Boolean(errors.password)}
+                            aria-invalid={Boolean(
+                                errors.password,
+                            )}
                             aria-describedby={
                                 errors.password
                                     ? 'password-error'
@@ -180,7 +324,10 @@ function RegisterPage() {
                         />
 
                         {errors.password && (
-                            <p id="password-error" role="alert">
+                            <p
+                                id="password-error"
+                                role="alert"
+                            >
                                 {errors.password}
                             </p>
                         )}
@@ -195,7 +342,9 @@ function RegisterPage() {
                             id="confirmPassword"
                             name="confirmPassword"
                             type="password"
-                            value={formData.confirmPassword}
+                            value={
+                                formData.confirmPassword
+                            }
                             onChange={handleChange}
                             autoComplete="new-password"
                             aria-invalid={Boolean(
@@ -231,7 +380,9 @@ function RegisterPage() {
 
                 <p className="auth-card__footer">
                     Already have an account?{' '}
-                    <Link to="/login">Log in</Link>
+                    <Link to="/login">
+                        Log in
+                    </Link>
                 </p>
             </div>
         </section>
