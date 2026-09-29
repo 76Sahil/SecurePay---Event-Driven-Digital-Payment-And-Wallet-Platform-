@@ -1,4 +1,8 @@
-import type { Card } from '../types/card'
+import type {
+    Card,
+    CardManagementAction,
+    CardManagementResponse,
+} from '../types/card'
 
 const mockCards: Card[] = [
     {
@@ -33,4 +37,29 @@ export async function getCardById(
     const card = mockCards.find((item) => item.id === cardId)
 
     return Promise.resolve(card ?? null)
+}
+
+export async function manageCard(
+    cardId: string,
+    action: CardManagementAction,
+): Promise<CardManagementResponse> {
+    const card = mockCards.find((item) => item.id === cardId)
+
+    if (!card) {
+        throw new Error('Card not found.')
+    }
+
+    if (action === 'BLOCK') {
+        card.status = 'BLOCKED'
+    }
+
+    if (action === 'UNBLOCK') {
+        card.status = 'ACTIVE'
+    }
+
+    return Promise.resolve({
+        cardId: card.id,
+        status: card.status,
+        action,
+    })
 }

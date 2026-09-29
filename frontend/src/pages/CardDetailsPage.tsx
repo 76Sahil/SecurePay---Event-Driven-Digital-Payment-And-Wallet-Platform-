@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
-import type { Card } from '../types/card'
-import { getCardById } from '../services/cardService'
+import type {
+    Card,
+    CardManagementAction,
+} from '../types/card'
+import {
+    getCardById,
+    manageCard,
+} from '../services/cardService'
 
 function CardDetailsPage() {
     const { cardId } = useParams<{ cardId: string }>()
@@ -9,6 +15,10 @@ function CardDetailsPage() {
     const [card, setCard] = useState<Card | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+
+    const [isManaging, setIsManaging] = useState(false)
+    const [managementError, setManagementError] =
+        useState<string | null>(null)
 
     useEffect(() => {
         async function loadCard() {
@@ -43,6 +53,54 @@ function CardDetailsPage() {
         return type.replace('_', ' ')
     }
 
+    const handleCardManagement = async (
+        action: CardManagementAction,
+    ) => {
+        if (!card) {
+            return
+        }
+
+        const actionLabel =
+            action === 'BLOCK'
+                ? 'block'
+                : 'unblock'
+
+        const confirmed = window.confirm(
+            `Are you sure you want to ${actionLabel} this card?`,
+        )
+
+        if (!confirmed) {
+            return
+        }
+
+        try {
+            setIsManaging(true)
+            setManagementError(null)
+
+            const response = await manageCard(
+                card.id,
+                action,
+            )
+
+            setCard((currentCard) => {
+                if (!currentCard) {
+                    return currentCard
+                }
+
+                return {
+                    ...currentCard,
+                    status: response.status,
+                }
+            })
+        } catch {
+            setManagementError(
+                `Unable to ${actionLabel} the card. Please try again.`,
+            )
+        } finally {
+            setIsManaging(false)
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="card-details-page">
@@ -72,6 +130,7 @@ function CardDetailsPage() {
             <div className="card-details-page">
                 <div className="cards-card cards-state">
                     <h2>Card unavailable</h2>
+
                     <p>
                         The requested card could not be found.
                     </p>
@@ -135,12 +194,13 @@ function CardDetailsPage() {
                                 </span>
 
                                 <strong>
-                                    {String(card.expiryMonth).padStart(
-                                        2,
-                                        '0',
-                                    )}
+                                    {String(
+                                        card.expiryMonth,
+                                    ).padStart(2, '0')}
                                     /
-                                    {String(card.expiryYear).slice(-2)}
+                                    {String(
+                                        card.expiryYear,
+                                    ).slice(-2)}
                                 </strong>
                             </div>
                         </div>
@@ -151,12 +211,18 @@ function CardDetailsPage() {
                     <div className="card-details-section-header">
                         <div>
                             <h2>Card Information</h2>
+
                             <p>
-                                Basic information associated with this card.
+                                Basic information associated
+                                with this card.
                             </p>
                         </div>
 
-                        <span className={getStatusClass(card.status)}>
+                        <span
+                            className={getStatusClass(
+                                card.status,
+                            )}
+                        >
                             {card.status}
                         </span>
                     </div>
@@ -164,6 +230,7 @@ function CardDetailsPage() {
                     <div className="card-details-fields">
                         <div className="card-details-field">
                             <span>Card Type</span>
+
                             <strong>
                                 {getTypeLabel(card.type)}
                             </strong>
@@ -171,18 +238,27 @@ function CardDetailsPage() {
 
                         <div className="card-details-field">
                             <span>Cardholder</span>
-                            <strong>{card.cardholderName}</strong>
+
+                            <strong>
+                                {card.cardholderName}
+                            </strong>
                         </div>
 
                         <div className="card-details-field">
                             <span>Card Number</span>
-                            <strong>{card.maskedNumber}</strong>
+
+                            <strong>
+                                {card.maskedNumber}
+                            </strong>
                         </div>
 
                         <div className="card-details-field">
                             <span>Expiry</span>
+
                             <strong>
-                                {String(card.expiryMonth).padStart(2, '0')}
+                                {String(
+                                    card.expiryMonth,
+                                ).padStart(2, '0')}
                                 /
                                 {card.expiryYear}
                             </strong>
@@ -190,23 +266,81 @@ function CardDetailsPage() {
 
                         <div className="card-details-field">
                             <span>Currency</span>
-                            <strong>{card.currency}</strong>
+
+                            <strong>
+                                {card.currency}
+                            </strong>
                         </div>
 
                         <div className="card-details-field">
                             <span>Status</span>
-                            <strong>{card.status}</strong>
+
+                            <strong>
+                                {card.status}
+                            </strong>
                         </div>
                     </div>
                 </section>
             </div>
 
+            {/* Card management actions */}
+            <section className="cards-card card-management-section">
+                <div>
+                    <h2>Card Controls</h2>
+
+                    <p>
+                        Manage the availability of this card.
+                        Blocking a card prevents it from being
+                        used until it is unblocked.
+                    </p>
+                </div>
+
+                {managementError && (
+                    <p className="card-management-error">
+                        {managementError}
+                    </p>
+                )}
+
+                {card.status === 'ACTIVE' && (
+                    <button
+                        type="button"
+                        className="card-management-button card-management-button-danger"
+                        onClick={() =>
+                            handleCardManagement('BLOCK')
+                        }
+                        disabled={isManaging}
+                    >
+                        {isManaging
+                            ? 'Blocking Card...'
+                            : 'Block Card'}
+                    </button>
+                )}
+
+                {card.status === 'BLOCKED' && (
+                    <button
+                        type="button"
+                        className="card-management-button"
+                        onClick={() =>
+                            handleCardManagement('UNBLOCK')
+                        }
+                        disabled={isManaging}
+                    >
+                        {isManaging
+                            ? 'Unblocking Card...'
+                            : 'Unblock Card'}
+                    </button>
+                )}
+            </section>
+
+            {/* Sensitive information notice */}
             <section className="cards-card card-security-notice">
                 <div>
                     <h2>Card Security</h2>
+
                     <p>
-                        Sensitive card information such as the full card
-                        number, CVV, and PIN is never displayed here.
+                        Sensitive card information such as the
+                        full card number, CVV, and PIN is never
+                        displayed here.
                     </p>
                 </div>
             </section>

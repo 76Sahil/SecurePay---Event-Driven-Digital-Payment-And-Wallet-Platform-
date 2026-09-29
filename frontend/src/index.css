@@ -3533,3 +3533,79 @@ a {
     min-height: 220px;
   }
 }
+/* =========================
+   Card Management
+   ========================= */
+
+.card-management-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 24px;
+}
+
+.card-management-section h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.card-management-section p {
+  margin: 7px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.card-management-button {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+          background 0.2s ease,
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+}
+
+.card-management-button:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(37, 99, 235, 0.2);
+}
+
+.card-management-button-danger {
+  background: #dc2626;
+}
+
+.card-management-button-danger:hover:not(:disabled) {
+  background: #b91c1c;
+  box-shadow: 0 5px 14px rgba(220, 38, 38, 0.2);
+}
+
+.card-management-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.card-management-error {
+  color: #dc2626 !important;
+  font-weight: 500;
+}
+
+@media (max-width: 700px) {
+  .card-management-section {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .card-management-button {
+    width: 100%;
+  }
+}

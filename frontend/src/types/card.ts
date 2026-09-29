@@ -10,6 +10,16 @@ export type CardStatus =
     | 'EXPIRED'
     | 'PENDING'
 
+export type CardManagementAction =
+    | 'BLOCK'
+    | 'UNBLOCK'
+
+export type CardManagementResponse = {
+    cardId: string
+    status: CardStatus
+    action: CardManagementAction
+}
+
 export type Card = {
     id: string
     maskedNumber: string
