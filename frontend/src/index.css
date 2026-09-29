@@ -4298,3 +4298,19 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+.merchant-payment-customer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.merchant-payment-customer strong {
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.merchant-payment-customer span {
+  color: #94a3b8;
+  font-size: 11px;
+}

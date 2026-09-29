@@ -27,6 +27,7 @@ import ProtectedRoute from '../routes/ProtectedRoute'
 import RoleRoute from '../routes/RoleRoute'
 
 import MerchantLayout from '../layouts/MerchantLayout'
+import MerchantPaymentsPage from '../pages/MerchantPaymentsPage'
 
 function AppRouter() {
     return (
@@ -127,6 +128,11 @@ function AppRouter() {
                                 <Route
                                     path="/merchant"
                                     element={<MerchantPortalPage />}
+                                />
+
+                                <Route
+                                    path="/merchant/payments"
+                                    element={<MerchantPaymentsPage />}
                                 />
                             </Route>
                         </Route>
