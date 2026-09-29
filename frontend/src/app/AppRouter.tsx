@@ -26,6 +26,8 @@ import SecurityPage from '../pages/SecurityPage'
 import ProtectedRoute from '../routes/ProtectedRoute'
 import RoleRoute from '../routes/RoleRoute'
 
+import MerchantLayout from '../layouts/MerchantLayout'
+
 function AppRouter() {
     return (
         <BrowserRouter>
@@ -121,10 +123,12 @@ function AppRouter() {
                                 />
                             }
                         >
-                            <Route
-                                path="/merchant"
-                                element={<MerchantPortalPage />}
-                            />
+                            <Route element={<MerchantLayout />}>
+                                <Route
+                                    path="/merchant"
+                                    element={<MerchantPortalPage />}
+                                />
+                            </Route>
                         </Route>
 
                         {/* Admin routes */}
