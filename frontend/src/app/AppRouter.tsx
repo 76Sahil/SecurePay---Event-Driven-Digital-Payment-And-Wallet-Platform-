@@ -15,6 +15,7 @@ import WalletPage from '../pages/WalletPage'
 import AddMoneyPage from '../pages/AddMoneyPage'
 import SendMoneyPage from '../pages/SendMoneyPage'
 import TransactionsPage from '../pages/TransactionsPage'
+import TransactionDetailsPage from '../pages/TransactionDetailsPage'
 
 import ProtectedRoute from '../routes/ProtectedRoute'
 import RoleRoute from '../routes/RoleRoute'
@@ -80,6 +81,10 @@ function AppRouter() {
                                 <Route
                                     path="/customer/transactions"
                                     element={<TransactionsPage />}
+                                />
+                                <Route
+                                    path="/customer/transactions/:transactionId"
+                                    element={<TransactionDetailsPage />}
                                 />
                             </Route>
                         </Route>

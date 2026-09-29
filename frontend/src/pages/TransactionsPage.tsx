@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import type { Transaction } from '../types/transaction'
 import { getTransactions } from '../services/transactionService'
 
@@ -91,31 +92,30 @@ function TransactionsPage() {
                             {transactions.map((transaction) => (
                                 <tr key={transaction.id}>
                                     <td>
-                                        <div className="transaction-info">
-                                            <div
-                                                className={`transaction-icon ${
-                                                    transaction.direction ===
-                                                    'CREDIT'
-                                                        ? 'transaction-icon-credit'
-                                                        : 'transaction-icon-debit'
-                                                }`}
+                                        <td>
+                                            <Link
+                                                to={`/customer/transactions/${transaction.id}`}
+                                                className="transaction-details-link"
                                             >
-                                                {transaction.direction ===
-                                                'CREDIT'
-                                                    ? '↓'
-                                                    : '↑'}
-                                            </div>
+                                                <div className="transaction-info">
+                                                    <div
+                                                        className={`transaction-icon ${
+                                                            transaction.direction === 'CREDIT'
+                                                                ? 'transaction-icon-credit'
+                                                                : 'transaction-icon-debit'
+                                                        }`}
+                                                    >
+                                                        {transaction.direction === 'CREDIT' ? '↓' : '↑'}
+                                                    </div>
 
-                                            <div>
-                                                <strong>
-                                                    {transaction.description}
-                                                </strong>
+                                                    <div>
+                                                        <strong>{transaction.description}</strong>
 
-                                                <span>
-                                                        {transaction.reference}
-                                                    </span>
-                                            </div>
-                                        </div>
+                                                        <span>{transaction.reference}</span>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        </td>
                                     </td>
 
                                     <td>

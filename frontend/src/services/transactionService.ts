@@ -44,3 +44,12 @@ const mockTransactions: Transaction[] = [
 export async function getTransactions(): Promise<Transaction[]> {
     return Promise.resolve(mockTransactions)
 }
+export async function getTransactionById(
+    transactionId: string,
+): Promise<Transaction | null> {
+    const transaction = mockTransactions.find(
+        (item) => item.id === transactionId,
+    )
+
+    return Promise.resolve(transaction ?? null)
+}
