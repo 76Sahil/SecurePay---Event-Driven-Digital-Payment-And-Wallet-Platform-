@@ -2,6 +2,8 @@ import type {
     SecurityActivity,
     SecurityOverview,
     TrustedDevice,
+    TrustedDeviceManagementAction,
+    TrustedDeviceManagementResponse,
 } from '../types/security'
 
 const mockSecurityOverview: SecurityOverview = {
@@ -82,6 +84,35 @@ export async function getSecurityOverview(): Promise<SecurityOverview> {
 
 export async function getTrustedDevices(): Promise<TrustedDevice[]> {
     return Promise.resolve(mockTrustedDevices)
+}
+
+export async function manageTrustedDevice(
+    deviceId: string,
+    action: TrustedDeviceManagementAction,
+): Promise<TrustedDeviceManagementResponse> {
+    const device = mockTrustedDevices.find(
+        (item) => item.id === deviceId,
+    )
+
+    if (!device) {
+        throw new Error('Trusted device not found.')
+    }
+
+    if (device.status === 'CURRENT') {
+        throw new Error(
+            'The current device cannot be revoked.',
+        )
+    }
+
+    if (action === 'REVOKE') {
+        device.status = 'REVOKED'
+    }
+
+    return Promise.resolve({
+        deviceId: device.id,
+        status: device.status,
+        action,
+    })
 }
 
 export async function getSecurityActivities(): Promise<SecurityActivity[]> {

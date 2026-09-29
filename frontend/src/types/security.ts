@@ -45,6 +45,15 @@ export type TrustedDevice = {
     status: TrustedDeviceStatus
 }
 
+export type TrustedDeviceManagementAction =
+    | 'REVOKE'
+
+export type TrustedDeviceManagementResponse = {
+    deviceId: string
+    status: TrustedDeviceStatus
+    action: TrustedDeviceManagementAction
+}
+
 export type SecurityOverview = {
     status: SecurityStatus
     securityScore: number

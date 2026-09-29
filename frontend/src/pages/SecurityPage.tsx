@@ -8,16 +8,26 @@ import {
     getSecurityActivities,
     getSecurityOverview,
     getTrustedDevices,
+    manageTrustedDevice,
 } from '../services/securityService'
 
 function SecurityPage() {
     const [overview, setOverview] =
         useState<SecurityOverview | null>(null)
+
     const [devices, setDevices] = useState<TrustedDevice[]>([])
+
     const [activities, setActivities] =
         useState<SecurityActivity[]>([])
 
+    const [revokingDeviceId, setRevokingDeviceId] =
+        useState<string | null>(null)
+
+    const [deviceManagementError, setDeviceManagementError] =
+        useState<string | null>(null)
+
     const [isLoading, setIsLoading] = useState(true)
+
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
@@ -48,6 +58,47 @@ function SecurityPage() {
 
         void loadSecurityData()
     }, [])
+
+    const handleRevokeDevice = async (
+        deviceId: string,
+    ) => {
+        const confirmed = window.confirm(
+            'Are you sure you want to revoke this trusted device?',
+        )
+
+        if (!confirmed) {
+            return
+        }
+
+        try {
+            setRevokingDeviceId(deviceId)
+            setDeviceManagementError(null)
+
+            const response = await manageTrustedDevice(
+                deviceId,
+                'REVOKE',
+            )
+
+            setDevices((currentDevices) =>
+                currentDevices.map((device) =>
+                    device.id === response.deviceId
+                        ? {
+                            ...device,
+                            status: response.status,
+                        }
+                        : device,
+                ),
+            )
+        } catch (error) {
+            setDeviceManagementError(
+                error instanceof Error
+                    ? error.message
+                    : 'Unable to revoke the trusted device.',
+            )
+        } finally {
+            setRevokingDeviceId(null)
+        }
+    }
 
     const formatDate = (createdAt: string) => {
         return new Date(createdAt).toLocaleString()
@@ -87,6 +138,12 @@ function SecurityPage() {
             {!isLoading && error && (
                 <div className="security-card security-state security-error">
                     <p>{error}</p>
+                </div>
+            )}
+
+            {!isLoading && deviceManagementError && (
+                <div className="security-card security-state security-error">
+                    <p>{deviceManagementError}</p>
                 </div>
             )}
 
@@ -216,6 +273,28 @@ function SecurityPage() {
                                                     device.lastActiveAt,
                                                 )}
                                             </span>
+
+                                            {device.status ===
+                                                'TRUSTED' && (
+                                                    <button
+                                                        type="button"
+                                                        className="security-device-revoke"
+                                                        onClick={() => {
+                                                            void handleRevokeDevice(
+                                                                device.id,
+                                                            )
+                                                        }}
+                                                        disabled={
+                                                            revokingDeviceId ===
+                                                            device.id
+                                                        }
+                                                    >
+                                                        {revokingDeviceId ===
+                                                        device.id
+                                                            ? 'Revoking...'
+                                                            : 'Revoke'}
+                                                    </button>
+                                                )}
                                         </div>
                                     </div>
                                 </div>
