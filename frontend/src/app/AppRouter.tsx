@@ -16,6 +16,8 @@ import AddMoneyPage from '../pages/AddMoneyPage'
 import SendMoneyPage from '../pages/SendMoneyPage'
 import TransactionsPage from '../pages/TransactionsPage'
 import TransactionDetailsPage from '../pages/TransactionDetailsPage'
+import BeneficiariesPage from '../pages/BeneficiariesPage'
+import BeneficiaryDetailsPage from '../pages/BeneficiaryDetailsPage'
 
 import ProtectedRoute from '../routes/ProtectedRoute'
 import RoleRoute from '../routes/RoleRoute'
@@ -85,6 +87,14 @@ function AppRouter() {
                                 <Route
                                     path="/customer/transactions/:transactionId"
                                     element={<TransactionDetailsPage />}
+                                />
+                                <Route
+                                    path="/customer/beneficiaries"
+                                    element={<BeneficiariesPage />}
+                                />
+                                <Route
+                                    path="/customer/beneficiaries/:beneficiaryId"
+                                    element={<BeneficiaryDetailsPage />}
                                 />
                             </Route>
                         </Route>

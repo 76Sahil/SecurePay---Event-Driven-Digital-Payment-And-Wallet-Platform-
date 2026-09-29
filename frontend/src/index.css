@@ -2727,3 +2727,464 @@ a {
 .transaction-details-link .transaction-info {
   cursor: pointer;
 }
+/* Beneficiaries Page */
+
+.beneficiaries-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.beneficiaries-header h1 {
+  margin: 0;
+  color: #172033;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.beneficiaries-header p {
+  margin: 8px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.beneficiaries-page section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.beneficiaries-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.beneficiaries-section-header h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.beneficiaries-section-header p {
+  margin: 5px 0 0;
+  color: #8a91a1;
+  font-size: 13px;
+}
+
+.beneficiary-count {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.beneficiary-count-blocked {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.beneficiaries-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.beneficiary-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #e8eaf0;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(23, 32, 51, 0.05);
+}
+
+.beneficiary-card-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.beneficiary-avatar {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #5b5bd6, #7657d9);
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.beneficiary-info {
+  min-width: 0;
+}
+
+.beneficiary-info h3 {
+  margin: 0;
+  color: #172033;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.beneficiary-info p {
+  margin: 5px 0 3px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.beneficiary-info span {
+  color: #8a91a1;
+  font-size: 12px;
+}
+
+.beneficiary-card-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.beneficiary-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.beneficiary-status-active {
+  background: #ecfdf3;
+  color: #15803d;
+}
+
+.beneficiary-status-blocked {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.beneficiary-status-pending {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.beneficiary-id {
+  color: #9aa1af;
+  font-size: 10px;
+}
+
+.beneficiaries-card {
+  background: #ffffff;
+  border: 1px solid #e8eaf0;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(23, 32, 51, 0.05);
+}
+
+.beneficiaries-state {
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.beneficiaries-state p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.beneficiaries-error p {
+  color: #dc2626;
+}
+
+@media (max-width: 900px) {
+  .beneficiaries-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .beneficiaries-header h1 {
+    font-size: 24px;
+  }
+
+  .beneficiary-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .beneficiary-card-meta {
+    align-items: flex-start;
+  }
+}
+/* Beneficiary Details Page */
+
+.beneficiary-details-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.beneficiary-details-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.beneficiary-details-back-link {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #5b5bd6;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.beneficiary-details-back-link:hover {
+  text-decoration: underline;
+}
+
+.beneficiary-details-header h1 {
+  margin: 0;
+  color: #172033;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.beneficiary-details-header p {
+  margin: 8px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.beneficiary-details-card {
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e8eaf0;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(23, 32, 51, 0.05);
+}
+
+.beneficiary-details-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.beneficiary-details-avatar {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #5b5bd6, #7657d9);
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.beneficiary-details-label {
+  color: #8a91a1;
+  font-size: 12px;
+}
+
+.beneficiary-details-summary h2 {
+  margin: 4px 0 3px;
+  color: #172033;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.beneficiary-details-summary p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.beneficiary-details-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #eef0f4;
+}
+
+.beneficiary-details-status-row > span:first-child {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.beneficiary-details-card h3 {
+  margin: 0 0 20px;
+  color: #172033;
+  font-size: 17px;
+}
+
+.beneficiary-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.beneficiary-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.beneficiary-detail-item span {
+  color: #8a91a1;
+  font-size: 12px;
+}
+
+.beneficiary-detail-item strong {
+  color: #172033;
+  font-size: 14px;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.beneficiary-eligibility {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.beneficiary-eligibility-active {
+  background: #ecfdf3;
+}
+
+.beneficiary-eligibility-blocked {
+  background: #fef2f2;
+}
+
+.beneficiary-eligibility-icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.beneficiary-eligibility-active .beneficiary-eligibility-icon {
+  background: #d1fae5;
+  color: #15803d;
+}
+
+.beneficiary-eligibility-blocked .beneficiary-eligibility-icon {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.beneficiary-eligibility strong {
+  display: block;
+  color: #172033;
+  font-size: 14px;
+}
+
+.beneficiary-eligibility p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.beneficiary-details-state {
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.beneficiary-details-state h2 {
+  margin: 0 0 8px;
+  color: #172033;
+  font-size: 20px;
+}
+
+.beneficiary-details-state p {
+  margin: 0 0 20px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.beneficiary-details-back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #5b5bd6, #7657d9);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.beneficiary-details-back-button:hover {
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .beneficiary-details-header h1 {
+    font-size: 24px;
+  }
+
+  .beneficiary-details-card {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .beneficiary-details-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .beneficiary-details-summary h2 {
+    font-size: 20px;
+  }
+}
+.beneficiary-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.beneficiary-card-link:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.beneficiary-card-link:hover .beneficiary-card {
+  border-color: #d8d9f5;
+  transform: translateY(-2px);
+}
+
+.beneficiary-card {
+  transition:
+          transform 0.2s ease,
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+}

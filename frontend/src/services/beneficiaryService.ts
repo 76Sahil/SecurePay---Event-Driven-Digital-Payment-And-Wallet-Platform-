@@ -27,3 +27,13 @@ const mockBeneficiaries: Beneficiary[] = [
 export async function getBeneficiaries(): Promise<Beneficiary[]> {
     return Promise.resolve(mockBeneficiaries)
 }
+
+export async function getBeneficiaryById(
+    beneficiaryId: string,
+): Promise<Beneficiary | null> {
+    const beneficiary = mockBeneficiaries.find(
+        (item) => item.id === beneficiaryId,
+    )
+
+    return Promise.resolve(beneficiary ?? null)
+}
