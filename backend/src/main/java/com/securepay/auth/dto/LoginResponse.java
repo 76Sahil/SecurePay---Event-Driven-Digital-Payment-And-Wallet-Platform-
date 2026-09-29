@@ -7,6 +7,8 @@ public record LoginResponse(
         Long id,
         String fullName,
         String email,
-        UserRole role
-) {
-}
+        UserRole role,
+        String accessToken,
+        String tokenType,
+        long expiresIn
+) {}

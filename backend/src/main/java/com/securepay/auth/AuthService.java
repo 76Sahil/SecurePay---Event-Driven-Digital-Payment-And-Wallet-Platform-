@@ -7,6 +7,9 @@ import com.securepay.user.UserRepository;
 import com.securepay.user.UserRole;
 import com.securepay.auth.dto.LoginRequest;
 import com.securepay.auth.dto.LoginResponse;
+import com.securepay.wallet.Wallet;
+import com.securepay.wallet.WalletRepository;
+import com.securepay.auth.JwtService;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,13 +23,20 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final WalletRepository walletRepository;
+    private final JwtService jwtService;
+
 
     public AuthService(
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            WalletRepository walletRepository,
+            JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.walletRepository = walletRepository;
+        this.jwtService = jwtService;
     }
 
     @Transactional
@@ -55,6 +65,9 @@ public class AuthService {
             // Protect against concurrent duplicate-email registrations.
             throw new EmailAlreadyExistsException();
         }
+
+// Create a zero-balance wallet for the new customer.
+        walletRepository.save(new Wallet(user));
 
         return new RegisterResponse(
                 user.getId(),
@@ -85,11 +98,17 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
+
+        String accessToken = jwtService.generateToken(user);
+
         return new LoginResponse(
                 user.getId(),
                 user.getFullName(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole(),
+                accessToken,
+                "Bearer",
+                jwtService.getExpiresInSeconds()
         );
     }
 }
