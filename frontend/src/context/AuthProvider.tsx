@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import {
@@ -14,20 +15,29 @@ export function AuthProvider({
                                  children,
                              }: AuthProviderProps) {
     const [user, setUser] = useState<AuthUser | null>(null)
+    const [accessToken, setAccessToken] = useState<string | null>(
+        null,
+    )
     const [isLoading] = useState(false)
 
-    const login = (authenticatedUser: AuthUser) => {
+    const login = (
+        authenticatedUser: AuthUser,
+        token: string,
+    ) => {
         setUser(authenticatedUser)
+        setAccessToken(token)
     }
 
     const logout = () => {
         setUser(null)
+        setAccessToken(null)
     }
 
     const value: AuthContextValue = {
-        isAuthenticated: user !== null,
+        isAuthenticated: user !== null && accessToken !== null,
         isLoading,
         user,
+        accessToken,
         login,
         logout,
     }
