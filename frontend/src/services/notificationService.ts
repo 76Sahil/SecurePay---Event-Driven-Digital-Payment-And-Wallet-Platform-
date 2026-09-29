@@ -1,4 +1,7 @@
-import type { Notification } from '../types/notification'
+import type {
+    Notification,
+    NotificationManagementResponse,
+} from '../types/notification'
 
 const mockNotifications: Notification[] = [
     {
@@ -62,4 +65,24 @@ export async function getNotificationById(
     )
 
     return Promise.resolve(notification ?? null)
+}
+
+export async function markNotificationAsRead(
+    notificationId: string,
+): Promise<NotificationManagementResponse> {
+    const notification = mockNotifications.find(
+        (item) => item.id === notificationId,
+    )
+
+    if (!notification) {
+        throw new Error('Notification not found.')
+    }
+
+    notification.status = 'READ'
+
+    return Promise.resolve({
+        notificationId: notification.id,
+        status: notification.status,
+        action: 'MARK_AS_READ',
+    })
 }

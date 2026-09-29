@@ -3850,3 +3850,65 @@ a {
     align-self: flex-start;
   }
 }
+
+.notification-content-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+  color: inherit;
+  text-decoration: none;
+}
+
+.notification-content-link:hover .notification-title-row h3 {
+  color: #2563eb;
+}
+
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.notification-mark-read {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: #fff;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+          background 0.2s ease,
+          border-color 0.2s ease,
+          color 0.2s ease;
+}
+
+.notification-mark-read:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #1e293b;
+}
+
+.notification-mark-read:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .notification-content-link {
+    width: 100%;
+  }
+
+  .notification-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .notification-mark-read {
+    width: auto;
+  }
+}

@@ -8,6 +8,15 @@ export type NotificationStatus =
     | 'UNREAD'
     | 'READ'
 
+export type NotificationManagementAction =
+    | 'MARK_AS_READ'
+
+export type NotificationManagementResponse = {
+    notificationId: string
+    status: NotificationStatus
+    action: NotificationManagementAction
+}
+
 export type Notification = {
     id: string
     type: NotificationType

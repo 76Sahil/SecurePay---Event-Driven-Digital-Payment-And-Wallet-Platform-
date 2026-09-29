@@ -1,12 +1,20 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import type { Notification } from '../types/notification'
-import { getNotifications } from '../services/notificationService'
+import {
+    getNotifications,
+    markNotificationAsRead,
+} from '../services/notificationService'
 
 function NotificationsPage() {
     const [notifications, setNotifications] = useState<Notification[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [markingAsReadId, setMarkingAsReadId] = useState<string | null>(
+        null,
+    )
+    const [managementError, setManagementError] =
+        useState<string | null>(null)
 
     useEffect(() => {
         async function loadNotifications() {
@@ -50,42 +58,87 @@ function NotificationsPage() {
         return new Date(createdAt).toLocaleString()
     }
 
+    const handleMarkAsRead = async (
+        notificationId: string,
+    ) => {
+        try {
+            setMarkingAsReadId(notificationId)
+            setManagementError(null)
+
+            const response = await markNotificationAsRead(
+                notificationId,
+            )
+
+            setNotifications((currentNotifications) =>
+                currentNotifications.map((notification) =>
+                    notification.id === response.notificationId
+                        ? {
+                            ...notification,
+                            status: response.status,
+                        }
+                        : notification,
+                ),
+            )
+        } catch {
+            setManagementError(
+                'Unable to mark the notification as read.',
+            )
+        } finally {
+            setMarkingAsReadId(null)
+        }
+    }
+
     const renderNotification = (
         notification: Notification,
     ) => {
-        const content = (
-            <div
-                className={`notification-item ${
-                    notification.status === 'UNREAD'
-                        ? 'notification-item-unread'
-                        : ''
-                }`}
-            >
-                <div className="notification-item-main">
-                    <div className="notification-icon">
-                        {notification.type.charAt(0)}
-                    </div>
+        const notificationContent = (
+            <>
+                <div className="notification-icon">
+                    {notification.type.charAt(0)}
+                </div>
 
-                    <div className="notification-content">
-                        <div className="notification-title-row">
-                            <h3>{notification.title}</h3>
+                <div className="notification-content">
+                    <div className="notification-title-row">
+                        <h3>{notification.title}</h3>
 
-                            <span
-                                className={getTypeClass(
-                                    notification.type,
-                                )}
-                            >
-                                {notification.type}
-                            </span>
-                        </div>
-
-                        <p>{notification.message}</p>
-
-                        <span className="notification-date">
-                            {formatDate(notification.createdAt)}
+                        <span
+                            className={getTypeClass(
+                                notification.type,
+                            )}
+                        >
+                            {notification.type}
                         </span>
                     </div>
+
+                    <p>{notification.message}</p>
+
+                    <span className="notification-date">
+                        {formatDate(notification.createdAt)}
+                    </span>
                 </div>
+            </>
+        )
+
+        const notificationActions = (
+            <>
+                {notification.status === 'UNREAD' && (
+                    <button
+                        type="button"
+                        className="notification-mark-read"
+                        onClick={() => {
+                            void handleMarkAsRead(
+                                notification.id,
+                            )
+                        }}
+                        disabled={
+                            markingAsReadId === notification.id
+                        }
+                    >
+                        {markingAsReadId === notification.id
+                            ? 'Marking...'
+                            : 'Mark as read'}
+                    </button>
+                )}
 
                 <span
                     className={getStatusClass(
@@ -94,24 +147,39 @@ function NotificationsPage() {
                 >
                     {notification.status}
                 </span>
+            </>
+        )
+
+        const notificationMain = (
+            <div
+                className={`notification-item ${
+                    notification.status === 'UNREAD'
+                        ? 'notification-item-unread'
+                        : ''
+                }`}
+            >
+                <div className="notification-item-main">
+                    {notification.transactionId ? (
+                        <Link
+                            to={`/customer/transactions/${notification.transactionId}`}
+                            className="notification-content-link"
+                        >
+                            {notificationContent}
+                        </Link>
+                    ) : (
+                        notificationContent
+                    )}
+                </div>
+
+                <div className="notification-actions">
+                    {notificationActions}
+                </div>
             </div>
         )
 
-        if (notification.transactionId) {
-            return (
-                <Link
-                    key={notification.id}
-                    to={`/customer/transactions/${notification.transactionId}`}
-                    className="notification-item-link"
-                >
-                    {content}
-                </Link>
-            )
-        }
-
         return (
             <div key={notification.id}>
-                {content}
+                {notificationMain}
             </div>
         )
     }
@@ -139,6 +207,12 @@ function NotificationsPage() {
             {isLoading && (
                 <div className="notifications-card notifications-state">
                     <p>Loading notifications...</p>
+                </div>
+            )}
+
+            {!isLoading && managementError && (
+                <div className="notifications-card notifications-error">
+                    <p>{managementError}</p>
                 </div>
             )}
 
