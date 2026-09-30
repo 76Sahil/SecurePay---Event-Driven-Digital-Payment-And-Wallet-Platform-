@@ -40,6 +40,7 @@ import MerchantProfilePage from '../pages/MerchantProfilePage'
 import AdminLayout from '../layouts/AdminLayout'
 import FraudAlertsPage from '../pages/FraudAlertsPage'
 import SecurityEventsPage from '../pages/SecurityEventsPage'
+import AdminUsersPage from '../pages/AdminUsersPage'
 
 function AppRouter() {
     return (
@@ -189,6 +190,7 @@ function AppRouter() {
                                     path="/admin/security-events"
                                     element={<SecurityEventsPage />}
                                 />
+                                <Route path="/admin/users" element={<AdminUsersPage />} />
                             </Route>
                         </Route>
 
