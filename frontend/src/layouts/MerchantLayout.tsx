@@ -99,6 +99,17 @@ function MerchantLayout() {
 
                         <span>API Keys</span>
                     </NavLink>
+
+                    <NavLink
+                        to="/merchant/profile"
+                        className="customer-sidebar__link"
+                    >
+                        <span className="customer-sidebar__icon">
+                            ◉
+                        </span>
+
+                        <span>Profile</span>
+                    </NavLink>
                 </nav>
 
                 <div className="customer-sidebar__footer">

@@ -35,6 +35,7 @@ import MerchantPaymentsPage from '../pages/MerchantPaymentsPage'
 import MerchantPaymentDetailsPage from '../pages/MerchantPaymentDetailsPage'
 import MerchantTransactionsPage from '../pages/MerchantTransactionsPage'
 import MerchantApiKeysPage from '../pages/MerchantApiKeysPage'
+import MerchantProfilePage from '../pages/MerchantProfilePage'
 
 import AdminLayout from '../layouts/AdminLayout'
 import FraudAlertsPage from '../pages/FraudAlertsPage'
@@ -169,6 +170,7 @@ function AppRouter() {
                                     path="/merchant/api-keys"
                                     element={<MerchantApiKeysPage />}
                                 />
+                                <Route path="/merchant/profile" element={<MerchantProfilePage />} />
                             </Route>
                         </Route>
 
