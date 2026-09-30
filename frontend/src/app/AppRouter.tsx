@@ -32,6 +32,7 @@ import MerchantPaymentDetailsPage from '../pages/MerchantPaymentDetailsPage'
 
 import AdminLayout from '../layouts/AdminLayout'
 import FraudAlertsPage from '../pages/FraudAlertsPage'
+import SecurityEventsPage from '../pages/SecurityEventsPage'
 
 function AppRouter() {
     return (
@@ -155,6 +156,10 @@ function AppRouter() {
                                 <Route
                                     path="/admin/fraud-alerts"
                                     element={<FraudAlertsPage />}
+                                />
+                                <Route
+                                    path="/admin/security-events"
+                                    element={<SecurityEventsPage />}
                                 />
                             </Route>
                         </Route>
