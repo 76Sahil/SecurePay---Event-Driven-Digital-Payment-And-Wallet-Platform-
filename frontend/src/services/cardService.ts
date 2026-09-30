@@ -18,7 +18,7 @@ const mockCards: Card[] = [
     {
         id: 'card-demo-002',
         maskedNumber: '•••• •••• •••• 1937',
-        cardholderName: 'Sahil Paliwal',
+        cardholderName: 'Tripshikha Singh',
         type: 'DEBIT',
         status: 'BLOCKED',
         expiryMonth: 8,

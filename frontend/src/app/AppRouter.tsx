@@ -11,9 +11,12 @@ import ForgotPasswordPage from '../pages/ForgotPasswordPage'
 import CustomerPortalPage from '../pages/CustomerPortalPage'
 import MerchantPortalPage from '../pages/MerchantPortalPage'
 import AdminPortalPage from '../pages/AdminPortalPage'
+
 import WalletPage from '../pages/WalletPage'
 import AddMoneyPage from '../pages/AddMoneyPage'
 import SendMoneyPage from '../pages/SendMoneyPage'
+import ScanAndPayPage from '../pages/ScanAndPayPage'
+import PayBillsPage from '../pages/PayBillsPage'
 import TransactionsPage from '../pages/TransactionsPage'
 import TransactionDetailsPage from '../pages/TransactionDetailsPage'
 import BeneficiariesPage from '../pages/BeneficiariesPage'
@@ -22,6 +25,7 @@ import CardsPage from '../pages/CardsPage'
 import CardDetailsPage from '../pages/CardDetailsPage'
 import NotificationsPage from '../pages/NotificationsPage'
 import SecurityPage from '../pages/SecurityPage'
+import ProfilePage from '../pages/ProfilePage'
 
 import ProtectedRoute from '../routes/ProtectedRoute'
 import RoleRoute from '../routes/RoleRoute'
@@ -29,6 +33,8 @@ import RoleRoute from '../routes/RoleRoute'
 import MerchantLayout from '../layouts/MerchantLayout'
 import MerchantPaymentsPage from '../pages/MerchantPaymentsPage'
 import MerchantPaymentDetailsPage from '../pages/MerchantPaymentDetailsPage'
+import MerchantTransactionsPage from '../pages/MerchantTransactionsPage'
+import MerchantApiKeysPage from '../pages/MerchantApiKeysPage'
 
 import AdminLayout from '../layouts/AdminLayout'
 import FraudAlertsPage from '../pages/FraudAlertsPage'
@@ -93,6 +99,14 @@ function AppRouter() {
                                     element={<SendMoneyPage />}
                                 />
                                 <Route
+                                    path="/customer/scan-and-pay"
+                                    element={<ScanAndPayPage />}
+                                />
+                                <Route
+                                    path="/customer/pay-bills"
+                                    element={<PayBillsPage />}
+                                />
+                                <Route
                                     path="/customer/transactions"
                                     element={<TransactionsPage />}
                                 />
@@ -118,6 +132,10 @@ function AppRouter() {
                                     element={<NotificationsPage />}
                                 />
                                 <Route path="/customer/security" element={<SecurityPage />} />
+                                <Route
+                                    path="/customer/profile"
+                                    element={<ProfilePage />}
+                                />
                             </Route>
                         </Route>
 
@@ -142,6 +160,14 @@ function AppRouter() {
                                 <Route
                                     path="/merchant/payments/:paymentId"
                                     element={<MerchantPaymentDetailsPage />}
+                                />
+                                <Route
+                                    path="/merchant/transactions"
+                                    element={<MerchantTransactionsPage />}
+                                />
+                                <Route
+                                    path="/merchant/api-keys"
+                                    element={<MerchantApiKeysPage />}
                                 />
                             </Route>
                         </Route>

@@ -141,7 +141,7 @@ function CustomerPortalPage() {
                         label="Scan & Pay"
                         description="Pay using a QR code"
                         icon="⌗"
-                        to="/customer/scan-pay"
+                        to="/customer/scan-and-pay"
                     />
 
                     <QuickAction
