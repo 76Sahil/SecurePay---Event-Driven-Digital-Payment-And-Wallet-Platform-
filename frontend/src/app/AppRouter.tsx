@@ -36,11 +36,14 @@ import MerchantPaymentDetailsPage from '../pages/MerchantPaymentDetailsPage'
 import MerchantTransactionsPage from '../pages/MerchantTransactionsPage'
 import MerchantApiKeysPage from '../pages/MerchantApiKeysPage'
 import MerchantProfilePage from '../pages/MerchantProfilePage'
+import MerchantRefundsPage from '../pages/MerchantRefundsPage'
+import MerchantRevenuePage from '../pages/MerchantRevenuePage'
 
 import AdminLayout from '../layouts/AdminLayout'
 import FraudAlertsPage from '../pages/FraudAlertsPage'
 import SecurityEventsPage from '../pages/SecurityEventsPage'
 import AdminUsersPage from '../pages/AdminUsersPage'
+import AuditLogsPage from '../pages/AuditLogsPage'
 
 function AppRouter() {
     return (
@@ -172,6 +175,8 @@ function AppRouter() {
                                     element={<MerchantApiKeysPage />}
                                 />
                                 <Route path="/merchant/profile" element={<MerchantProfilePage />} />
+                                <Route path="/merchant/refunds" element={<MerchantRefundsPage />} />
+                                <Route path="/merchant/revenue" element={<MerchantRevenuePage />} />
                             </Route>
                         </Route>
 
@@ -191,6 +196,7 @@ function AppRouter() {
                                     element={<SecurityEventsPage />}
                                 />
                                 <Route path="/admin/users" element={<AdminUsersPage />} />
+                                <Route path="/admin/audit" element={<AuditLogsPage />} />
                             </Route>
                         </Route>
 

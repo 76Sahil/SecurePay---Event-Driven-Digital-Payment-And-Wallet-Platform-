@@ -5726,3 +5726,471 @@ a {
     padding-right: 16px;
   }
 }
+
+/* Merchant Refunds */
+
+.merchant-refunds-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.merchant-refunds-card__header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.merchant-refunds-card__header h2 {
+  margin: 0 0 5px;
+  font-size: 18px;
+}
+
+.merchant-refunds-card__header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.merchant-refunds-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.merchant-refunds-table {
+  width: 100%;
+  min-width: 1000px;
+  border-collapse: collapse;
+}
+
+.merchant-refunds-table th {
+  padding: 13px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid #eef0f3;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.merchant-refunds-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f2f5;
+  color: #374151;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.merchant-refunds-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.merchant-refunds-table tbody tr:hover {
+  background: #fafbfc;
+}
+
+.merchant-refund-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.merchant-refund-identity strong {
+  color: #111827;
+  font-size: 13px;
+}
+
+.merchant-refund-identity span {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.merchant-refund-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.merchant-refund-status.success {
+  background: #ecfdf3;
+  color: #047857;
+}
+
+.merchant-refund-status.pending {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.merchant-refund-status.failed {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.merchant-refunds-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.merchant-refunds-state p {
+  margin: 0;
+}
+
+.merchant-refunds-state--error {
+  color: #b91c1c;
+}
+
+@media (max-width: 900px) {
+  .merchant-refunds-card__header {
+    padding: 18px;
+  }
+
+  .merchant-refunds-table th,
+  .merchant-refunds-table td {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* Merchant Revenue */
+
+.merchant-revenue-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.merchant-revenue-summary-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.merchant-revenue-summary-card span {
+  display: block;
+  margin-bottom: 10px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.merchant-revenue-summary-card strong {
+  display: block;
+  color: #111827;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.merchant-revenue-summary-card small {
+  display: block;
+  margin-top: 8px;
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.merchant-revenue-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.merchant-revenue-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.merchant-revenue-card__header h2 {
+  margin: 0 0 5px;
+  font-size: 18px;
+}
+
+.merchant-revenue-card__header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.merchant-revenue-period {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.merchant-revenue-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.merchant-revenue-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.merchant-revenue-table th {
+  padding: 13px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid #eef0f3;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.merchant-revenue-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f2f5;
+  color: #374151;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.merchant-revenue-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.merchant-revenue-table tbody tr:hover {
+  background: #fafbfc;
+}
+
+.merchant-revenue-type,
+.merchant-revenue-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.merchant-revenue-type.payment {
+  background: #ecfdf3;
+  color: #047857;
+}
+
+.merchant-revenue-type.refund {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.merchant-revenue-status.success {
+  background: #ecfdf3;
+  color: #047857;
+}
+
+.merchant-revenue-status.pending {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.merchant-revenue-negative {
+  color: #b91c1c;
+}
+
+.merchant-revenue-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.merchant-revenue-state p {
+  margin: 0;
+}
+
+.merchant-revenue-state--error {
+  color: #b91c1c;
+}
+
+@media (max-width: 1100px) {
+  .merchant-revenue-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .merchant-revenue-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .merchant-revenue-card__header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 18px;
+  }
+
+  .merchant-revenue-table th,
+  .merchant-revenue-table td {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* Admin Audit Logs */
+
+.audit-logs-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.audit-logs-card__header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.audit-logs-card__header h2 {
+  margin: 0 0 5px;
+  font-size: 18px;
+}
+
+.audit-logs-card__header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.audit-logs-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.audit-logs-table {
+  width: 100%;
+  min-width: 950px;
+  border-collapse: collapse;
+}
+
+.audit-logs-table th {
+  padding: 13px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid #eef0f3;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.audit-logs-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f2f5;
+  color: #374151;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.audit-logs-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.audit-logs-table tbody tr:hover {
+  background: #fafbfc;
+}
+
+.audit-log-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 170px;
+}
+
+.audit-log-identity strong {
+  color: #111827;
+  font-size: 13px;
+}
+
+.audit-log-identity span {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.audit-log-description {
+  min-width: 280px;
+  max-width: 420px;
+  white-space: normal;
+  line-height: 1.5;
+}
+
+.audit-log-severity {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.audit-log-severity.low {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.audit-log-severity.medium {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.audit-log-severity.high {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.audit-log-severity.critical {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.audit-logs-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.audit-logs-state p {
+  margin: 0;
+}
+
+.audit-logs-state--error {
+  color: #b91c1c;
+}
+
+@media (max-width: 900px) {
+  .audit-logs-card__header {
+    padding: 18px;
+  }
+
+  .audit-logs-table th,
+  .audit-logs-table td {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
