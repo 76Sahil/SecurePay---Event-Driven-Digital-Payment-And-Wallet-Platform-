@@ -1,11 +1,12 @@
+
 export type CustomerProfile = {
     id: string
     fullName: string
     email: string
-    phone: string
-    accountType: 'CUSTOMER'
+    phone: string | null
+    accountType: 'CUSTOMER' | 'MERCHANT'
     memberSince: string
-    mfaEnabled: boolean
-    trustedDevices: number
+    mfaEnabled: boolean | null
+    trustedDevices: number | null
     accountStatus: 'ACTIVE' | 'LOCKED'
 }

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import type { CustomerProfile } from '../types/profile'
 import { getCustomerProfile } from '../services/profileService'
@@ -12,8 +13,12 @@ function ProfilePage() {
             try {
                 const result = await getCustomerProfile()
                 setProfile(result)
-            } catch {
-                setError('Unable to load profile information.')
+            } catch (err) {
+                setError(
+                    err instanceof Error
+                        ? err.message
+                        : 'Unable to load profile information.',
+                )
             } finally {
                 setIsLoading(false)
             }
@@ -47,12 +52,8 @@ function ProfilePage() {
                     <p className="page-section__eyebrow">
                         CUSTOMER PORTAL
                     </p>
-
                     <h1>Profile</h1>
-
-                    <p>
-                        Manage your personal and account information.
-                    </p>
+                    <p>Manage your personal and account information.</p>
                 </div>
             </div>
 
@@ -63,11 +64,9 @@ function ProfilePage() {
 
                 <div className="profile-header-info">
                     <h2>{profile.fullName}</h2>
-
                     <p>{profile.email}</p>
-
                     <span className="profile-account-badge">
-                        Customer Account
+                        {profile.accountType} Account
                     </span>
                 </div>
             </div>
@@ -93,7 +92,7 @@ function ProfilePage() {
 
                     <div className="profile-detail">
                         <span>Phone Number</span>
-                        <strong>{profile.phone}</strong>
+                        <strong>{profile.phone ?? 'Not available'}</strong>
                     </div>
                 </div>
             </div>
@@ -135,7 +134,7 @@ function ProfilePage() {
                 <div className="profile-section-card__header">
                     <div>
                         <h2>Security Overview</h2>
-                        <p>Current account protection status.</p>
+                        <p>Current account protection information.</p>
                     </div>
                 </div>
 
@@ -144,12 +143,20 @@ function ProfilePage() {
                         <div>
                             <strong>Multi-Factor Authentication</strong>
                             <span>
-                                Additional verification is enabled.
+                                {profile.mfaEnabled === null
+                                    ? 'Status not available yet.'
+                                    : profile.mfaEnabled
+                                        ? 'Additional verification is enabled.'
+                                        : 'Additional verification is disabled.'}
                             </span>
                         </div>
 
                         <span className="profile-security-enabled">
-                            Enabled
+                            {profile.mfaEnabled === null
+                                ? 'Unknown'
+                                : profile.mfaEnabled
+                                    ? 'Enabled'
+                                    : 'Disabled'}
                         </span>
                     </div>
 
@@ -162,7 +169,7 @@ function ProfilePage() {
                         </div>
 
                         <strong>
-                            {profile.trustedDevices}
+                            {profile.trustedDevices ?? 'Not available'}
                         </strong>
                     </div>
                 </div>
