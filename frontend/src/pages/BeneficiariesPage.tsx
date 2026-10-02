@@ -30,6 +30,10 @@ function BeneficiariesPage() {
         (beneficiary) => beneficiary.status === 'ACTIVE',
     )
 
+    const pendingBeneficiaries = beneficiaries.filter(
+        (beneficiary) => beneficiary.status === 'PENDING',
+    )
+
     const blockedBeneficiaries = beneficiaries.filter(
         (beneficiary) => beneficiary.status === 'BLOCKED',
     )
@@ -40,6 +44,7 @@ function BeneficiariesPage() {
 
     const renderBeneficiary = (beneficiary: Beneficiary) => (
         <Link
+            key={beneficiary.id}
             to={`/customer/beneficiaries/${beneficiary.id}`}
             className="beneficiary-card-link"
         >
@@ -57,9 +62,7 @@ function BeneficiariesPage() {
                 </div>
 
                 <div className="beneficiary-card-meta">
-                    <span
-                        className={getStatusClass(beneficiary.status)}
-                    >
+                    <span className={getStatusClass(beneficiary.status)}>
                         {beneficiary.status}
                     </span>
 
@@ -76,10 +79,18 @@ function BeneficiariesPage() {
             <div className="beneficiaries-header">
                 <div>
                     <h1>Beneficiaries</h1>
+
                     <p>
                         Manage the people and accounts you send money to.
                     </p>
                 </div>
+
+                <Link
+                    to="/customer/beneficiaries/add"
+                    className="beneficiary-primary-button"
+                >
+                    + Add Beneficiary
+                </Link>
             </div>
 
             {isLoading && (
@@ -96,10 +107,12 @@ function BeneficiariesPage() {
 
             {!isLoading && !error && (
                 <>
+                    {/* ACTIVE */}
                     <section>
                         <div className="beneficiaries-section-header">
                             <div>
                                 <h2>Active Beneficiaries</h2>
+
                                 <p>
                                     These beneficiaries are available for
                                     transfers.
@@ -113,7 +126,9 @@ function BeneficiariesPage() {
 
                         {activeBeneficiaries.length > 0 ? (
                             <div className="beneficiaries-list">
-                                {activeBeneficiaries.map(renderBeneficiary)}
+                                {activeBeneficiaries.map(
+                                    renderBeneficiary,
+                                )}
                             </div>
                         ) : (
                             <div className="beneficiaries-card beneficiaries-state">
@@ -122,11 +137,39 @@ function BeneficiariesPage() {
                         )}
                     </section>
 
+                    {/* PENDING */}
+                    {pendingBeneficiaries.length > 0 && (
+                        <section>
+                            <div className="beneficiaries-section-header">
+                                <div>
+                                    <h2>Pending Beneficiaries</h2>
+
+                                    <p>
+                                        These beneficiaries are waiting for
+                                        verification.
+                                    </p>
+                                </div>
+
+                                <span className="beneficiary-count">
+                                    {pendingBeneficiaries.length}
+                                </span>
+                            </div>
+
+                            <div className="beneficiaries-list">
+                                {pendingBeneficiaries.map(
+                                    renderBeneficiary,
+                                )}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* BLOCKED */}
                     {blockedBeneficiaries.length > 0 && (
                         <section>
                             <div className="beneficiaries-section-header">
                                 <div>
                                     <h2>Blocked Beneficiaries</h2>
+
                                     <p>
                                         These beneficiaries cannot currently
                                         receive transfers.
@@ -139,7 +182,9 @@ function BeneficiariesPage() {
                             </div>
 
                             <div className="beneficiaries-list">
-                                {blockedBeneficiaries.map(renderBeneficiary)}
+                                {blockedBeneficiaries.map(
+                                    renderBeneficiary,
+                                )}
                             </div>
                         </section>
                     )}

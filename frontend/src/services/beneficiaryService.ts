@@ -37,3 +37,21 @@ export async function getBeneficiaryById(
 
     return Promise.resolve(beneficiary ?? null)
 }
+
+export async function addBeneficiary(
+    name: string,
+    bankName: string,
+    accountNumber: string,
+): Promise<Beneficiary> {
+    const newBeneficiary: Beneficiary = {
+        id: `beneficiary-${Date.now()}`,
+        name,
+        accountIdentifier: `•••• ${accountNumber.slice(-4)}`,
+        bankName,
+        status: 'PENDING',
+    }
+
+    mockBeneficiaries.push(newBeneficiary)
+
+    return Promise.resolve(newBeneficiary)
+}

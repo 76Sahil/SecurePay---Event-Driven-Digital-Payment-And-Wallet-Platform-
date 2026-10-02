@@ -20,6 +20,7 @@ import PayBillsPage from '../pages/PayBillsPage'
 import TransactionsPage from '../pages/TransactionsPage'
 import TransactionDetailsPage from '../pages/TransactionDetailsPage'
 import BeneficiariesPage from '../pages/BeneficiariesPage'
+import AddBeneficiaryPage from '../pages/AddBeneficiaryPage'
 import BeneficiaryDetailsPage from '../pages/BeneficiaryDetailsPage'
 import CardsPage from '../pages/CardsPage'
 import CardDetailsPage from '../pages/CardDetailsPage'
@@ -122,6 +123,10 @@ function AppRouter() {
                                 <Route
                                     path="/customer/beneficiaries"
                                     element={<BeneficiariesPage />}
+                                />
+                                <Route
+                                    path="/customer/beneficiaries/add"
+                                    element={<AddBeneficiaryPage />}
                                 />
                                 <Route
                                     path="/customer/beneficiaries/:beneficiaryId"
