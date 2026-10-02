@@ -6783,3 +6783,238 @@ a {
     width: 100%;
   }
 }
+
+
+/* =========================================
+   Wallet Page - Demo Top-up & Transactions
+   ========================================= */
+
+.wallet-page {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  width: 100%;
+}
+
+.wallet-page__header {
+  margin-bottom: 0;
+}
+
+.wallet-page__header h1 {
+  margin: 6px 0;
+  color: #14213d;
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.wallet-page__description {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* Add Demo Funds Card */
+
+.wallet-topup {
+  padding: 26px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgb(15 23 42 / 4%);
+}
+
+.wallet-topup h2 {
+  margin: 0 0 8px;
+  color: #172b4d;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.wallet-topup > p {
+  margin: 0 0 18px;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.wallet-topup input[type="number"] {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  min-height: 46px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  outline: none;
+  background: #ffffff;
+  color: #172b4d;
+  font: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.wallet-topup input[type="number"]:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 12%);
+}
+
+.wallet-topup button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+  padding: 11px 22px;
+  border: none;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #2563eb, #4338ca);
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgb(37 99 235 / 18%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wallet-topup button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 16px rgb(37 99 235 / 25%);
+}
+
+.wallet-topup button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.wallet-topup p[role="status"] {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #bbf7d0;
+  border-radius: 9px;
+  background: #f0fdf4;
+  color: #15803d;
+  font-size: 0.9rem;
+}
+
+.wallet-topup p[role="alert"] {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+/* Transaction History */
+
+.wallet-transactions {
+  padding: 26px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgb(15 23 42 / 4%);
+}
+
+.wallet-transactions > h2 {
+  margin: 0 0 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #172b4d;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.wallet-transactions__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.wallet-transaction {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.wallet-transaction:first-child {
+  padding-top: 4px;
+}
+
+.wallet-transaction:last-child {
+  padding-bottom: 4px;
+  border-bottom: none;
+}
+
+.wallet-transaction > div {
+  min-width: 0;
+}
+
+.wallet-transaction h3 {
+  margin: 0 0 8px;
+  color: #172b4d;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.wallet-transaction p {
+  margin: 4px 0;
+  color: #64748b;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.wallet-transaction strong {
+  flex-shrink: 0;
+  color: #15803d;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+/* Wallet responsive layout */
+
+@media (max-width: 600px) {
+  .wallet-page {
+    gap: 18px;
+  }
+
+  .wallet-page__header h1 {
+    font-size: 1.7rem;
+  }
+
+  .wallet-balance-card {
+    min-height: 170px;
+    padding: 22px;
+  }
+
+  .wallet-balance-card h2 {
+    font-size: 1.8rem;
+    overflow-wrap: anywhere;
+  }
+
+  .wallet-topup,
+  .wallet-transactions {
+    padding: 18px;
+  }
+
+  .wallet-topup input[type="number"] {
+    max-width: 100%;
+  }
+
+  .wallet-topup button {
+    width: 100%;
+  }
+
+  .wallet-transaction {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .wallet-transaction strong {
+    font-size: 0.85rem;
+  }
+}
