@@ -12,6 +12,8 @@ import CustomerPortalPage from '../pages/CustomerPortalPage'
 import MerchantPortalPage from '../pages/MerchantPortalPage'
 import AdminPortalPage from '../pages/AdminPortalPage'
 
+import MfaPage from '../pages/MfaPage'
+
 import WalletPage from '../pages/WalletPage'
 import AddMoneyPage from '../pages/AddMoneyPage'
 import SendMoneyPage from '../pages/SendMoneyPage'
@@ -151,7 +153,13 @@ function AppRouter() {
                                     path="/customer/notifications"
                                     element={<NotificationsPage />}
                                 />
-                                <Route path="/customer/security" element={<SecurityPage />} />
+                                <Route path="/customer/security"
+                                       element={<SecurityPage />}
+                                />
+                                <Route
+                                    path="/customer/security/mfa"
+                                    element={<MfaPage />}
+                                />
                                 <Route
                                     path="/customer/profile"
                                     element={<ProfilePage />}

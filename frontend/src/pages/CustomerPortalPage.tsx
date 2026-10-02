@@ -3,6 +3,7 @@ import type { CustomerDashboardSummary } from '../types'
 import { getCustomerDashboardSummary } from '../services/dashboardService'
 import DashboardStatCard from '../components/dashboard/DashboardStatCard'
 import QuickAction from '../components/dashboard/QuickAction'
+import { Link } from 'react-router'
 
 function CustomerPortalPage() {
     const [dashboard, setDashboard] =
@@ -309,9 +310,12 @@ function CustomerPortalPage() {
                         additional account protection.
                     </p>
 
-                    <button type="button">
+                    <Link
+                        to="/customer/security/mfa"
+                        className="primary-button"
+                    >
                         Enable 2FA
-                    </button>
+                    </Link>
                 </div>
 
                 <div className="security-banner__illustration">
