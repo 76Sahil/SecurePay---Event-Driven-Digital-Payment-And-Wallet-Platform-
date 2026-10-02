@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router'
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
@@ -31,10 +32,10 @@ function RegisterPage() {
 
     const [errors, setErrors] = useState<RegisterFormErrors>({})
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [serverMessage, setServerMessage] = useState('')
+    const [isSuccess, setIsSuccess] = useState(false)
 
-    function handleChange(
-        event: ChangeEvent<HTMLInputElement>,
-    ) {
+    function handleChange(event: ChangeEvent<HTMLInputElement>) {
         const { name, value } = event.target
 
         setFormData((current) => ({
@@ -46,11 +47,11 @@ function RegisterPage() {
             ...current,
             [name]: undefined,
         }))
+
+        setServerMessage('')
     }
 
-    function handleRoleChange(
-        event: ChangeEvent<HTMLInputElement>,
-    ) {
+    function handleRoleChange(event: ChangeEvent<HTMLInputElement>) {
         const role = event.target.value as RegisterRole
 
         setFormData((current) => ({
@@ -62,77 +63,123 @@ function RegisterPage() {
             ...current,
             role: undefined,
         }))
+
+        setServerMessage('')
     }
 
     function validateForm(): RegisterFormErrors {
         const validationErrors: RegisterFormErrors = {}
 
         if (!formData.fullName.trim()) {
-            validationErrors.fullName =
-                'Full name is required.'
+            validationErrors.fullName = 'Full name is required.'
         }
 
         if (!formData.email.trim()) {
             validationErrors.email = 'Email is required.'
         } else if (
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-                formData.email,
-            )
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
         ) {
-            validationErrors.email =
-                'Please enter a valid email address.'
+            validationErrors.email = 'Please enter a valid email address.'
         }
 
         if (!formData.password) {
-            validationErrors.password =
-                'Password is required.'
+            validationErrors.password = 'Password is required.'
         } else if (formData.password.length < 8) {
-            validationErrors.password =
-                'Password must be at least 8 characters.'
+            validationErrors.password = 'Password must be at least 8 characters.'
         }
 
         if (!formData.confirmPassword) {
-            validationErrors.confirmPassword =
-                'Please confirm your password.'
-        }
-
-        if (
-            formData.password &&
-            formData.confirmPassword &&
-            formData.password !== formData.confirmPassword
-        ) {
-            validationErrors.confirmPassword =
-                'Passwords do not match.'
+            validationErrors.confirmPassword = 'Please confirm your password.'
+        } else if (formData.password !== formData.confirmPassword) {
+            validationErrors.confirmPassword = 'Passwords do not match.'
         }
 
         if (!formData.role) {
-            validationErrors.role =
-                'Please select an account type.'
+            validationErrors.role = 'Please select an account type.'
         }
 
         return validationErrors
     }
 
-    function handleSubmit(
-        event: FormEvent<HTMLFormElement>,
-    ) {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
+        setServerMessage('')
+        setIsSuccess(false)
 
         const validationErrors = validateForm()
-
         setErrors(validationErrors)
 
-        if (
-            Object.keys(validationErrors).length > 0
-        ) {
+        if (Object.keys(validationErrors).length > 0) {
             return
         }
 
         setIsSubmitting(true)
 
-        setTimeout(() => {
+        try {
+            const response = await fetch(
+                'http://localhost:8080/api/auth/register',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fullName: formData.fullName.trim(),
+                        email: formData.email.trim(),
+                        accountType: formData.role,
+                        password: formData.password,
+                    }),
+                },
+            )
+
+            const responseText = await response.text()
+            let data: { message?: string } = {}
+
+            try {
+                data = responseText ? JSON.parse(responseText) : {}
+            } catch {
+                data = {}
+            }
+
+            if (!response.ok) {
+                if (response.status === 409) {
+                    throw new Error('An account with this email already exists.')
+                }
+
+                throw new Error(
+                    data.message ||
+                    `Registration failed (${response.status}). Please try again.`,
+                )
+            }
+
+            setIsSuccess(true)
+            setServerMessage(
+                data.message ||
+                'Registration successful. Please verify your email.',
+            )
+
+            setFormData({
+                fullName: '',
+                email: '',
+                password: '',
+                confirmPassword: '',
+                role: '',
+            })
+
+            setErrors({})
+        } catch (error) {
+            setIsSuccess(false)
+
+            setServerMessage(
+                error instanceof TypeError
+                    ? 'Unable to connect to the server. Please check whether the backend is running.'
+                    : error instanceof Error
+                        ? error.message
+                        : 'Something went wrong. Please try again.',
+            )
+        } finally {
             setIsSubmitting(false)
-        }, 500)
+        }
     }
 
     return (
@@ -153,10 +200,7 @@ function RegisterPage() {
                     </p>
                 </div>
 
-                <form
-                    onSubmit={handleSubmit}
-                    noValidate
-                >
+                <form onSubmit={handleSubmit} noValidate>
                     <div className="form-field">
                         <label htmlFor="fullName">
                             Full name
@@ -169,21 +213,14 @@ function RegisterPage() {
                             value={formData.fullName}
                             onChange={handleChange}
                             autoComplete="name"
-                            aria-invalid={Boolean(
-                                errors.fullName,
-                            )}
+                            aria-invalid={Boolean(errors.fullName)}
                             aria-describedby={
-                                errors.fullName
-                                    ? 'fullName-error'
-                                    : undefined
+                                errors.fullName ? 'fullName-error' : undefined
                             }
                         />
 
                         {errors.fullName && (
-                            <p
-                                id="fullName-error"
-                                role="alert"
-                            >
+                            <p id="fullName-error" role="alert">
                                 {errors.fullName}
                             </p>
                         )}
@@ -201,21 +238,14 @@ function RegisterPage() {
                             value={formData.email}
                             onChange={handleChange}
                             autoComplete="email"
-                            aria-invalid={Boolean(
-                                errors.email,
-                            )}
+                            aria-invalid={Boolean(errors.email)}
                             aria-describedby={
-                                errors.email
-                                    ? 'email-error'
-                                    : undefined
+                                errors.email ? 'email-error' : undefined
                             }
                         />
 
                         {errors.email && (
-                            <p
-                                id="email-error"
-                                role="alert"
-                            >
+                            <p id="email-error" role="alert">
                                 {errors.email}
                             </p>
                         )}
@@ -231,9 +261,7 @@ function RegisterPage() {
                             role="radiogroup"
                             aria-label="Account type"
                             aria-describedby={
-                                errors.role
-                                    ? 'role-error'
-                                    : undefined
+                                errors.role ? 'role-error' : undefined
                             }
                         >
                             <label className="register-role-option">
@@ -241,24 +269,14 @@ function RegisterPage() {
                                     type="radio"
                                     name="role"
                                     value="CUSTOMER"
-                                    checked={
-                                        formData.role ===
-                                        'CUSTOMER'
-                                    }
-                                    onChange={
-                                        handleRoleChange
-                                    }
+                                    checked={formData.role === 'CUSTOMER'}
+                                    onChange={handleRoleChange}
                                 />
 
                                 <span>
-                                    <strong>
-                                        Customer
-                                    </strong>
-
+                                    <strong>Customer</strong>
                                     <small>
-                                        Manage your wallet,
-                                        payments and
-                                        transactions.
+                                        Manage your wallet, payments and transactions.
                                     </small>
                                 </span>
                             </label>
@@ -268,34 +286,21 @@ function RegisterPage() {
                                     type="radio"
                                     name="role"
                                     value="MERCHANT"
-                                    checked={
-                                        formData.role ===
-                                        'MERCHANT'
-                                    }
-                                    onChange={
-                                        handleRoleChange
-                                    }
+                                    checked={formData.role === 'MERCHANT'}
+                                    onChange={handleRoleChange}
                                 />
 
                                 <span>
-                                    <strong>
-                                        Merchant
-                                    </strong>
-
+                                    <strong>Merchant</strong>
                                     <small>
-                                        Manage your
-                                        business payments
-                                        and transactions.
+                                        Manage your business payments and transactions.
                                     </small>
                                 </span>
                             </label>
                         </div>
 
                         {errors.role && (
-                            <p
-                                id="role-error"
-                                role="alert"
-                            >
+                            <p id="role-error" role="alert">
                                 {errors.role}
                             </p>
                         )}
@@ -313,21 +318,14 @@ function RegisterPage() {
                             value={formData.password}
                             onChange={handleChange}
                             autoComplete="new-password"
-                            aria-invalid={Boolean(
-                                errors.password,
-                            )}
+                            aria-invalid={Boolean(errors.password)}
                             aria-describedby={
-                                errors.password
-                                    ? 'password-error'
-                                    : undefined
+                                errors.password ? 'password-error' : undefined
                             }
                         />
 
                         {errors.password && (
-                            <p
-                                id="password-error"
-                                role="alert"
-                            >
+                            <p id="password-error" role="alert">
                                 {errors.password}
                             </p>
                         )}
@@ -342,14 +340,10 @@ function RegisterPage() {
                             id="confirmPassword"
                             name="confirmPassword"
                             type="password"
-                            value={
-                                formData.confirmPassword
-                            }
+                            value={formData.confirmPassword}
                             onChange={handleChange}
                             autoComplete="new-password"
-                            aria-invalid={Boolean(
-                                errors.confirmPassword,
-                            )}
+                            aria-invalid={Boolean(errors.confirmPassword)}
                             aria-describedby={
                                 errors.confirmPassword
                                     ? 'confirmPassword-error'
@@ -358,10 +352,7 @@ function RegisterPage() {
                         />
 
                         {errors.confirmPassword && (
-                            <p
-                                id="confirmPassword-error"
-                                role="alert"
-                            >
+                            <p id="confirmPassword-error" role="alert">
                                 {errors.confirmPassword}
                             </p>
                         )}
@@ -377,6 +368,19 @@ function RegisterPage() {
                             : 'Create account'}
                     </button>
                 </form>
+
+                {serverMessage && (
+                    <p
+                        role="status"
+                        aria-live="polite"
+                        style={{
+                            color: isSuccess ? 'green' : 'red',
+                            marginTop: '12px',
+                        }}
+                    >
+                        {serverMessage}
+                    </p>
+                )}
 
                 <p className="auth-card__footer">
                     Already have an account?{' '}
