@@ -1,3 +1,4 @@
+
 import { Link, useNavigate } from 'react-router'
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
@@ -13,7 +14,23 @@ type LoginFormErrors = {
     password?: string
 }
 
-type DemoUserRole = 'CUSTOMER' | 'MERCHANT' | 'ADMIN'
+type UserRole = 'CUSTOMER' | 'MERCHANT' | 'ADMIN'
+
+type KeycloakTokenResponse = {
+    access_token: string
+    refresh_token?: string
+    expires_in: number
+    token_type: string
+}
+
+type KeycloakTokenClaims = {
+    sub?: string
+    email?: string
+    preferred_username?: string
+    realm_access?: {
+        roles?: string[]
+    }
+}
 
 function LoginPage() {
     const navigate = useNavigate()
@@ -25,17 +42,18 @@ function LoginPage() {
     })
 
     const [errors, setErrors] = useState<LoginFormErrors>({})
+    const [serverError, setServerError] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    function handleChange(
-        event: ChangeEvent<HTMLInputElement>,
-    ) {
+    function handleChange(event: ChangeEvent<HTMLInputElement>) {
         const { name, value } = event.target
 
         setFormData((current) => ({
             ...current,
             [name]: value,
         }))
+
+        setServerError('')
     }
 
     function validateForm(): LoginFormErrors {
@@ -57,40 +75,37 @@ function LoginPage() {
         return validationErrors
     }
 
-    function getDemoUserRole(email: string): DemoUserRole {
-        const normalizedEmail = email.trim().toLowerCase()
+    function getUserRole(claims: KeycloakTokenClaims): UserRole {
+        const roles = claims.realm_access?.roles ?? []
 
-        if (normalizedEmail === 'admin@securepay.com') {
+        if (roles.includes('ADMIN')) {
             return 'ADMIN'
         }
 
-        if (normalizedEmail === 'merchant@securepay.com') {
+        if (roles.includes('MERCHANT')) {
             return 'MERCHANT'
         }
 
         return 'CUSTOMER'
     }
 
-    function getPortalPath(role: DemoUserRole): string {
+    function getPortalPath(role: UserRole): string {
         switch (role) {
             case 'ADMIN':
                 return '/admin'
-
             case 'MERCHANT':
                 return '/merchant'
-
-            case 'CUSTOMER':
             default:
                 return '/customer'
         }
     }
 
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
 
         const validationErrors = validateForm()
-
         setErrors(validationErrors)
+        setServerError('')
 
         if (Object.keys(validationErrors).length > 0) {
             return
@@ -98,26 +113,110 @@ function LoginPage() {
 
         setIsSubmitting(true)
 
-        /*
-         * Temporary frontend-only authentication for evaluation.
-         *
-         * Real authentication will later be handled by
-         * Keycloak/OIDC and the backend.
-         */
-        setTimeout(() => {
-            const email = formData.email.trim().toLowerCase()
-            const role = getDemoUserRole(email)
-            const portalPath = getPortalPath(role)
+        try {
+            const body = new URLSearchParams({
+                grant_type: 'password',
+                client_id: 'securepay-frontend',
+                username: formData.email.trim(),
+                password: formData.password,
+                scope: 'openid profile email',
+            })
+
+            const response = await fetch(
+                'http://localhost:8082/realms/securepay/protocol/openid-connect/token',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body,
+                },
+            )
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                if (result.error === 'invalid_grant') {
+                    throw new Error(
+                        'Invalid email or password. Please check your credentials and try again.',
+                    )
+                }
+
+                if (result.error === 'unauthorized_client') {
+                    throw new Error(
+                        'Keycloak login is not enabled for this client. Please check the client settings.',
+                    )
+                }
+
+                throw new Error(
+                    result.error_description ||
+                    'Login failed. Please try again.',
+                )
+            }
+
+            const tokenData = result as KeycloakTokenResponse
+
+            if (!tokenData.access_token) {
+                throw new Error('Keycloak did not return an access token.')
+            }
+
+            const payload = tokenData.access_token.split('.')[1]
+
+            if (!payload) {
+                throw new Error('Invalid authentication token received.')
+            }
+
+            const normalizedPayload = payload
+                .replace(/-/g, '+')
+                .replace(/_/g, '/')
+
+            const decodedClaims = JSON.parse(
+                window.atob(
+                    normalizedPayload.padEnd(
+                        Math.ceil(normalizedPayload.length / 4) * 4,
+                        '=',
+                    ),
+                ),
+            ) as KeycloakTokenClaims
+
+            const email = (
+                decodedClaims.email ||
+                decodedClaims.preferred_username ||
+                formData.email
+            ).trim().toLowerCase()
+
+            const role = getUserRole(decodedClaims)
+
+            sessionStorage.setItem(
+                'securepay_access_token',
+                tokenData.access_token,
+            )
+
+            if (tokenData.refresh_token) {
+                sessionStorage.setItem(
+                    'securepay_refresh_token',
+                    tokenData.refresh_token,
+                )
+            }
 
             login({
-                id: `demo-${role.toLowerCase()}`,
+                id: decodedClaims.sub || email,
                 email,
                 role,
             })
 
+            navigate(getPortalPath(role))
+        } catch (error) {
+            setServerError(
+                error instanceof TypeError
+                    ? 'Unable to connect to Keycloak. Make sure Keycloak is running and the client allows requests from this frontend.'
+                    : error instanceof Error
+                        ? error.message
+                        : 'An unexpected error occurred during login.',
+            )
+        } finally {
             setIsSubmitting(false)
-            navigate(portalPath)
-        }, 500)
+        }
     }
 
     return (
@@ -135,9 +234,7 @@ function LoginPage() {
 
                 <form onSubmit={handleSubmit} noValidate>
                     <div className="form-field">
-                        <label htmlFor="email">
-                            Email address
-                        </label>
+                        <label htmlFor="email">Email address</label>
 
                         <input
                             id="email"
@@ -148,17 +245,12 @@ function LoginPage() {
                             autoComplete="email"
                             aria-invalid={Boolean(errors.email)}
                             aria-describedby={
-                                errors.email
-                                    ? 'login-email-error'
-                                    : undefined
+                                errors.email ? 'login-email-error' : undefined
                             }
                         />
 
                         {errors.email && (
-                            <p
-                                id="login-email-error"
-                                role="alert"
-                            >
+                            <p id="login-email-error" role="alert">
                                 {errors.email}
                             </p>
                         )}
@@ -166,9 +258,7 @@ function LoginPage() {
 
                     <div className="form-field">
                         <div className="form-field__label-row">
-                            <label htmlFor="password">
-                                Password
-                            </label>
+                            <label htmlFor="password">Password</label>
 
                             <Link
                                 to="/forgot-password"
@@ -194,31 +284,30 @@ function LoginPage() {
                         />
 
                         {errors.password && (
-                            <p
-                                id="login-password-error"
-                                role="alert"
-                            >
+                            <p id="login-password-error" role="alert">
                                 {errors.password}
                             </p>
                         )}
                     </div>
+
+                    {serverError && (
+                        <p role="alert" className="auth-error">
+                            {serverError}
+                        </p>
+                    )}
 
                     <button
                         type="submit"
                         className="auth-submit"
                         disabled={isSubmitting}
                     >
-                        {isSubmitting
-                            ? 'Signing in...'
-                            : 'Sign in'}
+                        {isSubmitting ? 'Signing in...' : 'Sign in'}
                     </button>
                 </form>
 
                 <p className="auth-card__footer">
                     Don't have an account?{' '}
-                    <Link to="/register">
-                        Create an account
-                    </Link>
+                    <Link to="/register">Create an account</Link>
                 </p>
             </div>
         </section>
