@@ -6194,3 +6194,132 @@ a {
     padding-right: 16px;
   }
 }
+
+.beneficiary-primary-button,
+.beneficiary-secondary-button {
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.beneficiary-primary-button {
+  background: #111827;
+  color: #ffffff;
+}
+
+.beneficiary-secondary-button {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.beneficiary-primary-button:disabled,
+.beneficiary-secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.beneficiary-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.beneficiary-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-weight: 600;
+}
+
+.beneficiary-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  font-size: 15px;
+}
+
+.beneficiary-form input:focus {
+  outline: none;
+  border-color: #111827;
+}
+
+.beneficiary-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.beneficiary-review {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.beneficiary-review > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px;
+  background: #f9fafb;
+  border-radius: 9px;
+}
+
+.beneficiary-review span {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.beneficiary-review strong {
+  color: #111827;
+}
+
+.beneficiary-review-warning {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 9px;
+  background: #fff7ed;
+}
+
+.beneficiary-review-warning p {
+  margin-bottom: 0;
+}
+
+.beneficiary-demo-note {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.beneficiary-add-step-indicator {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.beneficiary-add-step-indicator span {
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.beneficiary-add-step-indicator span.active {
+  background: #111827;
+  color: #ffffff;
+}
+
+.beneficiary-eligibility-pending {
+  background: #fff7ed;
+  color: #9a3412;
+}

@@ -6,7 +6,9 @@ import { getBeneficiaryById } from '../services/beneficiaryService'
 function BeneficiaryDetailsPage() {
     const { beneficiaryId } = useParams<{ beneficiaryId: string }>()
 
-    const [beneficiary, setBeneficiary] = useState<Beneficiary | null>(null)
+    const [beneficiary, setBeneficiary] =
+        useState<Beneficiary | null>(null)
+
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -47,7 +49,42 @@ function BeneficiaryDetailsPage() {
         )
     }
 
-    const isTransferEligible = beneficiary?.status === 'ACTIVE'
+    const getEligibilityContent = () => {
+        if (!beneficiary) {
+            return null
+        }
+
+        if (beneficiary.status === 'ACTIVE') {
+            return {
+                className:
+                    'beneficiary-eligibility beneficiary-eligibility-active',
+                icon: '✓',
+                title: 'Available for transfers',
+                description:
+                    'This beneficiary is currently active. A transfer will still be subject to backend authorization and risk checks.',
+            }
+        }
+
+        if (beneficiary.status === 'PENDING') {
+            return {
+                className:
+                    'beneficiary-eligibility beneficiary-eligibility-pending',
+                icon: '⏳',
+                title: 'Pending verification',
+                description:
+                    'This beneficiary is waiting for verification. Transfers will be available once the beneficiary becomes active.',
+            }
+        }
+
+        return {
+            className:
+                'beneficiary-eligibility beneficiary-eligibility-blocked',
+            icon: '!',
+            title: 'Transfers are blocked',
+            description:
+                'Transfers to this beneficiary are currently unavailable.',
+        }
+    }
 
     if (isLoading) {
         return (
@@ -80,6 +117,8 @@ function BeneficiaryDetailsPage() {
             </div>
         )
     }
+
+    const eligibility = getEligibilityContent()
 
     return (
         <div className="beneficiary-details-page">
@@ -145,7 +184,9 @@ function BeneficiaryDetailsPage() {
 
                     <div className="beneficiary-detail-item">
                         <span>Account</span>
-                        <strong>{beneficiary.accountIdentifier}</strong>
+                        <strong>
+                            {beneficiary.accountIdentifier}
+                        </strong>
                     </div>
 
                     <div className="beneficiary-detail-item">
@@ -158,31 +199,19 @@ function BeneficiaryDetailsPage() {
             <div className="beneficiary-details-card">
                 <h3>Transfer Eligibility</h3>
 
-                <div
-                    className={`beneficiary-eligibility ${
-                        isTransferEligible
-                            ? 'beneficiary-eligibility-active'
-                            : 'beneficiary-eligibility-blocked'
-                    }`}
-                >
-                    <div className="beneficiary-eligibility-icon">
-                        {isTransferEligible ? '✓' : '!'}
-                    </div>
+                {eligibility && (
+                    <div className={eligibility.className}>
+                        <div className="beneficiary-eligibility-icon">
+                            {eligibility.icon}
+                        </div>
 
-                    <div>
-                        <strong>
-                            {isTransferEligible
-                                ? 'Available for transfers'
-                                : 'Transfers are blocked'}
-                        </strong>
+                        <div>
+                            <strong>{eligibility.title}</strong>
 
-                        <p>
-                            {isTransferEligible
-                                ? 'This beneficiary is currently active. A transfer will still be subject to backend authorization and risk checks.'
-                                : 'Transfers to this beneficiary are currently unavailable.'}
-                        </p>
+                            <p>{eligibility.description}</p>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     )
