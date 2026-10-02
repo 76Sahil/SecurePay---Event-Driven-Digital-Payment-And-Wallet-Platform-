@@ -63,3 +63,28 @@ export async function manageCard(
         action,
     })
 }
+
+export async function addCard(
+    cardholderName: string,
+    cardNumber: string,
+    expiryMonth: number,
+    expiryYear: number,
+    type: Card['type'],
+): Promise<Card> {
+    const lastFourDigits = cardNumber.slice(-4)
+
+    const newCard: Card = {
+        id: `card-${Date.now()}`,
+        maskedNumber: `•••• •••• •••• ${lastFourDigits}`,
+        cardholderName,
+        type,
+        status: 'PENDING',
+        expiryMonth,
+        expiryYear,
+        currency: 'INR',
+    }
+
+    mockCards.push(newCard)
+
+    return Promise.resolve(newCard)
+}

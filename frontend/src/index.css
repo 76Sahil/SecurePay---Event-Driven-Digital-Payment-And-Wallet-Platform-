@@ -6323,3 +6323,203 @@ a {
   background: #fff7ed;
   color: #9a3412;
 }
+
+.card-add-container {
+  max-width: 760px;
+}
+
+.card-add-step-indicator {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.card-add-step-indicator span {
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.card-add-step-indicator span.active {
+  background: #111827;
+  color: #ffffff;
+}
+
+.card-add-section-heading {
+  margin-bottom: 22px;
+}
+
+.card-add-section-heading h2 {
+  margin-bottom: 6px;
+}
+
+.card-add-section-heading p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.card-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.card-add-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-weight: 600;
+}
+
+.card-add-form input,
+.card-add-form select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  font-size: 15px;
+  background: #ffffff;
+}
+
+.card-add-form input:focus,
+.card-add-form select:focus {
+  outline: none;
+  border-color: #111827;
+}
+
+.card-add-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+
+.card-add-security-note {
+  padding: 15px;
+  border-radius: 9px;
+  background: #f3f4f6;
+}
+
+.card-add-security-note strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.card-add-security-note p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.card-add-demo-note {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.card-add-primary-button,
+.card-add-secondary-button {
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-add-primary-button {
+  background: #111827;
+  color: #ffffff;
+}
+
+.card-add-secondary-button {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.card-add-primary-button:disabled,
+.card-add-secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.card-add-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.card-review {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.card-review > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px;
+  border-radius: 9px;
+  background: #f9fafb;
+}
+
+.card-review span {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.card-review strong {
+  color: #111827;
+}
+
+.card-success-message {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.card-success-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.card-success-message h2 {
+  margin-bottom: 8px;
+}
+
+.card-success-message p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.card-add-success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 700px) {
+  .card-add-row {
+    grid-template-columns: 1fr;
+  }
+
+  .card-add-success-actions {
+    flex-direction: column;
+  }
+}

@@ -39,10 +39,19 @@ function CardsPage() {
             <div className="cards-header">
                 <div>
                     <h1>Cards</h1>
+
                     <p>
-                        Manage your SecurePay cards and card security settings.
+                        Manage your SecurePay cards and card security
+                        settings.
                     </p>
                 </div>
+
+                <Link
+                    to="/customer/cards/add"
+                    className="card-add-primary-button"
+                >
+                    + Add Card
+                </Link>
             </div>
 
             {isLoading && (
@@ -116,7 +125,10 @@ function CardsPage() {
 
                                 <div className="card-item-details">
                                     <div>
-                                        <h3>{getTypeLabel(card.type)} Card</h3>
+                                        <h3>
+                                            {getTypeLabel(card.type)} Card
+                                        </h3>
+
                                         <p>{card.currency}</p>
                                     </div>
 

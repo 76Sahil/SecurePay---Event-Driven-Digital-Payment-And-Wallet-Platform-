@@ -24,6 +24,7 @@ import AddBeneficiaryPage from '../pages/AddBeneficiaryPage'
 import BeneficiaryDetailsPage from '../pages/BeneficiaryDetailsPage'
 import CardsPage from '../pages/CardsPage'
 import CardDetailsPage from '../pages/CardDetailsPage'
+import AddCardPage from '../pages/AddCardPage'
 import NotificationsPage from '../pages/NotificationsPage'
 import SecurityPage from '../pages/SecurityPage'
 import ProfilePage from '../pages/ProfilePage'
@@ -133,6 +134,15 @@ function AppRouter() {
                                     element={<BeneficiaryDetailsPage />}
                                 />
                                 <Route path="/customer/cards" element={<CardsPage />} />
+                                <Route
+                                    path="/customer/cards/:cardId"
+                                    element={<CardDetailsPage />}
+                                />
+                                <Route
+                                    path="/customer/cards/add"
+                                    element={<AddCardPage />}
+                                />
+
                                 <Route
                                     path="/customer/cards/:cardId"
                                     element={<CardDetailsPage />}
