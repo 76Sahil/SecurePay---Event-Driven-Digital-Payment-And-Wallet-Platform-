@@ -24,10 +24,7 @@ export async function getMyWallet(): Promise<Wallet> {
         }
 
         const errorBody = await response.json().catch(() => null)
-
-        throw new Error(
-            errorBody?.message || 'Unable to load your wallet.',
-        )
+        throw new Error(errorBody?.message || 'Unable to load your wallet.')
     }
 
     const data = await response.json()
@@ -38,5 +35,31 @@ export async function getMyWallet(): Promise<Wallet> {
         balance: Number(data.balance),
         currency: String(data.currency),
         status: data.status,
+    }
+}
+
+export async function topUpWallet(amount: number): Promise<void> {
+    const token = sessionStorage.getItem('securepay_access_token')
+
+    if (!token) {
+        throw new Error('Please log in to top up your wallet.')
+    }
+
+    const response = await fetch(
+        `${API_BASE_URL}/api/wallet/transactions/top-up`,
+        {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ amount }),
+        },
+    )
+
+    const data = await response.json().catch(() => null)
+
+    if (!response.ok) {
+        throw new Error(data?.message || 'Unable to top up your wallet.')
     }
 }
