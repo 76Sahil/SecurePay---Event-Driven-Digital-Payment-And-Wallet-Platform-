@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import type {
     SecurityActivity,
     SecurityOverview,
@@ -187,6 +188,17 @@ function SecurityPage() {
                                     ? ' enabled for your account.'
                                     : ' not enabled for your account.'}
                             </p>
+
+                            <div style={{ marginTop: '16px' }}>
+                                <Link
+                                    to="/customer/security/mfa"
+                                    className="primary-button"
+                                >
+                                    {overview.mfaStatus === 'ENABLED'
+                                        ? 'Manage MFA'
+                                        : 'Enable MFA'}
+                                </Link>
+                            </div>
                         </div>
 
                         <div className="security-card">
