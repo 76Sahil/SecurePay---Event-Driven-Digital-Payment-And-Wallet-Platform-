@@ -182,13 +182,13 @@ public class PaymentGatewayService {
     public Map<String, Object> processWebhook(String payload, String signatureHeader) {
         String eventId = "evt_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
 
-        boolean signatureValid = true;
-        if (!"SIMULATED".equalsIgnoreCase(gatewayProvider)) {
-            if (signatureHeader == null || signatureHeader.isBlank()) {
-                signatureValid = false;
-            } else {
-                signatureValid = verifyHmacSha256(payload, signatureHeader, razorpayWebhookSecret);
-            }
+        boolean signatureValid;
+        if ("SIMULATED".equalsIgnoreCase(gatewayProvider) && ("sig_mock".equalsIgnoreCase(signatureHeader) || signatureHeader == null || signatureHeader.isBlank())) {
+            signatureValid = true;
+        } else if (signatureHeader != null && !signatureHeader.isBlank()) {
+            signatureValid = verifyHmacSha256(payload, signatureHeader, razorpayWebhookSecret);
+        } else {
+            signatureValid = false;
         }
 
         if (!signatureValid) {
@@ -243,8 +243,9 @@ public class PaymentGatewayService {
             SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
             mac.init(secretKeySpec);
             byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            String expected = HexFormat.of().formatHex(hash);
-            return expected.equalsIgnoreCase(signature);
+            byte[] expectedBytes = HexFormat.of().formatHex(hash).getBytes(StandardCharsets.UTF_8);
+            byte[] signatureBytes = signature.toLowerCase().getBytes(StandardCharsets.UTF_8);
+            return java.security.MessageDigest.isEqual(expectedBytes, signatureBytes);
         } catch (Exception e) {
             log.error("Failed to compute HMAC-SHA256: {}", e.getMessage());
             return false;

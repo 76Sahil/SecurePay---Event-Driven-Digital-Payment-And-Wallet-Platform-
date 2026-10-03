@@ -7,7 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SecurepayBackendApplication {
 
 	public static void main(String[] args) {
+		java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("UTC"));
+		System.setProperty("user.timezone", "UTC");
 		SpringApplication.run(SecurepayBackendApplication.class, args);
 	}
-
 }

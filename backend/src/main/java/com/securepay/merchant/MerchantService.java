@@ -54,13 +54,13 @@ public class MerchantService {
         });
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public MerchantProfileResponse getMerchantProfile(String keycloakUserId) {
         Merchant merchant = getOrCreateMerchant(keycloakUserId);
         return MerchantProfileResponse.from(merchant);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<ApiKeyResponse> listApiKeys(String keycloakUserId) {
         Merchant merchant = getOrCreateMerchant(keycloakUserId);
         return apiKeyRepository.findByMerchantOrderByCreatedAtDesc(merchant)
@@ -118,7 +118,7 @@ public class MerchantService {
         apiKeyRepository.save(apiKey);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public MerchantDashboardSummaryResponse getDashboardSummary(String keycloakUserId) {
         Merchant merchant = getOrCreateMerchant(keycloakUserId);
 
