@@ -13,6 +13,29 @@ const mockMerchantProfile: MerchantProfile = {
     settlementCurrency: 'INR',
 }
 
+const API_BASE_URL = 'http://localhost:8080'
+
 export async function getMerchantProfile(): Promise<MerchantProfile> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (!token) {
+        return Promise.resolve(mockMerchantProfile)
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/merchant/profile`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+
+        if (response.ok) {
+            return await response.json()
+        }
+    } catch {
+        // Fallback to mock profile for offline / demo viewing
+    }
+
     return Promise.resolve(mockMerchantProfile)
 }

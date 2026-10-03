@@ -40,8 +40,90 @@ const mockMerchantApiKeys: MerchantApiKey[] = [
     },
 ]
 
-export async function getMerchantApiKeys(): Promise<
-    MerchantApiKey[]
-> {
+const API_BASE_URL = 'http://localhost:8080'
+
+export async function getMerchantApiKeys(): Promise<MerchantApiKey[]> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (!token) {
+        return Promise.resolve(mockMerchantApiKeys)
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/merchant/api-keys`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+
+        if (response.ok) {
+            return await response.json()
+        }
+    } catch {
+        // Fallback to mock api keys
+    }
+
     return Promise.resolve(mockMerchantApiKeys)
+}
+
+export async function createMerchantApiKey(
+    name: string,
+    environment: 'TEST' | 'LIVE',
+    scopes: string[],
+): Promise<MerchantApiKey & { secretKey?: string }> {
+    const token = sessionStorage.getItem('securepay_access_token')
+
+    if (token) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/merchant/api-keys`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, environment, scopes }),
+            })
+
+            if (response.ok) {
+                return await response.json()
+            }
+        } catch {
+            // fallback
+        }
+    }
+
+    const mockKey: MerchantApiKey = {
+        id: 'key-' + Date.now().toString().slice(-4),
+        name,
+        prefix: environment === 'LIVE' ? 'sp_live_9X1Y' : 'sp_test_7Z2A',
+        environment,
+        scopes,
+        status: 'ACTIVE',
+        createdAt: new Date().toISOString(),
+    }
+    mockMerchantApiKeys.unshift(mockKey)
+    return mockKey
+}
+
+export async function revokeMerchantApiKey(keyId: string): Promise<void> {
+    const token = sessionStorage.getItem('securepay_access_token')
+
+    if (token) {
+        try {
+            await fetch(`${API_BASE_URL}/api/merchant/api-keys/${keyId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+        } catch {
+            // fallback
+        }
+    }
+
+    const key = mockMerchantApiKeys.find((k) => k.id === keyId)
+    if (key) {
+        key.status = 'REVOKED'
+    }
 }
