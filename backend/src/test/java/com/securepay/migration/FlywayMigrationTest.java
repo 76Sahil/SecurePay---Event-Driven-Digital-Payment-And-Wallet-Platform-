@@ -20,7 +20,7 @@ class FlywayMigrationTest {
 
         assertThat(appliedMigrations)
                 .isNotEmpty()
-                .hasSize(9);
+                .hasSize(10);
 
         assertThat(appliedMigrations[0].getDescription()).isEqualTo("create users table");
         assertThat(appliedMigrations[1].getDescription()).isEqualTo("create wallets table");
@@ -31,7 +31,8 @@ class FlywayMigrationTest {
         assertThat(appliedMigrations[6].getDescription()).isEqualTo("create merchants and api keys tables");
         assertThat(appliedMigrations[7].getDescription()).isEqualTo("create risk and audit tables");
         assertThat(appliedMigrations[8].getDescription()).isEqualTo("create merchant payments and refunds tables");
+        assertThat(appliedMigrations[9].getDescription()).isEqualTo("create gateway and outbox tables");
 
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("9");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("10");
     }
 }

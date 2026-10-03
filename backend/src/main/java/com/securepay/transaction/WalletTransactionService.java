@@ -8,6 +8,7 @@ import com.securepay.idempotency.IdempotencyRecord;
 import com.securepay.idempotency.IdempotencyService;
 import com.securepay.ledger.LedgerEntryType;
 import com.securepay.ledger.LedgerService;
+import com.securepay.outbox.OutboxService;
 import com.securepay.risk.RiskAssessment;
 import com.securepay.risk.RiskDecision;
 import com.securepay.risk.RiskEngineService;
@@ -31,6 +32,7 @@ public class WalletTransactionService {
     private final IdempotencyService idempotencyService;
     private final RiskEngineService riskEngineService;
     private final SecurityAuditService securityAuditService;
+    private final OutboxService outboxService;
     private final ObjectMapper objectMapper;
 
     public WalletTransactionService(
@@ -41,6 +43,7 @@ public class WalletTransactionService {
             IdempotencyService idempotencyService,
             RiskEngineService riskEngineService,
             SecurityAuditService securityAuditService,
+            OutboxService outboxService,
             ObjectMapper objectMapper) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
@@ -49,6 +52,7 @@ public class WalletTransactionService {
         this.idempotencyService = idempotencyService;
         this.riskEngineService = riskEngineService;
         this.securityAuditService = securityAuditService;
+        this.outboxService = outboxService;
         this.objectMapper = objectMapper;
     }
 
@@ -140,6 +144,13 @@ public class WalletTransactionService {
                     amount,
                     updatedBalance,
                     "Top-up credit"
+            );
+
+            outboxService.saveEvent(
+                    "WALLET_TOPUP",
+                    String.valueOf(saved.getId()),
+                    "TOPUP_COMPLETED",
+                    "{\"transactionId\":" + saved.getId() + ",\"amount\":" + amount + ",\"userId\":" + user.getId() + "}"
             );
 
             Map<String, Object> response = new LinkedHashMap<>();
@@ -341,6 +352,13 @@ public class WalletTransactionService {
                     null,
                     null,
                     "Transfer of INR " + amount + " to " + recipient.getEmail() + " completed successfully."
+            );
+
+            outboxService.saveEvent(
+                    "WALLET_TRANSFER",
+                    String.valueOf(savedOutgoing.getId()),
+                    "TRANSFER_COMPLETED",
+                    "{\"outgoingId\":" + savedOutgoing.getId() + ",\"incomingId\":" + savedIncoming.getId() + ",\"amount\":" + amount + "}"
             );
 
             Map<String, Object> response = new LinkedHashMap<>();
