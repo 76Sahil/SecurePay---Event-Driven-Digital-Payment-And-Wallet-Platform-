@@ -68,7 +68,7 @@ public class AuthController {
                                 "email", user.getEmail(),
                                 "accountType", user.getAccountType(),
                                 "memberSince", user.getCreatedAt().toString(),
-                                "accountStatus", "ACTIVE"
+                                "accountStatus", user.getStatus()
                         ))
                 )
                 .orElseGet(() ->

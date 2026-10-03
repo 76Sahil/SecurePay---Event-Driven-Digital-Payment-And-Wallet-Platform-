@@ -20,13 +20,14 @@ class FlywayMigrationTest {
 
         assertThat(appliedMigrations)
                 .isNotEmpty()
-                .hasSize(4);
+                .hasSize(5);
 
         assertThat(appliedMigrations[0].getDescription()).isEqualTo("create users table");
         assertThat(appliedMigrations[1].getDescription()).isEqualTo("create wallets table");
         assertThat(appliedMigrations[2].getDescription()).isEqualTo("create wallet transactions table");
         assertThat(appliedMigrations[3].getDescription()).isEqualTo("create beneficiaries table");
+        assertThat(appliedMigrations[4].getDescription()).isEqualTo("enhance users table");
 
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("4");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("5");
     }
 }
