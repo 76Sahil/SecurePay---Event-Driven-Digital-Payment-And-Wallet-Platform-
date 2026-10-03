@@ -8,6 +8,7 @@ import com.securepay.idempotency.IdempotencyRecord;
 import com.securepay.idempotency.IdempotencyService;
 import com.securepay.ledger.LedgerEntryType;
 import com.securepay.ledger.LedgerService;
+import com.securepay.notification.NotificationService;
 import com.securepay.outbox.OutboxService;
 import com.securepay.risk.RiskAssessment;
 import com.securepay.risk.RiskDecision;
@@ -33,6 +34,7 @@ public class WalletTransactionService {
     private final RiskEngineService riskEngineService;
     private final SecurityAuditService securityAuditService;
     private final OutboxService outboxService;
+    private final NotificationService notificationService;
     private final ObjectMapper objectMapper;
 
     public WalletTransactionService(
@@ -44,6 +46,7 @@ public class WalletTransactionService {
             RiskEngineService riskEngineService,
             SecurityAuditService securityAuditService,
             OutboxService outboxService,
+            NotificationService notificationService,
             ObjectMapper objectMapper) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
@@ -53,6 +56,7 @@ public class WalletTransactionService {
         this.riskEngineService = riskEngineService;
         this.securityAuditService = securityAuditService;
         this.outboxService = outboxService;
+        this.notificationService = notificationService;
         this.objectMapper = objectMapper;
     }
 
@@ -153,6 +157,15 @@ public class WalletTransactionService {
                     "{\"transactionId\":" + saved.getId() + ",\"amount\":" + amount + ",\"userId\":" + user.getId() + "}"
             );
 
+            notificationService.createNotification(
+                    user,
+                    "PAYMENT",
+                    "Wallet Top-Up Successful",
+                    "Your wallet was credited with INR " + amount + ". New balance: INR " + updatedBalance,
+                    String.valueOf(saved.getId()),
+                    null
+            );
+
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("transactionId", saved.getId());
             response.put("amount", saved.getAmount());
@@ -216,6 +229,14 @@ public class WalletTransactionService {
                     null,
                     null,
                     "Transfer of INR " + amount + " blocked: " + riskAssessment.getReasons()
+            );
+            notificationService.createNotification(
+                    sender,
+                    "SECURITY",
+                    "Transfer Blocked by Risk Engine",
+                    "Your transfer attempt of INR " + amount + " was blocked: " + riskAssessment.getReasons(),
+                    null,
+                    null
             );
             throw new IllegalStateException("Transfer blocked by security risk engine: " + riskAssessment.getReasons());
         }
@@ -359,6 +380,24 @@ public class WalletTransactionService {
                     String.valueOf(savedOutgoing.getId()),
                     "TRANSFER_COMPLETED",
                     "{\"outgoingId\":" + savedOutgoing.getId() + ",\"incomingId\":" + savedIncoming.getId() + ",\"amount\":" + amount + "}"
+            );
+
+            notificationService.createNotification(
+                    sender,
+                    "TRANSACTION",
+                    "Transfer Completed",
+                    "Your transfer of INR " + amount + " to " + recipient.getFullName() + " was completed successfully.",
+                    String.valueOf(savedOutgoing.getId()),
+                    null
+            );
+
+            notificationService.createNotification(
+                    recipient,
+                    "TRANSACTION",
+                    "Money Received",
+                    "You received INR " + amount + " from " + sender.getFullName() + ".",
+                    String.valueOf(savedIncoming.getId()),
+                    null
             );
 
             Map<String, Object> response = new LinkedHashMap<>();

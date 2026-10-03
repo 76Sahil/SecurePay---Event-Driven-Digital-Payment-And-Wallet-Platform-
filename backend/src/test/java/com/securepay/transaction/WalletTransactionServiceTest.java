@@ -5,6 +5,7 @@ import com.securepay.audit.SecurityAuditService;
 import com.securepay.idempotency.IdempotencyService;
 import com.securepay.ledger.LedgerEntryType;
 import com.securepay.ledger.LedgerService;
+import com.securepay.notification.NotificationService;
 import com.securepay.outbox.OutboxService;
 import com.securepay.risk.RiskAssessment;
 import com.securepay.risk.RiskDecision;
@@ -58,6 +59,9 @@ class WalletTransactionServiceTest {
 
     @Mock
     private OutboxService outboxService;
+
+    @Mock
+    private NotificationService notificationService;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();

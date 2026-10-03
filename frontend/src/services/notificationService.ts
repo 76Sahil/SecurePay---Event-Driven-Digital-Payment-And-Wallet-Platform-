@@ -53,36 +53,87 @@ const mockNotifications: Notification[] = [
     },
 ]
 
+const API_BASE_URL = 'http://localhost:8080'
+
 export async function getNotifications(): Promise<Notification[]> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (!token) {
+        return Promise.resolve(mockNotifications)
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/notifications`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+
+        if (response.ok) {
+            const data = await response.json()
+            return data.map((n: any) => ({
+                id: String(n.id),
+                type: n.type,
+                status: n.status,
+                title: n.title,
+                message: n.message,
+                createdAt: n.createdAt,
+                transactionId: n.transactionId,
+                paymentId: n.paymentId,
+            }))
+        }
+    } catch {
+        // Fallback to mock notifications
+    }
+
     return Promise.resolve(mockNotifications)
 }
 
 export async function getNotificationById(
     notificationId: string,
 ): Promise<Notification | null> {
-    const notification = mockNotifications.find(
-        (item) => item.id === notificationId,
-    )
-
-    return Promise.resolve(notification ?? null)
+    const notifications = await getNotifications()
+    return notifications.find((item) => item.id === notificationId) ?? null
 }
 
 export async function markNotificationAsRead(
     notificationId: string,
 ): Promise<NotificationManagementResponse> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (token) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            })
+
+            if (response.ok) {
+                const res = await response.json()
+                return {
+                    notificationId: String(res.notificationId),
+                    status: res.status,
+                    action: 'MARK_AS_READ',
+                }
+            }
+        } catch {
+            // Fallback to mock update
+        }
+    }
+
     const notification = mockNotifications.find(
         (item) => item.id === notificationId,
     )
 
-    if (!notification) {
-        throw new Error('Notification not found.')
+    if (notification) {
+        notification.status = 'READ'
     }
 
-    notification.status = 'READ'
-
     return Promise.resolve({
-        notificationId: notification.id,
-        status: notification.status,
+        notificationId: notificationId,
+        status: 'READ',
         action: 'MARK_AS_READ',
     })
 }
