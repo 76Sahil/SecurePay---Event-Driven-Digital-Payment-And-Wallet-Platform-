@@ -54,6 +54,8 @@ export async function topUpWallet(amount: number): Promise<WalletTopUpResponse> 
         throw new Error('Please log in to top up your wallet.')
     }
 
+    const idempotencyKey = crypto.randomUUID()
+
     const response = await fetch(
         `${API_BASE_URL}/api/wallet/transactions/top-up`,
         {
@@ -61,6 +63,7 @@ export async function topUpWallet(amount: number): Promise<WalletTopUpResponse> 
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
+                'Idempotency-Key': idempotencyKey,
             },
             body: JSON.stringify({ amount }),
         },
@@ -85,6 +88,8 @@ export async function transferWallet(
         throw new Error('Please log in to transfer money.')
     }
 
+    const idempotencyKey = crypto.randomUUID()
+
     const response = await fetch(
         `${API_BASE_URL}/api/wallet/transactions/transfer`,
         {
@@ -92,6 +97,7 @@ export async function transferWallet(
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
+                'Idempotency-Key': idempotencyKey,
             },
             body: JSON.stringify({
                 recipientEmail: recipientEmail.trim(),

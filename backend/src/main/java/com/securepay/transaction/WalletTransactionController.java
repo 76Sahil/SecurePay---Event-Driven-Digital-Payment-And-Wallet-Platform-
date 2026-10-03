@@ -34,21 +34,24 @@ public class WalletTransactionController {
     @PostMapping("/top-up")
     public ResponseEntity<Map<String, Object>> topUp(
             @AuthenticationPrincipal Jwt jwt,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @Valid @RequestBody WalletTopUpRequest request) {
         return ResponseEntity.ok(
-                transactionService.topUp(jwt.getSubject(), request.getAmount())
+                transactionService.topUp(jwt.getSubject(), request.getAmount(), idempotencyKey)
         );
     }
 
     @PostMapping("/transfer")
     public ResponseEntity<Map<String, Object>> transfer(
             @AuthenticationPrincipal Jwt jwt,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @Valid @RequestBody WalletTransferRequest request) {
         return ResponseEntity.ok(
                 transactionService.transfer(
                         jwt.getSubject(),
                         request.getRecipientEmail(),
-                        request.getAmount()
+                        request.getAmount(),
+                        idempotencyKey
                 )
         );
     }

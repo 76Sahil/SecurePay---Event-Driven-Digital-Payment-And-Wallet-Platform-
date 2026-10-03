@@ -21,7 +21,7 @@ public class WalletController {
         this.walletService = walletService;
     }
 
-    @GetMapping
+    @GetMapping({"", "/me"})
     public ResponseEntity<Map<String, Object>> getMyWallet(
             @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(
