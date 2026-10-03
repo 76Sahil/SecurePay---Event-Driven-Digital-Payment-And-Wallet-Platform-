@@ -60,7 +60,7 @@ function CustomerPortalPage() {
 
     const { wallet, recentTransactions } = dashboard
 
-    const totalTransactions = recentTransactions.length
+    const totalTransactions = dashboard.totalTransactions
 
     return (
         <section className="customer-dashboard">

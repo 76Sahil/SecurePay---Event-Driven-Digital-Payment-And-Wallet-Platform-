@@ -70,8 +70,8 @@ function AddMoneyPage() {
             })
 
             setPayment(response)
-        } catch {
-            setError('Unable to initiate the payment. Please try again.')
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Unable to add money. Please try again.')
         } finally {
             setIsSubmitting(false)
         }
@@ -220,11 +220,11 @@ function AddMoneyPage() {
                 <section className="payment-created-banner">
                     <div>
                         <p className="payment-created-banner__eyebrow">
-                            Payment Created
+                            Wallet Top-up Completed
                         </p>
 
                         <h2>
-                            Your payment is ready to continue.
+                            Your SecurePay demo wallet balance has been updated.
                         </h2>
 
                         <p>

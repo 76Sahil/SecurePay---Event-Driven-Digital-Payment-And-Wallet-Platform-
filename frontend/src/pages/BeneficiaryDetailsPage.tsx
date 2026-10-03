@@ -183,6 +183,11 @@ function BeneficiaryDetailsPage() {
                     </div>
 
                     <div className="beneficiary-detail-item">
+                        <span>Registered SecurePay Email</span>
+                        <strong>{beneficiary.recipientEmail}</strong>
+                    </div>
+
+                    <div className="beneficiary-detail-item">
                         <span>Account</span>
                         <strong>
                             {beneficiary.accountIdentifier}

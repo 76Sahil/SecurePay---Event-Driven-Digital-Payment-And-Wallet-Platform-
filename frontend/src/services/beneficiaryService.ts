@@ -1,57 +1,94 @@
+
 import type { Beneficiary } from '../types/beneficiary'
 
-const mockBeneficiaries: Beneficiary[] = [
-    {
-        id: 'beneficiary-demo-001',
-        name: 'Rahul Sharma',
-        accountIdentifier: '•••• 4821',
-        bankName: 'HDFC Bank',
-        status: 'ACTIVE',
-    },
-    {
-        id: 'beneficiary-demo-002',
-        name: 'Priya Singh',
-        accountIdentifier: '•••• 1937',
-        bankName: 'ICICI Bank',
-        status: 'ACTIVE',
-    },
-    {
-        id: 'beneficiary-demo-003',
-        name: 'Amit Verma',
-        accountIdentifier: '•••• 7204',
-        bankName: 'Axis Bank',
-        status: 'BLOCKED',
-    },
-]
+const API_BASE_URL = 'http://localhost:8080/api/beneficiaries'
+
+function getAuthToken(): string {
+    const token = sessionStorage.getItem('securepay_access_token')
+
+    if (!token) {
+        throw new Error('Session expired. Please login again.')
+    }
+
+    return token
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
+    const data = await response.json().catch(() => null)
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message ||
+            data?.error ||
+            'Unable to process beneficiary request.',
+        )
+    }
+
+    return data as T
+}
 
 export async function getBeneficiaries(): Promise<Beneficiary[]> {
-    return Promise.resolve(mockBeneficiaries)
+    const token = getAuthToken()
+
+    const response = await fetch(API_BASE_URL, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    })
+
+    return handleResponse<Beneficiary[]>(response)
 }
 
 export async function getBeneficiaryById(
     beneficiaryId: string,
 ): Promise<Beneficiary | null> {
-    const beneficiary = mockBeneficiaries.find(
-        (item) => item.id === beneficiaryId,
+    const token = getAuthToken()
+
+    const response = await fetch(
+        `${API_BASE_URL}/${encodeURIComponent(beneficiaryId)}`,
+        {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        },
     )
 
-    return Promise.resolve(beneficiary ?? null)
+    if (response.status === 404) {
+        return null
+    }
+
+    return handleResponse<Beneficiary>(response)
 }
 
 export async function addBeneficiary(
     name: string,
     bankName: string,
     accountNumber: string,
+    recipientEmail?: string,
 ): Promise<Beneficiary> {
-    const newBeneficiary: Beneficiary = {
-        id: `beneficiary-${Date.now()}`,
-        name,
-        accountIdentifier: `•••• ${accountNumber.slice(-4)}`,
-        bankName,
-        status: 'PENDING',
+    const token = getAuthToken()
+
+    if (!recipientEmail?.trim()) {
+        throw new Error(
+            'Recipient email is required for a registered SecurePay customer.',
+        )
     }
 
-    mockBeneficiaries.push(newBeneficiary)
+    const response = await fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            name: name.trim(),
+            bankName: bankName.trim(),
+            accountNumber: accountNumber.trim(),
+            recipientEmail: recipientEmail.trim().toLowerCase(),
+        }),
+    })
 
-    return Promise.resolve(newBeneficiary)
+    return handleResponse<Beneficiary>(response)
 }

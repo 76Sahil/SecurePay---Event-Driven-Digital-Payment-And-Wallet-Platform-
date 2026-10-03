@@ -2,15 +2,23 @@ import type {
     PaymentInitiationRequest,
     PaymentInitiationResponse,
 } from '../types/payment'
+import { topUpWallet } from './walletService'
 
 export async function initiatePayment(
     request: PaymentInitiationRequest,
 ): Promise<PaymentInitiationResponse> {
-    return Promise.resolve({
-        paymentId: 'payment-demo-001',
-        reference: 'SP-PAY-10001',
-        amount: request.amount,
-        currency: request.currency,
-        status: 'CREATED',
-    })
+    if (request.currency !== 'INR') {
+        throw new Error('Only INR wallet top-ups are supported.')
+    }
+
+    const result = await topUpWallet(request.amount)
+    const transactionId = String(result.transactionId)
+
+    return {
+        paymentId: transactionId,
+        reference: `SP-TXN-${transactionId}`,
+        amount: Number(result.amount),
+        currency: String(result.currency),
+        status: result.status as PaymentInitiationResponse['status'],
+    }
 }

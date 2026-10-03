@@ -1,3 +1,4 @@
+
 export type TransferStatus =
     | 'CREATED'
     | 'PENDING'
@@ -9,17 +10,20 @@ export type TransferStatus =
     | 'BLOCKED'
 
 export type TransferInitiationRequest = {
-    beneficiaryId: string
+    recipientEmail: string
     amount: number
-    currency: string
-    note?: string
 }
 
 export type TransferInitiationResponse = {
-    transactionId: string
-    reference: string
-    beneficiaryId: string
+    reference?: string
+    transactionId: string | number
+    recipientTransactionId?: string | number
+    recipientName?: string
+    recipientEmail?: string
     amount: number
     currency: string
     status: TransferStatus
+    senderBalance?: number
+    recipientBalance?: number
+    message?: string
 }

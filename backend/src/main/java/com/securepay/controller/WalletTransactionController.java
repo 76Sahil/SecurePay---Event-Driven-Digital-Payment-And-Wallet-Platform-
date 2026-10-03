@@ -2,6 +2,7 @@
 package com.securepay.controller;
 
 import com.securepay.dto.WalletTopUpRequest;
+import com.securepay.dto.WalletTransferRequest;
 import com.securepay.service.WalletTransactionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -45,6 +46,22 @@ public class WalletTransactionController {
             return ResponseEntity.ok(
                     transactionService.topUp(
                             jwt.getSubject(), request.getAmount()));
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", exception.getMessage()));
+        }
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<?> transfer(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody WalletTransferRequest request) {
+        try {
+            return ResponseEntity.ok(
+                    transactionService.transfer(
+                            jwt.getSubject(),
+                            request.getRecipientEmail(),
+                            request.getAmount()));
         } catch (IllegalArgumentException exception) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", exception.getMessage()));

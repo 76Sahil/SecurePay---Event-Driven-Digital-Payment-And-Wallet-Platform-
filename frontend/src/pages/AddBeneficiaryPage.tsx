@@ -4,6 +4,7 @@ import { addBeneficiary } from '../services/beneficiaryService'
 
 type FormData = {
     name: string
+    recipientEmail: string
     bankName: string
     accountNumber: string
     confirmAccountNumber: string
@@ -16,6 +17,7 @@ function AddBeneficiaryPage() {
 
     const [formData, setFormData] = useState<FormData>({
         name: '',
+        recipientEmail: '',
         bankName: '',
         accountNumber: '',
         confirmAccountNumber: '',
@@ -41,6 +43,11 @@ function AddBeneficiaryPage() {
     const validateForm = (): boolean => {
         if (!formData.name.trim()) {
             setError('Please enter the beneficiary name.')
+            return false
+        }
+
+        if (!formData.recipientEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.recipientEmail.trim())) {
+            setError('Enter the registered email address of a SecurePay customer.')
             return false
         }
 
@@ -100,6 +107,7 @@ function AddBeneficiaryPage() {
                 formData.name.trim(),
                 formData.bankName.trim(),
                 formData.accountNumber,
+                formData.recipientEmail.trim().toLowerCase(),
             )
 
             setCreatedBeneficiaryId(beneficiary.id)
@@ -128,8 +136,7 @@ function AddBeneficiaryPage() {
                             </strong>
 
                             <p>
-                                The beneficiary has been added and is
-                                currently pending verification.
+                                The beneficiary has been saved and is ready for SecurePay wallet transfers.
                             </p>
                         </div>
                     </div>
@@ -222,6 +229,18 @@ function AddBeneficiaryPage() {
                             </label>
 
                             <label>
+                                Registered SecurePay Email
+
+                                <input
+                                    type="email"
+                                    autoComplete="email"
+                                    value={formData.recipientEmail}
+                                    onChange={(event) => updateField('recipientEmail', event.target.value)}
+                                    placeholder="customer@example.com"
+                                />
+                            </label>
+
+                            <label>
                                 Bank Name
 
                                 <input
@@ -304,6 +323,11 @@ function AddBeneficiaryPage() {
                             <div>
                                 <span>Name</span>
                                 <strong>{formData.name}</strong>
+                            </div>
+
+                            <div>
+                                <span>Registered Email</span>
+                                <strong>{formData.recipientEmail}</strong>
                             </div>
 
                             <div>

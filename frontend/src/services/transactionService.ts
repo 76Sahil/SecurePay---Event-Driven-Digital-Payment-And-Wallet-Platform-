@@ -47,7 +47,7 @@ async function fetchTransactions(): Promise<Transaction[]> {
     return data.map((item) => {
         const type = item.type.toUpperCase()
         const direction =
-            ['TOP_UP', 'DEPOSIT', 'CREDIT'].includes(type)
+            ['TOP_UP', 'DEPOSIT', 'CREDIT', 'TRANSFER_IN'].includes(type)
                 ? 'CREDIT'
                 : 'DEBIT'
 
