@@ -4,7 +4,7 @@ services:
     container_name: securepay-postgres
     restart: unless-stopped
     ports:
-      - "${DB_HOST_PORT:-5432}:5432"
+      - "${DB_HOST_PORT:-5433}:5432"
     environment:
       POSTGRES_DB: ${DB_NAME:-securepay}
       POSTGRES_USER: ${DB_USERNAME:-postgres}
