@@ -41,6 +41,10 @@ public class WalletTransaction {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Wallet getWallet() {
         return wallet;
     }

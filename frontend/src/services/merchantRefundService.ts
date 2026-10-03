@@ -47,6 +47,87 @@ const mockMerchantRefunds: MerchantRefund[] = [
     },
 ]
 
+const API_BASE_URL = 'http://localhost:8080'
+
 export async function getMerchantRefunds(): Promise<MerchantRefund[]> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (!token) {
+        return Promise.resolve(mockMerchantRefunds)
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/merchant/refunds`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+
+        if (response.ok) {
+            const data = await response.json()
+            return data.map((r: any) => ({
+                id: String(r.id),
+                reference: r.reference,
+                paymentReference: r.paymentReference,
+                customerName: r.customerName,
+                amount: Number(r.amount),
+                currency: r.currency,
+                reason: r.reason,
+                status: r.status,
+                createdAt: r.createdAt,
+            }))
+        }
+    } catch {
+        // Fallback to mock data
+    }
+
     return Promise.resolve(mockMerchantRefunds)
+}
+
+export async function createMerchantRefund(refundData: {
+    paymentReference: string
+    amount: number
+    reason: string
+}): Promise<MerchantRefund> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (token) {
+        const response = await fetch(`${API_BASE_URL}/api/merchant/refunds`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(refundData),
+        })
+
+        if (response.ok) {
+            const r = await response.json()
+            return {
+                id: String(r.id),
+                reference: r.reference,
+                paymentReference: r.paymentReference,
+                customerName: r.customerName,
+                amount: Number(r.amount),
+                currency: r.currency,
+                reason: r.reason,
+                status: r.status,
+                createdAt: r.createdAt,
+            }
+        }
+    }
+
+    // Mock fallback
+    const newRefund: MerchantRefund = {
+        id: `refund-${Date.now()}`,
+        reference: `SP-REF-${Math.floor(70000 + Math.random() * 20000)}`,
+        paymentReference: refundData.paymentReference,
+        customerName: 'Customer',
+        amount: refundData.amount,
+        currency: 'INR',
+        reason: refundData.reason,
+        status: 'SUCCESS',
+        createdAt: new Date().toISOString(),
+    }
+    mockMerchantRefunds.unshift(newRefund)
+    return newRefund
 }

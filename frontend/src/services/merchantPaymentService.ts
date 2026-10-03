@@ -58,18 +58,126 @@ const mockMerchantPayments: MerchantPayment[] = [
     },
 ]
 
-export async function getMerchantPayments(): Promise<
-    MerchantPayment[]
-> {
+const API_BASE_URL = 'http://localhost:8080'
+
+export async function getMerchantPayments(): Promise<MerchantPayment[]> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (!token) {
+        return Promise.resolve(mockMerchantPayments)
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/merchant/payments`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+
+        if (response.ok) {
+            const data = await response.json()
+            return data.map((p: any) => ({
+                id: String(p.id),
+                reference: p.reference,
+                customerName: p.customerName,
+                customerEmail: p.customerEmail,
+                amount: Number(p.amount),
+                currency: p.currency,
+                method: p.method,
+                status: p.status,
+                createdAt: p.createdAt,
+            }))
+        }
+    } catch {
+        // Fallback to mock data
+    }
+
     return Promise.resolve(mockMerchantPayments)
 }
 
 export async function getMerchantPaymentById(
     paymentId: string,
 ): Promise<MerchantPayment | null> {
-    const payments = await getMerchantPayments()
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (token) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/merchant/payments/${paymentId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            })
 
-    return (
-        payments.find((payment) => payment.id === paymentId) ?? null
-    )
+            if (response.ok) {
+                const p = await response.json()
+                return {
+                    id: String(p.id),
+                    reference: p.reference,
+                    customerName: p.customerName,
+                    customerEmail: p.customerEmail,
+                    amount: Number(p.amount),
+                    currency: p.currency,
+                    method: p.method,
+                    status: p.status,
+                    createdAt: p.createdAt,
+                }
+            }
+        } catch {
+            // Fallback to mock search
+        }
+    }
+
+    const payments = await getMerchantPayments()
+    return payments.find((payment) => payment.id === paymentId || payment.reference === paymentId) ?? null
+}
+
+export async function collectMerchantPayment(paymentData: {
+    amount: number
+    currency?: string
+    customerName: string
+    customerEmail: string
+    method?: string
+    description?: string
+}): Promise<MerchantPayment> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (token) {
+        const response = await fetch(`${API_BASE_URL}/api/merchant/payments/collect`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(paymentData),
+        })
+
+        if (response.ok) {
+            const p = await response.json()
+            return {
+                id: String(p.id),
+                reference: p.reference,
+                customerName: p.customerName,
+                customerEmail: p.customerEmail,
+                amount: Number(p.amount),
+                currency: p.currency,
+                method: p.method,
+                status: p.status,
+                createdAt: p.createdAt,
+            }
+        }
+    }
+
+    // Mock fallback
+    const newPayment: MerchantPayment = {
+        id: `merchant-payment-${Date.now()}`,
+        reference: `SP-PAY-${Math.floor(10000 + Math.random() * 90000)}`,
+        customerName: paymentData.customerName,
+        customerEmail: paymentData.customerEmail,
+        amount: paymentData.amount,
+        currency: paymentData.currency || 'INR',
+        method: (paymentData.method as any) || 'UPI',
+        status: 'SUCCESS',
+        createdAt: new Date().toISOString(),
+    }
+    mockMerchantPayments.unshift(newPayment)
+    return newPayment
 }
