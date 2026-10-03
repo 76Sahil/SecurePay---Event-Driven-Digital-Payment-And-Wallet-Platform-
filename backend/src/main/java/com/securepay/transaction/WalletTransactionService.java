@@ -2,10 +2,15 @@ package com.securepay.transaction;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
+import com.securepay.audit.SecurityAuditService;
+import com.securepay.audit.SecurityAuditSeverity;
 import com.securepay.idempotency.IdempotencyRecord;
 import com.securepay.idempotency.IdempotencyService;
 import com.securepay.ledger.LedgerEntryType;
 import com.securepay.ledger.LedgerService;
+import com.securepay.risk.RiskAssessment;
+import com.securepay.risk.RiskDecision;
+import com.securepay.risk.RiskEngineService;
 import com.securepay.user.User;
 import com.securepay.user.UserRepository;
 import com.securepay.wallet.Wallet;
@@ -24,6 +29,8 @@ public class WalletTransactionService {
     private final UserRepository userRepository;
     private final LedgerService ledgerService;
     private final IdempotencyService idempotencyService;
+    private final RiskEngineService riskEngineService;
+    private final SecurityAuditService securityAuditService;
     private final ObjectMapper objectMapper;
 
     public WalletTransactionService(
@@ -32,12 +39,16 @@ public class WalletTransactionService {
             UserRepository userRepository,
             LedgerService ledgerService,
             IdempotencyService idempotencyService,
+            RiskEngineService riskEngineService,
+            SecurityAuditService securityAuditService,
             ObjectMapper objectMapper) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
         this.ledgerService = ledgerService;
         this.idempotencyService = idempotencyService;
+        this.riskEngineService = riskEngineService;
+        this.securityAuditService = securityAuditService;
         this.objectMapper = objectMapper;
     }
 
@@ -185,6 +196,30 @@ public class WalletTransactionService {
                     "Transfers are available only for customer accounts.");
         }
 
+        RiskAssessment riskAssessment = riskEngineService.assessTransaction(sender, amount);
+        if (riskAssessment.getDecision() == RiskDecision.BLOCKED) {
+            securityAuditService.recordEvent(
+                    "TRANSFER_BLOCKED",
+                    sender,
+                    SecurityAuditSeverity.CRITICAL,
+                    null,
+                    null,
+                    "Transfer of INR " + amount + " blocked: " + riskAssessment.getReasons()
+            );
+            throw new IllegalStateException("Transfer blocked by security risk engine: " + riskAssessment.getReasons());
+        }
+
+        if (riskAssessment.getDecision() == RiskDecision.FLAGGED) {
+            securityAuditService.recordEvent(
+                    "TRANSFER_FLAGGED",
+                    sender,
+                    SecurityAuditSeverity.WARN,
+                    null,
+                    null,
+                    "Transfer of INR " + amount + " flagged: " + riskAssessment.getReasons()
+            );
+        }
+
         String normalizedRecipientEmail = recipientEmail.trim().toLowerCase(Locale.ROOT);
 
         if (idempotencyKey != null && !idempotencyKey.isBlank()) {
@@ -297,6 +332,15 @@ public class WalletTransactionService {
                     amount,
                     recipientBalance,
                     "Credit for transfer from " + sender.getEmail()
+            );
+
+            securityAuditService.recordEvent(
+                    "TRANSFER_COMPLETED",
+                    sender,
+                    SecurityAuditSeverity.INFO,
+                    null,
+                    null,
+                    "Transfer of INR " + amount + " to " + recipient.getEmail() + " completed successfully."
             );
 
             Map<String, Object> response = new LinkedHashMap<>();

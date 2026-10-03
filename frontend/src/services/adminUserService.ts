@@ -63,6 +63,76 @@ const mockAdminUsers: AdminUser[] = [
     },
 ]
 
+const API_BASE_URL = 'http://localhost:8080'
+
 export async function getAdminUsers(): Promise<AdminUser[]> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (!token) {
+        return Promise.resolve(mockAdminUsers)
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/security/users`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+
+        if (response.ok) {
+            const data = await response.json()
+            return data.map((u: any) => ({
+                id: u.id ?? `USR-${u.userId}`,
+                name: u.name ?? 'SecurePay User',
+                email: u.email,
+                role: u.role ?? 'CUSTOMER',
+                accountStatus: u.accountStatus ?? 'ACTIVE',
+                verificationStatus: u.verificationStatus ?? 'VERIFIED',
+                lastLoginAt: u.lastLoginAt ?? u.createdAt,
+                createdAt: u.createdAt ?? new Date().toISOString(),
+            }))
+        }
+    } catch {
+        // Fallback to mock data
+    }
+
     return Promise.resolve(mockAdminUsers)
+}
+
+export async function lockUserAccount(userId: string | number): Promise<boolean> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    const numericId = typeof userId === 'string' ? userId.replace(/\D/g, '') : userId
+    if (!token || !numericId) return true
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/admin/security/users/${numericId}/lock`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+        return res.ok
+    } catch {
+        return false
+    }
+}
+
+export async function unlockUserAccount(userId: string | number): Promise<boolean> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    const numericId = typeof userId === 'string' ? userId.replace(/\D/g, '') : userId
+    if (!token || !numericId) return true
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/admin/security/users/${numericId}/unlock`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+        return res.ok
+    } catch {
+        return false
+    }
 }

@@ -82,4 +82,26 @@ public class UserService {
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
     }
+
+    @Transactional
+    public void lockUser(Long userId) {
+        User user = getUserById(userId);
+        user.setStatus("LOCKED");
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void unlockUser(Long userId) {
+        User user = getUserById(userId);
+        user.setStatus("ACTIVE");
+        user.setFailedLoginAttempts(0);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 }

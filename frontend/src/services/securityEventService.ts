@@ -53,6 +53,37 @@ const mockSecurityEvents: SecurityEvent[] = [
     },
 ]
 
+const API_BASE_URL = 'http://localhost:8080'
+
 export async function getSecurityEvents(): Promise<SecurityEvent[]> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (!token) {
+        return Promise.resolve(mockSecurityEvents)
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/security/events?limit=50`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+
+        if (response.ok) {
+            const data = await response.json()
+            return data.map((e: any) => ({
+                id: String(e.id),
+                eventType: e.eventType ?? 'Security Event',
+                description: e.description ?? e.details ?? 'Security audit event',
+                severity: e.severity ?? 'INFO',
+                status: e.status ?? 'OPEN',
+                actor: e.actor ?? e.userEmail ?? 'system',
+                createdAt: e.createdAt ?? new Date().toISOString(),
+            }))
+        }
+    } catch {
+        // Fallback to mock data
+    }
+
     return Promise.resolve(mockSecurityEvents)
 }
