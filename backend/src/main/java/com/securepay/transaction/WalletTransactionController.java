@@ -4,6 +4,7 @@ import com.securepay.transaction.dto.WalletTransferRequest;
 import com.securepay.wallet.dto.WalletTopUpRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/wallet/transactions")
+@PreAuthorize("hasRole('CUSTOMER')")
 public class WalletTransactionController {
 
     private final WalletTransactionService transactionService;

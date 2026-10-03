@@ -6,13 +6,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.List;
 
 @Configuration
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+
+    private final KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter;
+
+    public SecurityConfig(KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter) {
+        this.keycloakJwtAuthenticationConverter = keycloakJwtAuthenticationConverter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -26,13 +34,17 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
                 .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwt -> {})
+                        oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(
+                                keycloakJwtAuthenticationConverter.getJwtAuthenticationConverter()
+                        ))
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/health",
                                 "/api/auth/register"
                         ).permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/merchant/**").hasRole("MERCHANT")
                         .anyRequest().authenticated()
                 );
 
