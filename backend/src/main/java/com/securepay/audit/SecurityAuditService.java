@@ -1,5 +1,6 @@
 package com.securepay.audit;
 
+import com.securepay.realtime.RealtimeEventService;
 import com.securepay.user.User;
 import com.securepay.user.UserRepository;
 import org.slf4j.Logger;
@@ -19,12 +20,15 @@ public class SecurityAuditService {
 
     private final SecurityAuditEventRepository auditRepository;
     private final UserRepository userRepository;
+    private final RealtimeEventService realtimeEventService;
 
     public SecurityAuditService(
             SecurityAuditEventRepository auditRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            RealtimeEventService realtimeEventService) {
         this.auditRepository = auditRepository;
         this.userRepository = userRepository;
+        this.realtimeEventService = realtimeEventService;
     }
 
     @Transactional
@@ -47,6 +51,16 @@ public class SecurityAuditService {
         SecurityAuditEvent saved = auditRepository.save(event);
         log.info("SECURITY AUDIT: [{}] severity={} user={} details={}",
                 eventType, severity, user != null ? user.getEmail() : "anonymous", details);
+
+        if (event.getSeverity() == SecurityAuditSeverity.WARN || event.getSeverity() == SecurityAuditSeverity.CRITICAL) {
+            Map<String, Object> alert = Map.of(
+                    "eventType", event.getEventType(),
+                    "severity", event.getSeverity().name(),
+                    "actor", user != null ? user.getEmail() : "anonymous",
+                    "details", details != null ? details : ""
+            );
+            realtimeEventService.broadcastSecurityAlert("SECURITY_ALERT", alert);
+        }
 
         return saved;
     }

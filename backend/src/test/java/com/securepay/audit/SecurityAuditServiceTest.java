@@ -26,13 +26,16 @@ class SecurityAuditServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.securepay.realtime.RealtimeEventService realtimeEventService;
+
     private SecurityAuditService auditService;
 
     private User sampleUser;
 
     @BeforeEach
     void setUp() {
-        auditService = new SecurityAuditService(auditRepository, userRepository);
+        auditService = new SecurityAuditService(auditRepository, userRepository, realtimeEventService);
 
         sampleUser = new User();
         sampleUser.setId(1L);
