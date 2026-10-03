@@ -96,4 +96,42 @@ class UserServiceTest {
         assertThat(testUser.getLastLoginAt()).isNotNull();
         verify(userRepository).save(testUser);
     }
+
+    @Test
+    void shouldReturnExistingUserInGetOrCreateUser() {
+        when(userRepository.findByKeycloakUserId("kc-user-123")).thenReturn(Optional.of(testUser));
+
+        User result = userService.getOrCreateUser("kc-user-123", "john.doe@example.com", "John Doe", "CUSTOMER");
+
+        assertThat(result).isSameAs(testUser);
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void shouldLinkExistingUserByEmailInGetOrCreateUser() {
+        when(userRepository.findByKeycloakUserId("kc-user-new")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("john.doe@example.com")).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = userService.getOrCreateUser("kc-user-new", "john.doe@example.com", "John Doe", "CUSTOMER");
+
+        assertThat(result.getKeycloakUserId()).isEqualTo("kc-user-new");
+        verify(userRepository).save(testUser);
+    }
+
+    @Test
+    void shouldProvisionNewUserInGetOrCreateUser() {
+        when(userRepository.findByKeycloakUserId("kc-user-new")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("new.user@example.com")).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = userService.getOrCreateUser("kc-user-new", "new.user@example.com", "New User", "CUSTOMER");
+
+        assertThat(result.getKeycloakUserId()).isEqualTo("kc-user-new");
+        assertThat(result.getEmail()).isEqualTo("new.user@example.com");
+        assertThat(result.getFullName()).isEqualTo("New User");
+        assertThat(result.getAccountType()).isEqualTo("CUSTOMER");
+        assertThat(result.getStatus()).isEqualTo("ACTIVE");
+        verify(userRepository).save(any(User.class));
+    }
 }

@@ -15,8 +15,10 @@ import com.securepay.risk.RiskDecision;
 import com.securepay.risk.RiskEngineService;
 import com.securepay.user.User;
 import com.securepay.user.UserRepository;
+import com.securepay.user.UserService;
 import com.securepay.wallet.Wallet;
 import com.securepay.wallet.WalletRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ public class WalletTransactionService {
     private final OutboxService outboxService;
     private final NotificationService notificationService;
     private final ObjectMapper objectMapper;
+    private final UserService userService;
 
     public WalletTransactionService(
             WalletRepository walletRepository,
@@ -48,6 +51,24 @@ public class WalletTransactionService {
             OutboxService outboxService,
             NotificationService notificationService,
             ObjectMapper objectMapper) {
+        this(walletRepository, transactionRepository, userRepository, ledgerService,
+             idempotencyService, riskEngineService, securityAuditService, outboxService,
+             notificationService, objectMapper, null);
+    }
+
+    @Autowired
+    public WalletTransactionService(
+            WalletRepository walletRepository,
+            WalletTransactionRepository transactionRepository,
+            UserRepository userRepository,
+            LedgerService ledgerService,
+            IdempotencyService idempotencyService,
+            RiskEngineService riskEngineService,
+            SecurityAuditService securityAuditService,
+            OutboxService outboxService,
+            NotificationService notificationService,
+            ObjectMapper objectMapper,
+            UserService userService) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
@@ -58,6 +79,7 @@ public class WalletTransactionService {
         this.outboxService = outboxService;
         this.notificationService = notificationService;
         this.objectMapper = objectMapper;
+        this.userService = userService;
     }
 
     @Transactional(readOnly = true)
@@ -468,31 +490,10 @@ public class WalletTransactionService {
             return byKeycloak.get();
         }
 
-        String safeEmail = (email != null && !email.isBlank())
-                ? email.trim().toLowerCase(java.util.Locale.ROOT)
-                : (keycloakUserId.contains("@") ? keycloakUserId.trim().toLowerCase(java.util.Locale.ROOT) : null);
-
-        if (safeEmail != null) {
-            java.util.Optional<User> byEmail = userRepository.findByEmail(safeEmail);
-            if (byEmail.isPresent()) {
-                User existing = byEmail.get();
-                existing.setKeycloakUserId(keycloakUserId);
-                existing.setUpdatedAt(java.time.LocalDateTime.now());
-                return userRepository.save(existing);
-            }
+        if (userService != null) {
+            return userService.getOrCreateUser(keycloakUserId, email, fullName, "CUSTOMER");
         }
 
-        User newUser = new User();
-        newUser.setKeycloakUserId(keycloakUserId);
-        newUser.setEmail(safeEmail != null ? safeEmail : keycloakUserId + "@securepay.local");
-        String name = (fullName != null && !fullName.isBlank())
-                ? fullName.trim()
-                : (safeEmail != null ? safeEmail.split("@")[0] : "Customer");
-        newUser.setFullName(name);
-        newUser.setAccountType("CUSTOMER");
-        newUser.setStatus("ACTIVE");
-        newUser.setKycStatus("VERIFIED");
-        newUser.setUpdatedAt(java.time.LocalDateTime.now());
-        return userRepository.save(newUser);
+        throw new IllegalArgumentException("User not found for Keycloak identity: " + keycloakUserId);
     }
 }

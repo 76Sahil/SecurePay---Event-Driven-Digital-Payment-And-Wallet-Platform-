@@ -2,6 +2,8 @@ package com.securepay.notification;
 
 import com.securepay.user.User;
 import com.securepay.user.UserRepository;
+import com.securepay.user.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +16,22 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     public NotificationService(
             NotificationRepository notificationRepository,
             UserRepository userRepository) {
+        this(notificationRepository, userRepository, null);
+    }
+
+    @Autowired
+    public NotificationService(
+            NotificationRepository notificationRepository,
+            UserRepository userRepository,
+            UserService userService) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @Transactional(readOnly = true)
@@ -89,26 +101,11 @@ public class NotificationService {
             return byKeycloak.get();
         }
 
-        String safeEmail = keycloakUserId.contains("@") ? keycloakUserId.trim().toLowerCase(java.util.Locale.ROOT) : null;
-        if (safeEmail != null) {
-            java.util.Optional<User> byEmail = userRepository.findByEmail(safeEmail);
-            if (byEmail.isPresent()) {
-                User existing = byEmail.get();
-                existing.setKeycloakUserId(keycloakUserId);
-                existing.setUpdatedAt(java.time.LocalDateTime.now());
-                return userRepository.save(existing);
-            }
+        if (userService != null) {
+            return userService.getOrCreateUser(keycloakUserId, null, null, "CUSTOMER");
         }
 
-        User newUser = new User();
-        newUser.setKeycloakUserId(keycloakUserId);
-        newUser.setEmail(safeEmail != null ? safeEmail : keycloakUserId + "@securepay.local");
-        newUser.setFullName(safeEmail != null ? safeEmail.split("@")[0] : "Customer");
-        newUser.setAccountType("CUSTOMER");
-        newUser.setStatus("ACTIVE");
-        newUser.setKycStatus("VERIFIED");
-        newUser.setUpdatedAt(java.time.LocalDateTime.now());
-        return userRepository.save(newUser);
+        throw new IllegalArgumentException("User not found for Keycloak identity: " + keycloakUserId);
     }
 
     private Map<String, Object> toResponse(Notification n) {

@@ -3,6 +3,7 @@ package com.securepay.user;
 import com.securepay.user.dto.UpdateProfileRequest;
 import com.securepay.user.dto.UserProfileResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public User getOrCreateUser(String keycloakUserId, String email, String fullName, String accountType) {
         if (keycloakUserId == null || keycloakUserId.isBlank()) {
             throw new IllegalArgumentException("Keycloak user ID must not be blank.");
@@ -56,7 +57,13 @@ public class UserService {
         newUser.setStatus("ACTIVE");
         newUser.setKycStatus("VERIFIED");
         newUser.setUpdatedAt(LocalDateTime.now());
-        return userRepository.save(newUser);
+        try {
+            return userRepository.save(newUser);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            return userRepository.findByKeycloakUserId(keycloakUserId)
+                    .or(() -> safeEmail != null ? userRepository.findByEmail(safeEmail) : java.util.Optional.empty())
+                    .orElseThrow(() -> e);
+        }
     }
 
     @Transactional
