@@ -1,18 +1,23 @@
-
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import type { ChangeEvent } from 'react'
+import { Link } from 'react-router'
 import type { Beneficiary } from '../types/beneficiary'
 import type { TransferInitiationResponse } from '../types/transfer'
+import type { Wallet } from '../types'
 import { getBeneficiaries } from '../services/beneficiaryService'
+import { getMyWallet } from '../services/walletService'
 import { initiateTransfer } from '../services/transferService'
+import LoadingState from '../components/common/LoadingState'
+import ErrorState from '../components/common/ErrorState'
+import EmptyState from '../components/common/EmptyState'
 
 function SendMoneyPage() {
+    const [wallet, setWallet] = useState<Wallet | null>(null)
     const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([])
     const [selectedBeneficiaryId, setSelectedBeneficiaryId] = useState('')
     const [amount, setAmount] = useState('')
-    const [note, setNote] = useState('')
 
-    const [isLoadingBeneficiaries, setIsLoadingBeneficiaries] = useState(true)
+    const [isLoading, setIsLoading] = useState(true)
     const [isInitiatingTransfer, setIsInitiatingTransfer] = useState(false)
 
     const [error, setError] = useState<string | null>(null)
@@ -22,67 +27,61 @@ function SendMoneyPage() {
     const [transferResult, setTransferResult] =
         useState<TransferInitiationResponse | null>(null)
 
-    useEffect(() => {
-        async function loadBeneficiaries() {
-            try {
-                setError(null)
-                const data = await getBeneficiaries()
-                setBeneficiaries(data)
+    const loadData = useCallback(async () => {
+        try {
+            setIsLoading(true)
+            setError(null)
 
-                const firstActive = data.find(
-                    (beneficiary) => beneficiary.status === 'ACTIVE',
-                )
+            const [walletData, beneficiariesData] = await Promise.all([
+                getMyWallet(),
+                getBeneficiaries(),
+            ])
 
-                if (firstActive) {
-                    setSelectedBeneficiaryId(firstActive.id)
-                }
-            } catch (err) {
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : 'Unable to load your beneficiaries.',
-                )
-            } finally {
-                setIsLoadingBeneficiaries(false)
+            setWallet(walletData)
+            setBeneficiaries(beneficiariesData)
+
+            const firstActive = beneficiariesData.find(
+                (b) => b.status === 'ACTIVE',
+            )
+            if (firstActive) {
+                setSelectedBeneficiaryId(firstActive.id)
             }
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : 'Unable to load transfer details. Please try again.',
+            )
+        } finally {
+            setIsLoading(false)
         }
-
-        void loadBeneficiaries()
     }, [])
 
+    useEffect(() => {
+        void loadData()
+    }, [loadData])
+
     const selectedBeneficiary = beneficiaries.find(
-        (beneficiary) => beneficiary.id === selectedBeneficiaryId,
+        (b) => b.id === selectedBeneficiaryId,
     )
 
     const numericAmount = Number(amount)
-    const transferSucceeded = transferResult?.status === 'SUCCESS'
+    const availableBalance = wallet?.balance ?? 0
 
-    function resetResult() {
+    function handleBeneficiaryChange(event: ChangeEvent<HTMLSelectElement>) {
+        setSelectedBeneficiaryId(event.target.value)
+        setError(null)
+        setAmountError(null)
         setShowReview(false)
         setTransferResult(null)
-        setError(null)
     }
 
-    function handleBeneficiaryChange(
-        event: ChangeEvent<HTMLSelectElement>,
-    ) {
-        setSelectedBeneficiaryId(event.target.value)
-        resetResult()
-    }
-
-    function handleAmountChange(
-        event: ChangeEvent<HTMLInputElement>,
-    ) {
+    function handleAmountChange(event: ChangeEvent<HTMLInputElement>) {
         setAmount(event.target.value)
         setAmountError(null)
-        resetResult()
-    }
-
-    function handleNoteChange(
-        event: ChangeEvent<HTMLTextAreaElement>,
-    ) {
-        setNote(event.target.value)
-        resetResult()
+        setError(null)
+        setShowReview(false)
+        setTransferResult(null)
     }
 
     function validateForm(): boolean {
@@ -92,13 +91,13 @@ function SendMoneyPage() {
         }
 
         if (selectedBeneficiary.status !== 'ACTIVE') {
-            setError('This beneficiary is not active.')
+            setError('The selected beneficiary is not active.')
             return false
         }
 
         if (!selectedBeneficiary.recipientEmail) {
             setError(
-                'This beneficiary is missing its registered customer email. Please add the customer again.',
+                'This beneficiary does not have a registered email on file.',
             )
             return false
         }
@@ -108,21 +107,29 @@ function SendMoneyPage() {
             return false
         }
 
-        if (!Number.isFinite(numericAmount)) {
-            setAmountError('Please enter a valid amount.')
+        if (!Number.isFinite(numericAmount) || isNaN(numericAmount)) {
+            setAmountError('Please enter a valid numeric amount.')
             return false
         }
 
-        if (numericAmount < 1 || numericAmount > 100000) {
-            setAmountError(
-                'Transfer amount must be between ₹1 and ₹1,00,000.',
-            )
+        if (numericAmount < 1) {
+            setAmountError('Minimum transfer amount is ₹1.00.')
+            return false
+        }
+
+        if (numericAmount > 100000) {
+            setAmountError('Maximum transfer amount is ₹1,00,000 per transaction.')
             return false
         }
 
         if (!/^\d+(\.\d{1,2})?$/.test(amount.trim())) {
+            setAmountError('Amount can have at most 2 decimal places.')
+            return false
+        }
+
+        if (numericAmount > availableBalance) {
             setAmountError(
-                'Amount can have a maximum of 2 decimal places.',
+                `Insufficient balance. You currently have ₹${availableBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })} available.`,
             )
             return false
         }
@@ -157,17 +164,26 @@ function SendMoneyPage() {
                 recipientEmail: selectedBeneficiary.recipientEmail
                     .trim()
                     .toLowerCase(),
-                amount: Number(amount),
+                amount: numericAmount,
             })
 
             setTransferResult(response)
             setShowReview(false)
+
+            // Update wallet balance if returned from backend
+            if (response.senderBalance !== undefined && wallet) {
+                setWallet({
+                    ...wallet,
+                    balance: response.senderBalance,
+                })
+            }
         } catch (err: unknown) {
             setError(
                 err instanceof Error
                     ? err.message
                     : 'Transfer failed. Please try again.',
             )
+            setShowReview(false)
         } finally {
             setIsInitiatingTransfer(false)
         }
@@ -175,382 +191,328 @@ function SendMoneyPage() {
 
     function handleNewTransfer() {
         setAmount('')
-        setNote('')
         setAmountError(null)
         setError(null)
         setShowReview(false)
         setTransferResult(null)
     }
 
+    if (isLoading) {
+        return (
+            <div className="sp-page">
+                <LoadingState message="Loading your transfer details..." />
+            </div>
+        )
+    }
+
+    if (error && !wallet) {
+        return (
+            <div className="sp-page">
+                <ErrorState
+                    title="Unable to load transfer"
+                    message={error}
+                    onRetry={() => void loadData()}
+                />
+            </div>
+        )
+    }
+
+    const activeBeneficiaries = beneficiaries.filter((b) => b.status === 'ACTIVE')
+
     return (
-        <section className="send-money-page">
-            <header className="send-money-page__header">
+        <div className="sp-page send-money-page">
+            <header className="sp-page-header">
                 <div>
-                    <p className="customer-dashboard__eyebrow">
-                        Customer Portal
+                    <span className="sp-badge sp-badge-neutral">Customer Portal</span>
+                    <h1 className="sp-page-title">Send Money</h1>
+                    <p className="sp-page-subtitle">
+                        Transfer funds instantly to registered SecurePay beneficiaries with verified idempotency protection.
                     </p>
-
-                    <h1>Send Money</h1>
-
-                    <p className="send-money-page__description">
-                        Transfer money securely to another registered
-                        SecurePay customer.
-                    </p>
+                </div>
+                <div className="sp-header-actions">
+                    <Link to="/customer/beneficiaries" className="sp-btn sp-btn-secondary sp-btn-sm">
+                        👥 Manage Beneficiaries
+                    </Link>
                 </div>
             </header>
 
-            <section className="send-money-card">
-                <div className="send-money-card__header">
-                    <h2>Recipient Details</h2>
-
-                    <p>
-                        Select a beneficiary from your registered
-                        SecurePay contacts.
-                    </p>
-                </div>
-
-                <div className="send-money-form">
-                    <div className="send-money-form__field">
-                        <label
-                            htmlFor="beneficiary"
-                            className="send-money-form__label"
-                        >
-                            Select Beneficiary
-                        </label>
-
-                        <select
-                            id="beneficiary"
-                            name="beneficiary"
-                            value={selectedBeneficiaryId}
-                            onChange={handleBeneficiaryChange}
-                            className="send-money-form__amount"
-                            disabled={
-                                isLoadingBeneficiaries ||
-                                isInitiatingTransfer ||
-                                showReview
-                            }
-                        >
-                            <option value="">
-                                {isLoadingBeneficiaries
-                                    ? 'Loading beneficiaries...'
-                                    : 'Choose a beneficiary'}
-                            </option>
-
-                            {beneficiaries
-                                .filter(
-                                    (beneficiary) =>
-                                        beneficiary.status === 'ACTIVE',
-                                )
-                                .map((beneficiary) => (
-                                    <option
-                                        key={beneficiary.id}
-                                        value={beneficiary.id}
-                                    >
-                                        {beneficiary.name} —{' '}
-                                        {beneficiary.bankName} (
-                                        {beneficiary.accountIdentifier})
-                                    </option>
-                                ))}
-                        </select>
-
-                        {selectedBeneficiary && (
-                            <p className="send-money-form__hint">
-                                {selectedBeneficiary.bankName} ·{' '}
-                                {selectedBeneficiary.accountIdentifier}
-                            </p>
-                        )}
-
-                        {!isLoadingBeneficiaries &&
-                            beneficiaries.filter(
-                                (beneficiary) =>
-                                    beneficiary.status === 'ACTIVE',
-                            ).length === 0 && (
-                                <p className="send-money-form__hint">
-                                    No active beneficiaries found. Add a
-                                    registered SecurePay customer as a
-                                    beneficiary first.
-                                </p>
-                            )}
-                    </div>
-
-                    <div className="send-money-form__field">
-                        <label
-                            htmlFor="transfer-amount"
-                            className="send-money-form__label"
-                        >
-                            Transfer Amount
-                        </label>
-
-                        <div className="send-money-form__amount-wrapper">
-                            <span className="send-money-form__currency">
-                                ₹
-                            </span>
-
-                            <input
-                                id="transfer-amount"
-                                name="transfer-amount"
-                                type="number"
-                                min="1"
-                                max="100000"
-                                step="0.01"
-                                value={amount}
-                                onChange={handleAmountChange}
-                                placeholder="0.00"
-                                className="send-money-form__amount"
-                                disabled={
-                                    isInitiatingTransfer || showReview
-                                }
-                            />
-                        </div>
-
-                        <p className="send-money-form__hint">
-                            Minimum ₹1 and maximum ₹1,00,000 per transfer.
-                        </p>
-
-                        {amountError && (
-                            <p
-                                className="send-money-form__error"
-                                role="alert"
-                            >
-                                {amountError}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="send-money-form__field">
-                        <label
-                            htmlFor="transfer-note"
-                            className="send-money-form__label"
-                        >
-                            Note
-                            <span>Optional</span>
-                        </label>
-
-                        <textarea
-                            id="transfer-note"
-                            name="transfer-note"
-                            value={note}
-                            onChange={handleNoteChange}
-                            placeholder="Add a note for this transfer"
-                            rows={4}
-                            className="send-money-form__textarea"
-                            disabled={isInitiatingTransfer || showReview}
-                        />
-
-                        <p className="send-money-form__hint">
-                            Note is for review only and is not currently
-                            saved by the backend.
-                        </p>
-                    </div>
-                </div>
-
-                {error && (
-                    <div
-                        className="send-money-page__error"
-                        role="alert"
-                    >
-                        {error}
-                    </div>
-                )}
-
-                <div className="send-money-card__actions">
-                    {!showReview && !transferResult && (
-                        <button
-                            type="button"
-                            className="send-money-card__review-button"
-                            onClick={handleReviewTransfer}
-                            disabled={
-                                isInitiatingTransfer ||
-                                isLoadingBeneficiaries ||
-                                beneficiaries.filter(
-                                    (beneficiary) =>
-                                        beneficiary.status === 'ACTIVE',
-                                ).length === 0
-                            }
-                        >
-                            Review Transfer
-                        </button>
-                    )}
-
-                    {showReview && !transferResult && (
-                        <button
-                            type="button"
-                            className="send-money-card__review-button"
-                            onClick={() => setShowReview(false)}
-                            disabled={isInitiatingTransfer}
-                        >
-                            Edit Transfer
-                        </button>
-                    )}
-                </div>
-            </section>
-
-            {showReview && !transferResult && selectedBeneficiary && (
-                <section className="transfer-review-card">
-                    <div className="transfer-review-card__header">
-                        <div>
-                            <p className="customer-dashboard__eyebrow">
-                                Transfer Review
-                            </p>
-
-                            <h2>Review your transfer</h2>
-
-                            <p>
-                                Verify the beneficiary and amount before
-                                confirming the transfer.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="transfer-review-card__details">
-                        <div>
-                            <span>Beneficiary</span>
-                            <strong>{selectedBeneficiary.name}</strong>
-                        </div>
-
-                        <div>
-                            <span>Bank</span>
-                            <strong>{selectedBeneficiary.bankName}</strong>
-                        </div>
-
-                        <div>
-                            <span>Account</span>
-                            <strong>
-                                {selectedBeneficiary.accountIdentifier}
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Registered Email</span>
-                            <strong>
-                                {selectedBeneficiary.recipientEmail}
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Amount</span>
-                            <strong>
-                                ₹
-                                {numericAmount.toLocaleString('en-IN', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                })}
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Note</span>
-                            <strong>{note.trim() || 'No note added'}</strong>
-                        </div>
-                    </div>
-
-                    <div className="transfer-review-card__notice">
-                        <span>ⓘ</span>
-                        <p>
-                            This transfer moves funds between SecurePay
-                            customer wallets. Confirm that the recipient
-                            and amount are correct.
-                        </p>
-                    </div>
-
-                    <div className="transfer-review-card__actions">
-                        <button
-                            type="button"
-                            className="transfer-review-card__confirm"
-                            onClick={handleConfirmTransfer}
-                            disabled={isInitiatingTransfer}
-                        >
-                            {isInitiatingTransfer
-                                ? 'Processing Transfer...'
-                                : 'Confirm Transfer'}
-                        </button>
-                    </div>
-                </section>
-            )}
-
+            {/* Success Result View */}
             {transferResult && (
-                <section className="transfer-result-card">
-                    <div className="transfer-result-card__header">
-                        <p className="customer-dashboard__eyebrow">
-                            Transfer Status
-                        </p>
+                <section className="sp-card sp-transfer-result">
+                    <div className="sp-transfer-result__icon">✓</div>
+                    <h2 className="sp-transfer-result__title">
+                        {transferResult.status === 'SUCCESS' ? 'Transfer Completed Successfully' : `Transfer ${transferResult.status}`}
+                    </h2>
+                    <p className="sp-transfer-result__message">
+                        {transferResult.message || 'Your transfer request was processed successfully.'}
+                    </p>
 
-                        <h2>
-                            {transferSucceeded
-                                ? 'Transfer Successful'
-                                : 'Transfer Response Received'}
-                        </h2>
-
-                        <p>
-                            {transferResult.message ||
-                                (transferSucceeded
-                                    ? 'The backend reported that the transfer succeeded.'
-                                    : 'Check the transaction status below.')}
-                        </p>
+                    <div className="sp-transfer-result__amount-box">
+                        <span className="sp-transfer-result__label">Amount Sent</span>
+                        <span className="sp-transfer-result__amount">
+                            ₹{numericAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
                     </div>
 
-                    <div className="transfer-result-card__details">
-                        <div>
+                    <div className="sp-transfer-summary-list">
+                        <div className="sp-transfer-summary-row">
+                            <span>Recipient Name</span>
+                            <strong>{selectedBeneficiary?.name || 'SecurePay Recipient'}</strong>
+                        </div>
+                        <div className="sp-transfer-summary-row">
                             <span>Recipient Email</span>
-                            <strong>
-                                {transferResult.recipientEmail ||
-                                    selectedBeneficiary?.recipientEmail}
-                            </strong>
+                            <strong>{selectedBeneficiary?.recipientEmail || transferResult.recipientEmail}</strong>
                         </div>
-
-                        <div>
-                            <span>Amount</span>
-                            <strong>
-                                {transferResult.currency || 'INR'}{' '}
-                                {transferResult.amount.toLocaleString(
-                                    'en-IN',
-                                    {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2,
-                                    },
-                                )}
-                            </strong>
+                        <div className="sp-transfer-summary-row">
+                            <span>Bank / Account</span>
+                            <strong>{selectedBeneficiary?.bankName} ({selectedBeneficiary?.accountIdentifier})</strong>
                         </div>
-
-                        <div>
-                            <span>Status</span>
-                            <strong>{transferResult.status}</strong>
+                        <div className="sp-transfer-summary-row">
+                            <span>Reference / TXN ID</span>
+                            <strong>{transferResult.reference || `TXN-${transferResult.transactionId}`}</strong>
                         </div>
-
-                        <div>
-                            <span>Transaction ID</span>
-                            <strong>{transferResult.transactionId}</strong>
-                        </div>
-
                         {transferResult.senderBalance !== undefined && (
-                            <div>
-                                <span>Updated Wallet Balance</span>
-                                <strong>
-                                    ₹
-                                    {transferResult.senderBalance.toLocaleString(
-                                        'en-IN',
-                                        {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2,
-                                        },
-                                    )}
+                            <div className="sp-transfer-summary-row">
+                                <span>Remaining Wallet Balance</span>
+                                <strong style={{ color: '#107e3e' }}>
+                                    ₹{Number(transferResult.senderBalance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </strong>
                             </div>
                         )}
                     </div>
 
-                    <div className="transfer-result-card__actions">
+                    <div className="sp-transfer-result__actions">
                         <button
                             type="button"
-                            className="send-money-card__review-button"
+                            className="sp-btn sp-btn-primary"
                             onClick={handleNewTransfer}
                         >
                             Make Another Transfer
                         </button>
+                        <Link to="/customer/transactions" className="sp-btn sp-btn-secondary">
+                            View Transaction History
+                        </Link>
                     </div>
                 </section>
             )}
-        </section>
+
+            {/* Review Step Modal / Card */}
+            {showReview && !transferResult && selectedBeneficiary && (
+                <section className="sp-card sp-transfer-review">
+                    <div className="sp-card-header">
+                        <div>
+                            <span className="sp-badge sp-badge-neutral">Step 2 of 2</span>
+                            <h2 className="sp-card-title">Review Transfer Details</h2>
+                            <p className="sp-card-subtitle">
+                                Confirm the recipient and amount before finalizing the transfer.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="sp-transfer-summary-list" style={{ marginTop: '20px' }}>
+                        <div className="sp-transfer-summary-row">
+                            <span>Recipient</span>
+                            <strong>{selectedBeneficiary.name}</strong>
+                        </div>
+                        <div className="sp-transfer-summary-row">
+                            <span>Bank Name</span>
+                            <strong>{selectedBeneficiary.bankName}</strong>
+                        </div>
+                        <div className="sp-transfer-summary-row">
+                            <span>Account Identifier</span>
+                            <strong>{selectedBeneficiary.accountIdentifier}</strong>
+                        </div>
+                        <div className="sp-transfer-summary-row">
+                            <span>Registered Email</span>
+                            <strong>{selectedBeneficiary.recipientEmail}</strong>
+                        </div>
+                        <div className="sp-transfer-summary-row">
+                            <span>Transfer Amount</span>
+                            <strong style={{ fontSize: '18px', color: '#142d5a' }}>
+                                ₹{numericAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </strong>
+                        </div>
+                        <div className="sp-transfer-summary-row">
+                            <span>Current Available Balance</span>
+                            <strong>₹{availableBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                        </div>
+                        <div className="sp-transfer-summary-row">
+                            <span>Balance After Transfer</span>
+                            <strong style={{ color: '#357ae8' }}>
+                                ₹{(availableBalance - numericAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div className="sp-alert sp-alert-info" style={{ marginTop: '20px' }}>
+                        ℹ Double-entry ledger settlement will execute atomically. This transaction is protected with a unique idempotency key.
+                    </div>
+
+                    {error && (
+                        <div className="sp-alert sp-alert-error" style={{ marginTop: '16px' }} role="alert">
+                            {error}
+                        </div>
+                    )}
+
+                    <div className="sp-transfer-actions" style={{ marginTop: '24px', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                        <button
+                            type="button"
+                            className="sp-btn sp-btn-secondary"
+                            onClick={() => setShowReview(false)}
+                            disabled={isInitiatingTransfer}
+                        >
+                            ← Edit Details
+                        </button>
+                        <button
+                            type="button"
+                            className="sp-btn sp-btn-primary"
+                            onClick={handleConfirmTransfer}
+                            disabled={isInitiatingTransfer}
+                        >
+                            {isInitiatingTransfer ? 'Processing Transfer...' : '✓ Confirm & Send ₹' + numericAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        </button>
+                    </div>
+                </section>
+            )}
+
+            {/* Transfer Input Form */}
+            {!showReview && !transferResult && (
+                <div className="sp-grid-2col" style={{ alignItems: 'start' }}>
+                    <section className="sp-card">
+                        <div className="sp-card-header">
+                            <div>
+                                <h2 className="sp-card-title">Transfer Funds</h2>
+                                <p className="sp-card-subtitle">
+                                    Send money to your registered SecurePay beneficiaries.
+                                </p>
+                            </div>
+                        </div>
+
+                        {error && (
+                            <div className="sp-alert sp-alert-error" role="alert" style={{ marginTop: '16px' }}>
+                                {error}
+                            </div>
+                        )}
+
+                        {activeBeneficiaries.length === 0 ? (
+                            <div style={{ marginTop: '20px' }}>
+                                <EmptyState
+                                    title="No Active Beneficiaries"
+                                    description="You must add and activate at least one beneficiary to send money."
+                                    actionText="+ Add Beneficiary"
+                                    actionTo="/customer/beneficiaries"
+                                />
+                            </div>
+                        ) : (
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault()
+                                    handleReviewTransfer()
+                                }}
+                                style={{ marginTop: '20px' }}
+                                noValidate
+                            >
+                                <div className="sp-form-group">
+                                    <label htmlFor="beneficiary-select" className="sp-form-label">
+                                        Select Beneficiary <span style={{ color: '#d93025' }}>*</span>
+                                    </label>
+                                    <select
+                                        id="beneficiary-select"
+                                        value={selectedBeneficiaryId}
+                                        onChange={handleBeneficiaryChange}
+                                        className="sp-form-select"
+                                        disabled={isInitiatingTransfer}
+                                    >
+                                        <option value="">-- Choose a recipient --</option>
+                                        {activeBeneficiaries.map((b) => (
+                                            <option key={b.id} value={b.id}>
+                                                {b.name} — {b.bankName} ({b.accountIdentifier})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {selectedBeneficiary && (
+                                        <div className="sp-form-hint" style={{ marginTop: '6px' }}>
+                                            Recipient email: <strong>{selectedBeneficiary.recipientEmail}</strong>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="sp-form-group" style={{ marginTop: '20px' }}>
+                                    <label htmlFor="transfer-amount" className="sp-form-label">
+                                        Transfer Amount (INR) <span style={{ color: '#d93025' }}>*</span>
+                                    </label>
+                                    <div className="sp-input-group">
+                                        <span className="sp-input-prefix">₹</span>
+                                        <input
+                                            id="transfer-amount"
+                                            type="number"
+                                            step="0.01"
+                                            min="1"
+                                            max="100000"
+                                            value={amount}
+                                            onChange={handleAmountChange}
+                                            placeholder="0.00"
+                                            className="sp-form-input sp-input-with-prefix"
+                                            disabled={isInitiatingTransfer}
+                                        />
+                                    </div>
+                                    <div className="sp-form-hint" style={{ marginTop: '6px' }}>
+                                        Minimum ₹1.00 • Maximum ₹1,00,000.00 per transfer
+                                    </div>
+                                    {amountError && (
+                                        <p className="sp-form-error" role="alert">
+                                            {amountError}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="sp-form-actions" style={{ marginTop: '28px' }}>
+                                    <button
+                                        type="submit"
+                                        className="sp-btn sp-btn-primary sp-btn-full"
+                                        disabled={isInitiatingTransfer || !selectedBeneficiaryId || !amount}
+                                    >
+                                        Review Transfer →
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                    </section>
+
+                    {/* Balance & Security Guidance Sidecard */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <div className="sp-card sp-balance-summary-card">
+                            <span className="sp-balance-summary-card__label">Available to Send</span>
+                            <div className="sp-balance-summary-card__amount">
+                                <span className="sp-balance-summary-card__currency">{wallet?.currency || 'INR'}</span>
+                                <span className="sp-balance-summary-card__value">
+                                    {availableBalance.toLocaleString('en-IN', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    })}
+                                </span>
+                            </div>
+                            <div className="sp-balance-summary-card__footer">
+                                <Link to="/customer/add-money" className="sp-btn sp-btn-secondary sp-btn-sm">
+                                    + Add Money to Wallet
+                                </Link>
+                            </div>
+                        </div>
+
+                        <div className="sp-card">
+                            <h3 style={{ fontSize: '15px', fontWeight: 600, color: '#142d5a', margin: '0 0 10px' }}>
+                                🛡 Transfer Security Guarantee
+                            </h3>
+                            <ul style={{ margin: 0, paddingLeft: '18px', color: '#556885', fontSize: '13px', lineHeight: '1.6' }}>
+                                <li><strong>Idempotent:</strong> Duplicate submissions are automatically rejected.</li>
+                                <li><strong>Atomic:</strong> Double-entry debit and credit occur together or abort.</li>
+                                <li><strong>Risk Scored:</strong> Real-time engine flags anomalous transfer activity.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
     )
 }
 

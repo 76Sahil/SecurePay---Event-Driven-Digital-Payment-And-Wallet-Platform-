@@ -4,87 +4,33 @@ import type {
     CardManagementResponse,
 } from '../types/card'
 
-const mockCards: Card[] = [
-    {
-        id: 'card-demo-001',
-        maskedNumber: '•••• •••• •••• 4821',
-        cardholderName: 'Sahil Paliwal',
-        type: 'DEBIT',
-        status: 'ACTIVE',
-        expiryMonth: 12,
-        expiryYear: 2029,
-        currency: 'INR',
-    },
-    {
-        id: 'card-demo-002',
-        maskedNumber: '•••• •••• •••• 1937',
-        cardholderName: 'Tripshikha Singh',
-        type: 'DEBIT',
-        status: 'BLOCKED',
-        expiryMonth: 8,
-        expiryYear: 2028,
-        currency: 'INR',
-    },
-]
-
 export async function getCards(): Promise<Card[]> {
-    return Promise.resolve(mockCards)
+    return Promise.resolve([])
 }
 
 export async function getCardById(
-    cardId: string,
+    _cardId: string,
 ): Promise<Card | null> {
-    const card = mockCards.find((item) => item.id === cardId)
-
-    return Promise.resolve(card ?? null)
+    return Promise.resolve(null)
 }
 
 export async function manageCard(
     cardId: string,
     action: CardManagementAction,
 ): Promise<CardManagementResponse> {
-    const card = mockCards.find((item) => item.id === cardId)
-
-    if (!card) {
-        throw new Error('Card not found.')
-    }
-
-    if (action === 'BLOCK') {
-        card.status = 'BLOCKED'
-    }
-
-    if (action === 'UNBLOCK') {
-        card.status = 'ACTIVE'
-    }
-
     return Promise.resolve({
-        cardId: card.id,
-        status: card.status,
+        cardId,
+        status: action === 'BLOCK' ? 'BLOCKED' : 'ACTIVE',
         action,
     })
 }
 
 export async function addCard(
-    cardholderName: string,
-    cardNumber: string,
-    expiryMonth: number,
-    expiryYear: number,
-    type: Card['type'],
+    _cardholderName: string,
+    _cardNumber: string,
+    _expiryMonth: number,
+    _expiryYear: number,
+    _type: Card['type'],
 ): Promise<Card> {
-    const lastFourDigits = cardNumber.slice(-4)
-
-    const newCard: Card = {
-        id: `card-${Date.now()}`,
-        maskedNumber: `•••• •••• •••• ${lastFourDigits}`,
-        cardholderName,
-        type,
-        status: 'PENDING',
-        expiryMonth,
-        expiryYear,
-        currency: 'INR',
-    }
-
-    mockCards.push(newCard)
-
-    return Promise.resolve(newCard)
+    throw new Error('Card issuing and management is currently not supported in SecurePay.')
 }

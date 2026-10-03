@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router'
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
@@ -27,9 +26,11 @@ function RegisterPage() {
         email: '',
         password: '',
         confirmPassword: '',
-        role: '',
+        role: 'CUSTOMER',
     })
 
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [errors, setErrors] = useState<RegisterFormErrors>({})
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [serverMessage, setServerMessage] = useState('')
@@ -51,9 +52,7 @@ function RegisterPage() {
         setServerMessage('')
     }
 
-    function handleRoleChange(event: ChangeEvent<HTMLInputElement>) {
-        const role = event.target.value as RegisterRole
-
+    function handleRoleSelect(role: RegisterRole) {
         setFormData((current) => ({
             ...current,
             role,
@@ -75,17 +74,15 @@ function RegisterPage() {
         }
 
         if (!formData.email.trim()) {
-            validationErrors.email = 'Email is required.'
-        } else if (
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-        ) {
+            validationErrors.email = 'Email address is required.'
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             validationErrors.email = 'Please enter a valid email address.'
         }
 
         if (!formData.password) {
             validationErrors.password = 'Password is required.'
         } else if (formData.password.length < 8) {
-            validationErrors.password = 'Password must be at least 8 characters.'
+            validationErrors.password = 'Password must be at least 8 characters long.'
         }
 
         if (!formData.confirmPassword) {
@@ -125,7 +122,7 @@ function RegisterPage() {
                     },
                     body: JSON.stringify({
                         fullName: formData.fullName.trim(),
-                        email: formData.email.trim(),
+                        email: formData.email.trim().toLowerCase(),
                         accountType: formData.role,
                         password: formData.password,
                     }),
@@ -143,19 +140,19 @@ function RegisterPage() {
 
             if (!response.ok) {
                 if (response.status === 409) {
-                    throw new Error('An account with this email already exists.')
+                    throw new Error('An account with this email address already exists.')
                 }
 
                 throw new Error(
                     data.message ||
-                    `Registration failed (${response.status}). Please try again.`,
+                    `Registration failed (${response.status}). Please check your input and try again.`,
                 )
             }
 
             setIsSuccess(true)
             setServerMessage(
                 data.message ||
-                'Registration successful. Please verify your email.',
+                'Your SecurePay account has been registered successfully.',
             )
 
             setFormData({
@@ -163,19 +160,17 @@ function RegisterPage() {
                 email: '',
                 password: '',
                 confirmPassword: '',
-                role: '',
+                role: 'CUSTOMER',
             })
-
             setErrors({})
         } catch (error) {
             setIsSuccess(false)
-
             setServerMessage(
                 error instanceof TypeError
-                    ? 'Unable to connect to the server. Please check whether the backend is running.'
+                    ? 'Unable to connect to the SecurePay backend server. Please verify the backend is running.'
                     : error instanceof Error
                         ? error.message
-                        : 'Something went wrong. Please try again.',
+                        : 'Something went wrong during registration. Please try again.',
             )
         } finally {
             setIsSubmitting(false)
@@ -183,211 +178,235 @@ function RegisterPage() {
     }
 
     return (
-        <section className="auth-page">
-            <div className="auth-card">
-                <div className="auth-card__header">
-                    <p className="auth-card__brand">
-                        SecurePay
-                    </p>
-
-                    <h1>
-                        Create your SecurePay account
-                    </h1>
-
-                    <p className="auth-card__description">
-                        Create your account to securely
-                        manage payments and your wallet.
+        <section className="sp-auth-container">
+            <div className="sp-card sp-auth-card" style={{ maxWidth: '520px' }}>
+                <div className="sp-auth-header">
+                    <div className="sp-auth-logo">
+                        <span>S</span>
+                    </div>
+                    <span className="sp-badge sp-badge-neutral">SecurePay Platform</span>
+                    <h1 className="sp-auth-title">Create an Account</h1>
+                    <p className="sp-auth-subtitle">
+                        Join SecurePay to manage your digital wallet, peer-to-peer transfers, and business payments.
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit} noValidate>
-                    <div className="form-field">
-                        <label htmlFor="fullName">
-                            Full name
-                        </label>
-
-                        <input
-                            id="fullName"
-                            name="fullName"
-                            type="text"
-                            value={formData.fullName}
-                            onChange={handleChange}
-                            autoComplete="name"
-                            aria-invalid={Boolean(errors.fullName)}
-                            aria-describedby={
-                                errors.fullName ? 'fullName-error' : undefined
-                            }
-                        />
-
-                        {errors.fullName && (
-                            <p id="fullName-error" role="alert">
-                                {errors.fullName}
-                            </p>
-                        )}
+                {isSuccess ? (
+                    <div className="sp-register-success-box" style={{ textAlign: 'center', padding: '24px 0' }}>
+                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+                        <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#142d5a', marginBottom: '8px' }}>
+                            Registration Successful!
+                        </h2>
+                        <p style={{ color: '#556885', fontSize: '14px', lineHeight: '1.6', marginBottom: '24px' }}>
+                            {serverMessage}
+                            <br />
+                            <small style={{ color: '#8898aa' }}>
+                                (If email verification is enabled by your administrator, check your inbox before logging in.)
+                            </small>
+                        </p>
+                        <Link to="/login" className="sp-btn sp-btn-primary sp-btn-full">
+                            Proceed to Sign In →
+                        </Link>
                     </div>
-
-                    <div className="form-field">
-                        <label htmlFor="email">
-                            Email address
-                        </label>
-
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            autoComplete="email"
-                            aria-invalid={Boolean(errors.email)}
-                            aria-describedby={
-                                errors.email ? 'email-error' : undefined
-                            }
-                        />
-
-                        {errors.email && (
-                            <p id="email-error" role="alert">
-                                {errors.email}
-                            </p>
+                ) : (
+                    <>
+                        {serverMessage && (
+                            <div className="sp-alert sp-alert-error" role="alert" style={{ marginBottom: '20px' }}>
+                                {serverMessage}
+                            </div>
                         )}
-                    </div>
 
-                    <div className="form-field">
-                        <label>
-                            Account type
-                        </label>
+                        <form onSubmit={handleSubmit} noValidate>
+                            {/* Account Type Selector */}
+                            <div className="sp-form-group">
+                                <label className="sp-form-label">
+                                    Select Account Type <span style={{ color: '#d93025' }}>*</span>
+                                </label>
+                                <div className="sp-role-select-grid">
+                                    <div
+                                        className={`sp-role-card ${formData.role === 'CUSTOMER' ? 'sp-role-card--active' : ''}`}
+                                        onClick={() => handleRoleSelect('CUSTOMER')}
+                                        role="button"
+                                        tabIndex={0}
+                                    >
+                                        <div className="sp-role-card__header">
+                                            <span className="sp-role-card__radio">
+                                                {formData.role === 'CUSTOMER' ? '●' : '○'}
+                                            </span>
+                                            <strong>Customer</strong>
+                                        </div>
+                                        <p className="sp-role-card__desc">
+                                            Digital wallet, peer transfers, and bill management.
+                                        </p>
+                                    </div>
 
-                        <div
-                            className="register-role-options"
-                            role="radiogroup"
-                            aria-label="Account type"
-                            aria-describedby={
-                                errors.role ? 'role-error' : undefined
-                            }
-                        >
-                            <label className="register-role-option">
+                                    <div
+                                        className={`sp-role-card ${formData.role === 'MERCHANT' ? 'sp-role-card--active' : ''}`}
+                                        onClick={() => handleRoleSelect('MERCHANT')}
+                                        role="button"
+                                        tabIndex={0}
+                                    >
+                                        <div className="sp-role-card__header">
+                                            <span className="sp-role-card__radio">
+                                                {formData.role === 'MERCHANT' ? '●' : '○'}
+                                            </span>
+                                            <strong>Merchant</strong>
+                                        </div>
+                                        <p className="sp-role-card__desc">
+                                            API keys, payment checkouts, and webhooks.
+                                        </p>
+                                    </div>
+                                </div>
+                                {errors.role && (
+                                    <p className="sp-form-error" role="alert">
+                                        {errors.role}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Full Name */}
+                            <div className="sp-form-group" style={{ marginTop: '16px' }}>
+                                <label htmlFor="reg-fullname" className="sp-form-label">
+                                    Full Name <span style={{ color: '#d93025' }}>*</span>
+                                </label>
                                 <input
-                                    type="radio"
-                                    name="role"
-                                    value="CUSTOMER"
-                                    checked={formData.role === 'CUSTOMER'}
-                                    onChange={handleRoleChange}
+                                    id="reg-fullname"
+                                    name="fullName"
+                                    type="text"
+                                    value={formData.fullName}
+                                    onChange={handleChange}
+                                    autoComplete="name"
+                                    placeholder="John Doe"
+                                    className="sp-form-input"
+                                    aria-invalid={Boolean(errors.fullName)}
+                                    disabled={isSubmitting}
                                 />
+                                {errors.fullName && (
+                                    <p className="sp-form-error" role="alert">
+                                        {errors.fullName}
+                                    </p>
+                                )}
+                            </div>
 
-                                <span>
-                                    <strong>Customer</strong>
-                                    <small>
-                                        Manage your wallet, payments and transactions.
-                                    </small>
-                                </span>
-                            </label>
-
-                            <label className="register-role-option">
+                            {/* Email */}
+                            <div className="sp-form-group" style={{ marginTop: '16px' }}>
+                                <label htmlFor="reg-email" className="sp-form-label">
+                                    Email Address <span style={{ color: '#d93025' }}>*</span>
+                                </label>
                                 <input
-                                    type="radio"
-                                    name="role"
-                                    value="MERCHANT"
-                                    checked={formData.role === 'MERCHANT'}
-                                    onChange={handleRoleChange}
+                                    id="reg-email"
+                                    name="email"
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    autoComplete="email"
+                                    placeholder="name@example.com"
+                                    className="sp-form-input"
+                                    aria-invalid={Boolean(errors.email)}
+                                    disabled={isSubmitting}
                                 />
+                                {errors.email && (
+                                    <p className="sp-form-error" role="alert">
+                                        {errors.email}
+                                    </p>
+                                )}
+                            </div>
 
-                                <span>
-                                    <strong>Merchant</strong>
-                                    <small>
-                                        Manage your business payments and transactions.
-                                    </small>
-                                </span>
-                            </label>
+                            {/* Password */}
+                            <div className="sp-form-group" style={{ marginTop: '16px' }}>
+                                <label htmlFor="reg-password" className="sp-form-label">
+                                    Password <span style={{ color: '#d93025' }}>*</span>
+                                </label>
+                                <div className="sp-password-input-wrapper">
+                                    <input
+                                        id="reg-password"
+                                        name="password"
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        autoComplete="new-password"
+                                        placeholder="Min 8 characters"
+                                        className="sp-form-input"
+                                        aria-invalid={Boolean(errors.password)}
+                                        disabled={isSubmitting}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="sp-password-toggle-btn"
+                                        onClick={() => setShowPassword((p) => !p)}
+                                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    >
+                                        {showPassword ? 'Hide' : 'Show'}
+                                    </button>
+                                </div>
+                                {errors.password && (
+                                    <p className="sp-form-error" role="alert">
+                                        {errors.password}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Confirm Password */}
+                            <div className="sp-form-group" style={{ marginTop: '16px' }}>
+                                <label htmlFor="reg-confirmpassword" className="sp-form-label">
+                                    Confirm Password <span style={{ color: '#d93025' }}>*</span>
+                                </label>
+                                <div className="sp-password-input-wrapper">
+                                    <input
+                                        id="reg-confirmpassword"
+                                        name="confirmPassword"
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        autoComplete="new-password"
+                                        placeholder="Repeat password"
+                                        className="sp-form-input"
+                                        aria-invalid={Boolean(errors.confirmPassword)}
+                                        disabled={isSubmitting}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="sp-password-toggle-btn"
+                                        onClick={() => setShowConfirmPassword((p) => !p)}
+                                        aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                                    >
+                                        {showConfirmPassword ? 'Hide' : 'Show'}
+                                    </button>
+                                </div>
+                                {errors.confirmPassword && (
+                                    <p className="sp-form-error" role="alert">
+                                        {errors.confirmPassword}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div style={{ marginTop: '26px' }}>
+                                <button
+                                    type="submit"
+                                    className="sp-btn sp-btn-primary sp-btn-full"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                                            <span className="sp-spinner-icon" /> Creating Account...
+                                        </span>
+                                    ) : (
+                                        'Create SecurePay Account →'
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+
+                        <div className="sp-auth-footer" style={{ marginTop: '24px', textAlign: 'center' }}>
+                            <p style={{ margin: 0, color: '#60708a', fontSize: '14px' }}>
+                                Already registered?{' '}
+                                <Link to="/login" style={{ color: '#1a56db', fontWeight: 600 }}>
+                                    Sign in here
+                                </Link>
+                            </p>
                         </div>
-
-                        {errors.role && (
-                            <p id="role-error" role="alert">
-                                {errors.role}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="form-field">
-                        <label htmlFor="password">
-                            Password
-                        </label>
-
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            autoComplete="new-password"
-                            aria-invalid={Boolean(errors.password)}
-                            aria-describedby={
-                                errors.password ? 'password-error' : undefined
-                            }
-                        />
-
-                        {errors.password && (
-                            <p id="password-error" role="alert">
-                                {errors.password}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="form-field">
-                        <label htmlFor="confirmPassword">
-                            Confirm password
-                        </label>
-
-                        <input
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            type="password"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            autoComplete="new-password"
-                            aria-invalid={Boolean(errors.confirmPassword)}
-                            aria-describedby={
-                                errors.confirmPassword
-                                    ? 'confirmPassword-error'
-                                    : undefined
-                            }
-                        />
-
-                        {errors.confirmPassword && (
-                            <p id="confirmPassword-error" role="alert">
-                                {errors.confirmPassword}
-                            </p>
-                        )}
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="auth-submit"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting
-                            ? 'Creating account...'
-                            : 'Create account'}
-                    </button>
-                </form>
-
-                {serverMessage && (
-                    <p
-                        role="status"
-                        aria-live="polite"
-                        style={{
-                            color: isSuccess ? 'green' : 'red',
-                            marginTop: '12px',
-                        }}
-                    >
-                        {serverMessage}
-                    </p>
+                    </>
                 )}
-
-                <p className="auth-card__footer">
-                    Already have an account?{' '}
-                    <Link to="/login">
-                        Log in
-                    </Link>
-                </p>
             </div>
         </section>
     )

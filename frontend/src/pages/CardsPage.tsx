@@ -1,150 +1,45 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import type { Card } from '../types/card'
-import { getCards } from '../services/cardService'
 
 function CardsPage() {
-    const [cards, setCards] = useState<Card[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-
-    useEffect(() => {
-        async function loadCards() {
-            try {
-                setIsLoading(true)
-                setError(null)
-
-                const data = await getCards()
-                setCards(data)
-            } catch {
-                setError('Unable to load cards.')
-            } finally {
-                setIsLoading(false)
-            }
-        }
-
-        void loadCards()
-    }, [])
-
-    const getStatusClass = (status: Card['status']) => {
-        return `card-status card-status-${status.toLowerCase()}`
-    }
-
-    const getTypeLabel = (type: Card['type']) => {
-        return type.replace('_', ' ')
-    }
-
     return (
-        <div className="cards-page">
-            <div className="cards-header">
+        <div className="sp-page cards-page">
+            <header className="sp-page-header">
                 <div>
-                    <h1>Cards</h1>
-
-                    <p>
-                        Manage your SecurePay cards and card security
-                        settings.
+                    <span className="sp-badge sp-badge-neutral">Feature Scope</span>
+                    <h1 className="sp-page-title">Cards</h1>
+                    <p className="sp-page-subtitle">
+                        Card issuing and management status in SecurePay.
                     </p>
                 </div>
+            </header>
 
-                <Link
-                    to="/customer/cards/add"
-                    className="card-add-primary-button"
-                >
-                    + Add Card
-                </Link>
-            </div>
+            <section className="sp-card" style={{ textAlign: 'center', padding: '48px 24px', maxWidth: '640px', margin: '32px auto' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>💳</div>
+                <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#142d5a', marginBottom: '12px' }}>
+                    Cards are not available yet
+                </h2>
+                <p style={{ color: '#556885', fontSize: '15px', lineHeight: '1.6', marginBottom: '24px' }}>
+                    SecurePay currently focuses on core event-driven fintech capabilities:
+                </p>
 
-            {isLoading && (
-                <div className="cards-card cards-state">
-                    <p>Loading cards...</p>
+                <div style={{ textAlign: 'left', background: '#f8fafc', padding: '16px 24px', borderRadius: '12px', marginBottom: '28px' }}>
+                    <ul style={{ margin: 0, paddingLeft: '20px', color: '#253957', lineHeight: '1.8', fontSize: '14px' }}>
+                        <li><strong>Digital Wallet:</strong> Instant balance top-up with double-entry accounting</li>
+                        <li><strong>Peer-to-Peer Transfers:</strong> Direct wallet transfers to registered beneficiaries</li>
+                        <li><strong>Merchant Payments:</strong> API key checkouts, hosted payments, and webhook callbacks</li>
+                        <li><strong>Transaction Management:</strong> Audited real-time ledger and event stream</li>
+                    </ul>
                 </div>
-            )}
 
-            {!isLoading && error && (
-                <div className="cards-card cards-state cards-error">
-                    <p>{error}</p>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <Link to="/customer/wallet" className="sp-btn sp-btn-primary">
+                        Open Wallet
+                    </Link>
+                    <Link to="/customer/send-money" className="sp-btn sp-btn-secondary">
+                        Send Money
+                    </Link>
                 </div>
-            )}
-
-            {!isLoading && !error && cards.length === 0 && (
-                <div className="cards-card cards-state">
-                    <p>No cards available.</p>
-                </div>
-            )}
-
-            {!isLoading && !error && cards.length > 0 && (
-                <div className="cards-list">
-                    {cards.map((card) => (
-                        <Link
-                            key={card.id}
-                            to={`/customer/cards/${card.id}`}
-                            className="card-item-link"
-                        >
-                            <div className="card-item">
-                                <div className="card-visual">
-                                    <div className="card-visual-top">
-                                        <span>SecurePay</span>
-
-                                        <span className="card-type">
-                                            {getTypeLabel(card.type)}
-                                        </span>
-                                    </div>
-
-                                    <div className="card-number">
-                                        {card.maskedNumber}
-                                    </div>
-
-                                    <div className="card-visual-bottom">
-                                        <div>
-                                            <span className="card-label">
-                                                CARDHOLDER
-                                            </span>
-
-                                            <strong>
-                                                {card.cardholderName}
-                                            </strong>
-                                        </div>
-
-                                        <div>
-                                            <span className="card-label">
-                                                VALID THRU
-                                            </span>
-
-                                            <strong>
-                                                {String(
-                                                    card.expiryMonth,
-                                                ).padStart(2, '0')}
-                                                /
-                                                {String(
-                                                    card.expiryYear,
-                                                ).slice(-2)}
-                                            </strong>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="card-item-details">
-                                    <div>
-                                        <h3>
-                                            {getTypeLabel(card.type)} Card
-                                        </h3>
-
-                                        <p>{card.currency}</p>
-                                    </div>
-
-                                    <span
-                                        className={getStatusClass(
-                                            card.status,
-                                        )}
-                                    >
-                                        {card.status}
-                                    </span>
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
-            )}
+            </section>
         </div>
     )
 }

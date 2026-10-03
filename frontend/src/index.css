@@ -8047,3 +8047,714 @@ a {
     justify-content: center;
   }
 }
+
+/* ==========================================================================
+   LANDING PAGE, AUTH PAGES & ENHANCED FINTECH UI COMPONENTS
+   ========================================================================== */
+
+/* Landing Page */
+.landing-page {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  padding: 24px 0 64px;
+}
+
+.landing-hero {
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 16px 20px;
+}
+
+.landing-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  border: 1px solid #e0e7ff;
+}
+
+.landing-hero__title {
+  font-size: 44px;
+  line-height: 1.18;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 20px;
+}
+
+.landing-hero__subtitle {
+  font-size: 19px;
+  line-height: 1.6;
+  color: #475569;
+  max-width: 720px;
+  margin: 0 auto 36px;
+}
+
+.landing-hero__actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.landing-section {
+  padding: 40px 0;
+}
+
+.landing-section--shaded {
+  background: #f8fafc;
+  border-radius: 24px;
+  padding: 48px 32px;
+  border: 1px solid #e2e8f0;
+}
+
+.landing-section__header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 40px;
+}
+
+.landing-section__title {
+  font-size: 30px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 12px 0 10px;
+  letter-spacing: -0.01em;
+}
+
+.landing-section__subtitle {
+  font-size: 16px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.landing-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.landing-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.landing-feature-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 28px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.landing-feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -10px rgba(15, 23, 42, 0.08);
+}
+
+.landing-feature-card__icon {
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+
+.landing-feature-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+.landing-feature-card p {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.landing-security-item {
+  display: flex;
+  gap: 16px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.landing-security-item__bullet {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #15803d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.landing-security-item h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.landing-security-item p {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.landing-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+.landing-step {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px 18px;
+  text-align: center;
+}
+
+.landing-step__number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+}
+
+.landing-step h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+.landing-step p {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.landing-cta-banner {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+  border-radius: 24px;
+  padding: 56px 32px;
+  text-align: center;
+  color: #ffffff;
+  box-shadow: 0 16px 36px -12px rgba(30, 58, 138, 0.35);
+}
+
+.landing-cta-banner__title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 14px;
+}
+
+.landing-cta-banner__subtitle {
+  font-size: 17px;
+  color: #bfdbfe;
+  max-width: 600px;
+  margin: 0 auto 32px;
+  line-height: 1.5;
+}
+
+.landing-cta-banner__actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.landing-cta-banner__actions .sp-btn-secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.landing-cta-banner__actions .sp-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Auth Containers & Cards */
+.sp-auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 16px;
+  min-height: calc(100vh - 160px);
+}
+
+.sp-auth-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 36px 32px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.sp-auth-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.sp-auth-logo {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 24px;
+  margin: 0 auto 16px;
+}
+
+.sp-auth-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 12px 0 6px;
+}
+
+.sp-auth-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Password input wrapper with show/hide toggle */
+.sp-password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sp-password-input-wrapper .sp-form-input {
+  padding-right: 64px;
+}
+
+.sp-password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.sp-password-toggle-btn:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+/* Role Selector Grid in Register */
+.sp-role-select-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.sp-role-card {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.sp-role-card:hover {
+  border-color: #93c5fd;
+}
+
+.sp-role-card--active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.sp-role-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.sp-role-card__radio {
+  color: #2563eb;
+  font-size: 14px;
+}
+
+.sp-role-card__desc {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Form selects, input groups */
+.sp-form-select {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 500;
+  outline: 0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sp-form-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.sp-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sp-input-prefix {
+  position: absolute;
+  left: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.sp-input-with-prefix {
+  padding-left: 32px !important;
+}
+
+.sp-form-hint {
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.sp-form-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.sp-form-link:hover {
+  text-decoration: underline;
+}
+
+.sp-spinner-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #ffffff;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Send Money & Transfer Results */
+.sp-transfer-result {
+  text-align: center;
+  max-width: 580px;
+  margin: 24px auto;
+  padding: 40px 32px;
+}
+
+.sp-transfer-result__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 32px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.sp-transfer-result__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+.sp-transfer-result__message {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0 0 24px;
+}
+
+.sp-transfer-result__amount-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.sp-transfer-result__label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.sp-transfer-result__amount {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.sp-transfer-summary-list {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.sp-transfer-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.sp-transfer-summary-row span {
+  color: #64748b;
+}
+
+.sp-transfer-summary-row strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.sp-transfer-result__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Balance summary sidecard */
+.sp-balance-summary-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+  border: 1px solid #cbd5e1;
+}
+
+.sp-balance-summary-card__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.sp-balance-summary-card__amount {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 8px 0 16px;
+}
+
+.sp-balance-summary-card__currency {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.sp-balance-summary-card__value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.sp-balance-summary-card__footer {
+  border-top: 1px solid #cbd5e1;
+  padding-top: 14px;
+}
+
+/* Security page features */
+.sp-security-feature {
+  display: flex;
+  gap: 16px;
+  background: #f8fafc;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.sp-security-feature__icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.sp-security-feature__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.sp-security-feature__desc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Responsive Rules for Landing & Auth */
+@media (max-width: 1024px) {
+  .landing-grid-3col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .landing-steps-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-hero__title {
+    font-size: 32px;
+  }
+
+  .landing-hero__subtitle {
+    font-size: 16px;
+  }
+
+  .landing-grid-3col,
+  .landing-grid-2col {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-steps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-section--shaded {
+    padding: 32px 16px;
+  }
+
+  .sp-role-select-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sp-auth-card {
+    padding: 28px 20px;
+  }
+}
+
+/* Grid & Layout Utilities */
+.sp-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.sp-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.sp-info-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sp-info-box__label {
+  font-size: 12px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.sp-info-box__value {
+  font-size: 18px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.sp-info-box__sub {
+  font-size: 12.5px;
+  color: #8492a6;
+}
+
+@media (max-width: 900px) {
+  .sp-grid-3col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .sp-grid-2col,
+  .sp-grid-3col {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .sp-transfer-summary-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

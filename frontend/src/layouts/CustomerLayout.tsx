@@ -100,16 +100,6 @@ function CustomerLayout() {
                         <span>Transactions</span>
                     </NavLink>
 
-                    <NavLink
-                        to="/customer/cards"
-                        className="customer-sidebar__link"
-                    >
-                        <span className="customer-sidebar__icon">
-                            ▤
-                        </span>
-
-                        <span>Cards</span>
-                    </NavLink>
 
                     <NavLink
                         to="/customer/notifications"

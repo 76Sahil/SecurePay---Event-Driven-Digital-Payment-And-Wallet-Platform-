@@ -20,6 +20,7 @@ export async function initiateTransfer(
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
+                'Idempotency-Key': crypto.randomUUID(),
             },
             body: JSON.stringify({
                 recipientEmail: request.recipientEmail.trim().toLowerCase(),
