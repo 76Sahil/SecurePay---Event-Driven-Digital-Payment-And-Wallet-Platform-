@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router'
 import type {
     SecurityActivity,
@@ -11,6 +11,8 @@ import {
     getTrustedDevices,
     manageTrustedDevice,
 } from '../services/securityService'
+import LoadingState from '../components/common/LoadingState'
+import ErrorState from '../components/common/ErrorState'
 
 function SecurityPage() {
     const [overview, setOverview] =
@@ -31,34 +33,34 @@ function SecurityPage() {
 
     const [error, setError] = useState<string | null>(null)
 
-    useEffect(() => {
-        async function loadSecurityData() {
-            try {
-                setIsLoading(true)
-                setError(null)
+    const loadSecurityData = useCallback(async () => {
+        try {
+            setIsLoading(true)
+            setError(null)
 
-                const [
-                    overviewData,
-                    devicesData,
-                    activitiesData,
-                ] = await Promise.all([
-                    getSecurityOverview(),
-                    getTrustedDevices(),
-                    getSecurityActivities(),
-                ])
+            const [
+                overviewData,
+                devicesData,
+                activitiesData,
+            ] = await Promise.all([
+                getSecurityOverview(),
+                getTrustedDevices(),
+                getSecurityActivities(),
+            ])
 
-                setOverview(overviewData)
-                setDevices(devicesData)
-                setActivities(activitiesData)
-            } catch {
-                setError('Unable to load security information.')
-            } finally {
-                setIsLoading(false)
-            }
+            setOverview(overviewData)
+            setDevices(devicesData)
+            setActivities(activitiesData)
+        } catch {
+            setError('Unable to load security information. Please try again.')
+        } finally {
+            setIsLoading(false)
         }
-
-        void loadSecurityData()
     }, [])
+
+    useEffect(() => {
+        void loadSecurityData()
+    }, [loadSecurityData])
 
     const handleRevokeDevice = async (
         deviceId: string,
@@ -131,20 +133,20 @@ function SecurityPage() {
             </div>
 
             {isLoading && (
-                <div className="security-card security-state">
-                    <p>Loading security information...</p>
-                </div>
+                <LoadingState message="Loading security configuration..." />
             )}
 
             {!isLoading && error && (
-                <div className="security-card security-state security-error">
-                    <p>{error}</p>
-                </div>
+                <ErrorState
+                    title="Security Details Unavailable"
+                    message={error}
+                    onRetry={() => void loadSecurityData()}
+                />
             )}
 
             {!isLoading && deviceManagementError && (
-                <div className="security-card security-state security-error">
-                    <p>{deviceManagementError}</p>
+                <div className="sp-alert sp-alert-error" role="alert">
+                    {deviceManagementError}
                 </div>
             )}
 

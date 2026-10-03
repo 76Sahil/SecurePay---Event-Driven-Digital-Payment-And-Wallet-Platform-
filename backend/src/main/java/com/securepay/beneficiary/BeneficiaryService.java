@@ -26,14 +26,24 @@ public class BeneficiaryService {
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getMyBeneficiaries(String keycloakUserId) {
-        User owner = getCustomer(keycloakUserId);
+        return getMyBeneficiaries(keycloakUserId, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getMyBeneficiaries(String keycloakUserId, String email, String fullName) {
+        User owner = getCustomer(keycloakUserId, email, fullName);
         return beneficiaryRepository.findByOwnerOrderByCreatedAtDesc(owner)
                 .stream().map(this::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
     public Map<String, Object> getMyBeneficiary(String keycloakUserId, Long beneficiaryId) {
-        User owner = getCustomer(keycloakUserId);
+        return getMyBeneficiary(keycloakUserId, null, null, beneficiaryId);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getMyBeneficiary(String keycloakUserId, String email, String fullName, Long beneficiaryId) {
+        User owner = getCustomer(keycloakUserId, email, fullName);
         Beneficiary beneficiary = beneficiaryRepository.findByIdAndOwner(beneficiaryId, owner)
                 .orElseThrow(() -> new IllegalArgumentException("Beneficiary not found."));
         return toResponse(beneficiary);
@@ -43,9 +53,18 @@ public class BeneficiaryService {
     public Map<String, Object> addBeneficiary(
             String keycloakUserId,
             CreateBeneficiaryRequest request) {
-        User owner = getCustomer(keycloakUserId);
-        String email = request.getRecipientEmail().trim().toLowerCase(Locale.ROOT);
-        User recipient = userRepository.findByEmail(email)
+        return addBeneficiary(keycloakUserId, null, null, request);
+    }
+
+    @Transactional
+    public Map<String, Object> addBeneficiary(
+            String keycloakUserId,
+            String email,
+            String fullName,
+            CreateBeneficiaryRequest request) {
+        User owner = getCustomer(keycloakUserId, email, fullName);
+        String recipientEmail = request.getRecipientEmail().trim().toLowerCase(Locale.ROOT);
+        User recipient = userRepository.findByEmail(recipientEmail)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Recipient must have a registered SecurePay account."));
 
@@ -71,13 +90,46 @@ public class BeneficiaryService {
         return toResponse(beneficiaryRepository.save(beneficiary));
     }
 
-    private User getCustomer(String keycloakUserId) {
-        User user = userRepository.findByKeycloakUserId(keycloakUserId)
-                .orElseThrow(() -> new IllegalArgumentException("User profile not found."));
+    private User getCustomer(String keycloakUserId, String email, String fullName) {
+        User user = findOrProvisionUser(keycloakUserId, email, fullName);
         if (!"CUSTOMER".equalsIgnoreCase(user.getAccountType())) {
             throw new IllegalArgumentException("Beneficiaries are available only for customer accounts.");
         }
         return user;
+    }
+
+    private User findOrProvisionUser(String keycloakUserId, String email, String fullName) {
+        java.util.Optional<User> byKeycloak = userRepository.findByKeycloakUserId(keycloakUserId);
+        if (byKeycloak.isPresent()) {
+            return byKeycloak.get();
+        }
+
+        String safeEmail = (email != null && !email.isBlank())
+                ? email.trim().toLowerCase(java.util.Locale.ROOT)
+                : (keycloakUserId.contains("@") ? keycloakUserId.trim().toLowerCase(java.util.Locale.ROOT) : null);
+
+        if (safeEmail != null) {
+            java.util.Optional<User> byEmail = userRepository.findByEmail(safeEmail);
+            if (byEmail.isPresent()) {
+                User existing = byEmail.get();
+                existing.setKeycloakUserId(keycloakUserId);
+                existing.setUpdatedAt(java.time.LocalDateTime.now());
+                return userRepository.save(existing);
+            }
+        }
+
+        User newUser = new User();
+        newUser.setKeycloakUserId(keycloakUserId);
+        newUser.setEmail(safeEmail != null ? safeEmail : keycloakUserId + "@securepay.local");
+        String name = (fullName != null && !fullName.isBlank())
+                ? fullName.trim()
+                : (safeEmail != null ? safeEmail.split("@")[0] : "Customer");
+        newUser.setFullName(name);
+        newUser.setAccountType("CUSTOMER");
+        newUser.setStatus("ACTIVE");
+        newUser.setKycStatus("VERIFIED");
+        newUser.setUpdatedAt(java.time.LocalDateTime.now());
+        return userRepository.save(newUser);
     }
 
     private Map<String, Object> toResponse(Beneficiary beneficiary) {

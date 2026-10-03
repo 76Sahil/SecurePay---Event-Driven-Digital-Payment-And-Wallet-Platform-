@@ -62,21 +62,24 @@ public class WalletTransactionService {
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getMyTransactions(String keycloakUserId) {
+        return getMyTransactions(keycloakUserId, null, null);
+    }
 
-        User user = userRepository.findByKeycloakUserId(keycloakUserId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("User profile not found."));
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getMyTransactions(String keycloakUserId, String email, String fullName) {
+        User user = findOrProvisionUser(keycloakUserId, email, fullName);
 
         if (!"CUSTOMER".equalsIgnoreCase(user.getAccountType())) {
             throw new IllegalArgumentException(
                     "Transactions are available only for customer accounts.");
         }
 
-        Wallet wallet = walletRepository.findByUser(user)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Wallet not found."));
+        Optional<Wallet> walletOpt = walletRepository.findByUser(user);
+        if (walletOpt.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-        return transactionRepository.findByWalletOrderByCreatedAtDesc(wallet)
+        return transactionRepository.findByWalletOrderByCreatedAtDesc(walletOpt.get())
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -97,9 +100,7 @@ public class WalletTransactionService {
 
         validateAmount(amount);
 
-        User user = userRepository.findByKeycloakUserId(keycloakUserId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("User profile not found."));
+        User user = findOrProvisionUser(keycloakUserId, null, null);
 
         if (!"CUSTOMER".equalsIgnoreCase(user.getAccountType())) {
             throw new IllegalArgumentException(
@@ -211,9 +212,7 @@ public class WalletTransactionService {
             throw new IllegalArgumentException("Recipient email is required.");
         }
 
-        User sender = userRepository.findByKeycloakUserId(keycloakUserId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("User profile not found."));
+        User sender = findOrProvisionUser(keycloakUserId, null, null);
 
         if (!"CUSTOMER".equalsIgnoreCase(sender.getAccountType())) {
             throw new IllegalArgumentException(
@@ -461,5 +460,39 @@ public class WalletTransactionService {
         response.put("description", transaction.getDescription());
         response.put("createdAt", transaction.getCreatedAt().toString());
         return response;
+    }
+
+    private User findOrProvisionUser(String keycloakUserId, String email, String fullName) {
+        java.util.Optional<User> byKeycloak = userRepository.findByKeycloakUserId(keycloakUserId);
+        if (byKeycloak.isPresent()) {
+            return byKeycloak.get();
+        }
+
+        String safeEmail = (email != null && !email.isBlank())
+                ? email.trim().toLowerCase(java.util.Locale.ROOT)
+                : (keycloakUserId.contains("@") ? keycloakUserId.trim().toLowerCase(java.util.Locale.ROOT) : null);
+
+        if (safeEmail != null) {
+            java.util.Optional<User> byEmail = userRepository.findByEmail(safeEmail);
+            if (byEmail.isPresent()) {
+                User existing = byEmail.get();
+                existing.setKeycloakUserId(keycloakUserId);
+                existing.setUpdatedAt(java.time.LocalDateTime.now());
+                return userRepository.save(existing);
+            }
+        }
+
+        User newUser = new User();
+        newUser.setKeycloakUserId(keycloakUserId);
+        newUser.setEmail(safeEmail != null ? safeEmail : keycloakUserId + "@securepay.local");
+        String name = (fullName != null && !fullName.isBlank())
+                ? fullName.trim()
+                : (safeEmail != null ? safeEmail.split("@")[0] : "Customer");
+        newUser.setFullName(name);
+        newUser.setAccountType("CUSTOMER");
+        newUser.setStatus("ACTIVE");
+        newUser.setKycStatus("VERIFIED");
+        newUser.setUpdatedAt(java.time.LocalDateTime.now());
+        return userRepository.save(newUser);
     }
 }

@@ -27,7 +27,11 @@ public class WalletTransactionController {
     public ResponseEntity<List<Map<String, Object>>> getMyTransactions(
             @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(
-                transactionService.getMyTransactions(jwt.getSubject())
+                transactionService.getMyTransactions(
+                        jwt.getSubject(),
+                        jwt.getClaimAsString("email"),
+                        jwt.getClaimAsString("name")
+                )
         );
     }
 

@@ -75,7 +75,11 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(
                 List.of(
                         "Content-Type",
-                        "Authorization"
+                        "Authorization",
+                        "Idempotency-Key",
+                        "X-Requested-With",
+                        "Accept",
+                        "Origin"
                 )
         );
 

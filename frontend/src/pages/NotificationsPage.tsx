@@ -1,290 +1,222 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import type { Notification } from '../types/notification'
 import {
     getNotifications,
     markNotificationAsRead,
 } from '../services/notificationService'
+import LoadingState from '../components/common/LoadingState'
+import ErrorState from '../components/common/ErrorState'
+import EmptyState from '../components/common/EmptyState'
 
 function NotificationsPage() {
     const [notifications, setNotifications] = useState<Notification[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [markingAsReadId, setMarkingAsReadId] = useState<string | null>(
-        null,
-    )
-    const [managementError, setManagementError] =
-        useState<string | null>(null)
+    const [filter, setFilter] = useState<'ALL' | 'UNREAD' | 'READ'>('ALL')
+    const [markingAsReadId, setMarkingAsReadId] = useState<string | null>(null)
+    const [managementError, setManagementError] = useState<string | null>(null)
 
-    useEffect(() => {
-        async function loadNotifications() {
-            try {
-                setIsLoading(true)
-                setError(null)
-
-                const data = await getNotifications()
-                setNotifications(data)
-            } catch {
-                setError('Unable to load notifications.')
-            } finally {
-                setIsLoading(false)
-            }
+    const loadNotifications = useCallback(async () => {
+        try {
+            setIsLoading(true)
+            setError(null)
+            const data = await getNotifications()
+            setNotifications(data)
+        } catch (err) {
+            setError(
+                err instanceof Error && err.message
+                    ? err.message
+                    : 'Unable to load notifications. Please try again.',
+            )
+        } finally {
+            setIsLoading(false)
         }
-
-        void loadNotifications()
     }, [])
 
-    const unreadNotifications = notifications.filter(
-        (notification) => notification.status === 'UNREAD',
+    useEffect(() => {
+        void loadNotifications()
+    }, [loadNotifications])
+
+    const filteredNotifications = useMemo(() => {
+        if (filter === 'UNREAD') return notifications.filter((n) => n.status === 'UNREAD')
+        if (filter === 'READ') return notifications.filter((n) => n.status === 'READ')
+        return notifications
+    }, [notifications, filter])
+
+    const unreadCount = useMemo(
+        () => notifications.filter((n) => n.status === 'UNREAD').length,
+        [notifications],
     )
 
-    const readNotifications = notifications.filter(
-        (notification) => notification.status === 'READ',
-    )
-
-    const getTypeClass = (
-        type: Notification['type'],
-    ) => {
-        return `notification-type notification-type-${type.toLowerCase()}`
-    }
-
-    const getStatusClass = (
-        status: Notification['status'],
-    ) => {
-        return `notification-status notification-status-${status.toLowerCase()}`
-    }
-
-    const formatDate = (createdAt: string) => {
-        return new Date(createdAt).toLocaleString()
-    }
-
-    const handleMarkAsRead = async (
-        notificationId: string,
-    ) => {
+    const handleMarkAsRead = async (notificationId: string) => {
         try {
             setMarkingAsReadId(notificationId)
             setManagementError(null)
+            const response = await markNotificationAsRead(notificationId)
 
-            const response = await markNotificationAsRead(
-                notificationId,
-            )
-
-            setNotifications((currentNotifications) =>
-                currentNotifications.map((notification) =>
-                    notification.id === response.notificationId
-                        ? {
-                            ...notification,
-                            status: response.status,
-                        }
-                        : notification,
+            setNotifications((prev) =>
+                prev.map((item) =>
+                    item.id === response.notificationId
+                        ? { ...item, status: response.status }
+                        : item,
                 ),
             )
         } catch {
-            setManagementError(
-                'Unable to mark the notification as read.',
-            )
+            setManagementError('Unable to update notification status.')
         } finally {
             setMarkingAsReadId(null)
         }
     }
 
-    const renderNotification = (
-        notification: Notification,
-    ) => {
-        const notificationContent = (
-            <>
-                <div className="notification-icon">
-                    {notification.type.charAt(0)}
-                </div>
-
-                <div className="notification-content">
-                    <div className="notification-title-row">
-                        <h3>{notification.title}</h3>
-
-                        <span
-                            className={getTypeClass(
-                                notification.type,
-                            )}
-                        >
-                            {notification.type}
-                        </span>
-                    </div>
-
-                    <p>{notification.message}</p>
-
-                    <span className="notification-date">
-                        {formatDate(notification.createdAt)}
-                    </span>
-                </div>
-            </>
-        )
-
-        const notificationActions = (
-            <>
-                {notification.status === 'UNREAD' && (
-                    <button
-                        type="button"
-                        className="notification-mark-read"
-                        onClick={() => {
-                            void handleMarkAsRead(
-                                notification.id,
-                            )
-                        }}
-                        disabled={
-                            markingAsReadId === notification.id
-                        }
-                    >
-                        {markingAsReadId === notification.id
-                            ? 'Marking...'
-                            : 'Mark as read'}
-                    </button>
-                )}
-
-                <span
-                    className={getStatusClass(
-                        notification.status,
-                    )}
-                >
-                    {notification.status}
-                </span>
-            </>
-        )
-
-        const notificationMain = (
-            <div
-                className={`notification-item ${
-                    notification.status === 'UNREAD'
-                        ? 'notification-item-unread'
-                        : ''
-                }`}
-            >
-                <div className="notification-item-main">
-                    {notification.transactionId ? (
-                        <Link
-                            to={`/customer/transactions/${notification.transactionId}`}
-                            className="notification-content-link"
-                        >
-                            {notificationContent}
-                        </Link>
-                    ) : (
-                        notificationContent
-                    )}
-                </div>
-
-                <div className="notification-actions">
-                    {notificationActions}
-                </div>
-            </div>
-        )
-
+    if (isLoading) {
         return (
-            <div key={notification.id}>
-                {notificationMain}
-            </div>
+            <section className="sp-page">
+                <LoadingState message="Loading your notifications..." />
+            </section>
         )
     }
 
-    return (
-        <div className="notifications-page">
-            <div className="notifications-header">
-                <div>
-                    <h1>Notifications</h1>
+    if (error) {
+        return (
+            <section className="sp-page">
+                <ErrorState
+                    title="Could Not Load Notifications"
+                    message={error}
+                    onRetry={() => void loadNotifications()}
+                />
+            </section>
+        )
+    }
 
-                    <p>
-                        Stay updated with your account,
-                        payments, transactions, and security
-                        activity.
+    const getIconForType = (type: Notification['type']) => {
+        switch (type) {
+            case 'SECURITY':
+                return '🛡️'
+            case 'TRANSACTION':
+                return '💸'
+            case 'PAYMENT':
+                return '💳'
+            default:
+                return '🔔'
+        }
+    }
+
+    return (
+        <div className="sp-page notifications-view">
+            <header className="sp-page-header">
+                <div>
+                    <span className="sp-badge sp-badge-neutral">Alerts & Messages</span>
+                    <h1 className="sp-page-title">Notifications</h1>
+                    <p className="sp-page-subtitle">
+                        Stay updated on payment confirmations, transfers, and security alerts.
                     </p>
                 </div>
+                {unreadCount > 0 && (
+                    <div className="sp-header-actions">
+                        <span className="sp-badge sp-badge-warning">
+                            {unreadCount} Unread
+                        </span>
+                    </div>
+                )}
+            </header>
 
-                <div className="notifications-summary">
-                    <span>
-                        {unreadNotifications.length} unread
-                    </span>
+            {managementError && (
+                <div className="sp-alert sp-alert-error" role="alert">
+                    {managementError}
+                </div>
+            )}
+
+            {/* Filter Tabs */}
+            <div className="sp-toolbar">
+                <div className="sp-filter-tabs">
+                    <button
+                        type="button"
+                        className={`sp-tab-btn ${filter === 'ALL' ? 'active' : ''}`}
+                        onClick={() => setFilter('ALL')}
+                    >
+                        All ({notifications.length})
+                    </button>
+                    <button
+                        type="button"
+                        className={`sp-tab-btn ${filter === 'UNREAD' ? 'active' : ''}`}
+                        onClick={() => setFilter('UNREAD')}
+                    >
+                        Unread ({unreadCount})
+                    </button>
+                    <button
+                        type="button"
+                        className={`sp-tab-btn ${filter === 'READ' ? 'active' : ''}`}
+                        onClick={() => setFilter('READ')}
+                    >
+                        Read ({notifications.length - unreadCount})
+                    </button>
                 </div>
             </div>
 
-            {isLoading && (
-                <div className="notifications-card notifications-state">
-                    <p>Loading notifications...</p>
+            {filteredNotifications.length === 0 ? (
+                <div className="sp-card">
+                    <EmptyState
+                        icon="🔔"
+                        title={filter === 'UNREAD' ? "You're all caught up!" : 'No notifications'}
+                        description={
+                            filter === 'UNREAD'
+                                ? 'No unread notifications to review at this moment.'
+                                : 'You currently have no recorded notifications.'
+                        }
+                    />
                 </div>
-            )}
+            ) : (
+                <div className="sp-notification-list">
+                    {filteredNotifications.map((n) => {
+                        const isUnread = n.status === 'UNREAD'
+                        const formattedDate = new Date(n.createdAt).toLocaleString('en-IN', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        })
 
-            {!isLoading && managementError && (
-                <div className="notifications-card notifications-error">
-                    <p>{managementError}</p>
-                </div>
-            )}
-
-            {!isLoading && error && (
-                <div className="notifications-card notifications-state notifications-error">
-                    <p>{error}</p>
-                </div>
-            )}
-
-            {!isLoading &&
-                !error &&
-                notifications.length === 0 && (
-                    <div className="notifications-card notifications-state">
-                        <p>No notifications available.</p>
-                    </div>
-                )}
-
-            {!isLoading &&
-                !error &&
-                notifications.length > 0 && (
-                    <>
-                        {unreadNotifications.length > 0 && (
-                            <section>
-                                <div className="notifications-section-header">
-                                    <div>
-                                        <h2>Unread</h2>
-
-                                        <p>
-                                            Notifications that
-                                            need your attention.
-                                        </p>
+                        return (
+                            <article
+                                key={n.id}
+                                className={`sp-card sp-notification-item ${isUnread ? 'sp-notification-item--unread' : ''}`}
+                            >
+                                <div className="sp-notification-item__icon">
+                                    {getIconForType(n.type)}
+                                </div>
+                                <div className="sp-notification-item__body">
+                                    <div className="sp-notification-item__top">
+                                        <div className="sp-notification-item__title-group">
+                                            <h3 className="sp-notification-item__title">{n.title}</h3>
+                                            <span className="sp-badge sp-badge-neutral sp-badge-xs">
+                                                {n.type}
+                                            </span>
+                                        </div>
+                                        <span className="sp-notification-item__time">{formattedDate}</span>
                                     </div>
-
-                                    <span className="notification-count">
-                                        {unreadNotifications.length}
-                                    </span>
-                                </div>
-
-                                <div className="notifications-list">
-                                    {unreadNotifications.map(
-                                        renderNotification,
-                                    )}
-                                </div>
-                            </section>
-                        )}
-
-                        {readNotifications.length > 0 && (
-                            <section>
-                                <div className="notifications-section-header">
-                                    <div>
-                                        <h2>Earlier</h2>
-
-                                        <p>
-                                            Previously viewed
-                                            notifications.
-                                        </p>
+                                    <p className="sp-notification-item__desc">{n.message}</p>
+                                    <div className="sp-notification-item__footer">
+                                        {isUnread && (
+                                            <button
+                                                type="button"
+                                                className="sp-btn sp-btn-ghost sp-btn-sm"
+                                                onClick={() => void handleMarkAsRead(n.id)}
+                                                disabled={markingAsReadId === n.id}
+                                            >
+                                                {markingAsReadId === n.id ? 'Marking...' : 'Mark as Read'}
+                                            </button>
+                                        )}
+                                        {n.status === 'READ' && (
+                                            <span className="sp-text-muted sp-text-sm">Read</span>
+                                        )}
                                     </div>
-
-                                    <span className="notification-count">
-                                        {readNotifications.length}
-                                    </span>
                                 </div>
-
-                                <div className="notifications-list">
-                                    {readNotifications.map(
-                                        renderNotification,
-                                    )}
-                                </div>
-                            </section>
-                        )}
-                    </>
-                )}
+                            </article>
+                        )
+                    })}
+                </div>
+            )}
         </div>
     )
 }

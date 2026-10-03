@@ -61,6 +61,14 @@ public class KeycloakJwtAuthenticationConverter implements Converter<Jwt, Collec
             roles.addAll(directRoles);
         }
 
+        // If neither ADMIN nor MERCHANT is assigned, default to CUSTOMER
+        // to maintain parity with the frontend and ensure standard customer access.
+        boolean hasAdmin = roles.stream().anyMatch(r -> r.equalsIgnoreCase("ADMIN") || r.equalsIgnoreCase("ROLE_ADMIN"));
+        boolean hasMerchant = roles.stream().anyMatch(r -> r.equalsIgnoreCase("MERCHANT") || r.equalsIgnoreCase("ROLE_MERCHANT"));
+        if (!hasAdmin && !hasMerchant) {
+            roles.add("CUSTOMER");
+        }
+
         for (String role : roles) {
             String trimmed = role.trim();
             if (trimmed.isBlank()) {

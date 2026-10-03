@@ -1,190 +1,201 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router'
 import type { Beneficiary } from '../types/beneficiary'
 import { getBeneficiaries } from '../services/beneficiaryService'
+import LoadingState from '../components/common/LoadingState'
+import ErrorState from '../components/common/ErrorState'
+import EmptyState from '../components/common/EmptyState'
 
 function BeneficiariesPage() {
     const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
-    useEffect(() => {
-        async function loadBeneficiaries() {
-            try {
-                setIsLoading(true)
-                setError(null)
-
-                const data = await getBeneficiaries()
-                setBeneficiaries(data)
-            } catch {
-                setError('Unable to load beneficiaries.')
-            } finally {
-                setIsLoading(false)
-            }
+    const loadBeneficiaries = useCallback(async () => {
+        try {
+            setIsLoading(true)
+            setError(null)
+            const data = await getBeneficiaries()
+            setBeneficiaries(data)
+        } catch (err) {
+            setError(
+                err instanceof Error && err.message
+                    ? err.message
+                    : 'Unable to load beneficiaries. Please try again.',
+            )
+        } finally {
+            setIsLoading(false)
         }
-
-        void loadBeneficiaries()
     }, [])
 
-    const activeBeneficiaries = beneficiaries.filter(
-        (beneficiary) => beneficiary.status === 'ACTIVE',
-    )
+    useEffect(() => {
+        void loadBeneficiaries()
+    }, [loadBeneficiaries])
 
-    const pendingBeneficiaries = beneficiaries.filter(
-        (beneficiary) => beneficiary.status === 'PENDING',
-    )
-
-    const blockedBeneficiaries = beneficiaries.filter(
-        (beneficiary) => beneficiary.status === 'BLOCKED',
-    )
-
-    const getStatusClass = (status: Beneficiary['status']) => {
-        return `beneficiary-status beneficiary-status-${status.toLowerCase()}`
+    if (isLoading) {
+        return (
+            <section className="sp-page">
+                <LoadingState message="Loading your registered beneficiaries..." />
+            </section>
+        )
     }
 
-    const renderBeneficiary = (beneficiary: Beneficiary) => (
-        <Link
-            key={beneficiary.id}
-            to={`/customer/beneficiaries/${beneficiary.id}`}
-            className="beneficiary-card-link"
-        >
-            <div className="beneficiary-card">
-                <div className="beneficiary-card-main">
-                    <div className="beneficiary-avatar">
-                        {beneficiary.name.charAt(0).toUpperCase()}
-                    </div>
+    if (error) {
+        return (
+            <section className="sp-page">
+                <ErrorState
+                    title="Could Not Load Beneficiaries"
+                    message={error}
+                    onRetry={() => void loadBeneficiaries()}
+                />
+            </section>
+        )
+    }
 
-                    <div className="beneficiary-info">
-                        <h3>{beneficiary.name}</h3>
-                        <p>{beneficiary.bankName}</p>
-                        <span>{beneficiary.accountIdentifier}</span>
-                    </div>
-                </div>
-
-                <div className="beneficiary-card-meta">
-                    <span className={getStatusClass(beneficiary.status)}>
-                        {beneficiary.status}
-                    </span>
-
-                    <span className="beneficiary-id">
-                        ID: {beneficiary.id}
-                    </span>
-                </div>
-            </div>
-        </Link>
-    )
+    const activeList = beneficiaries.filter((b) => b.status === 'ACTIVE')
+    const otherList = beneficiaries.filter((b) => b.status !== 'ACTIVE')
 
     return (
-        <div className="beneficiaries-page">
-            <div className="beneficiaries-header">
+        <div className="sp-page beneficiaries-view">
+            <header className="sp-page-header">
                 <div>
-                    <h1>Beneficiaries</h1>
-
-                    <p>
-                        Manage the people and accounts you send money to.
+                    <span className="sp-badge sp-badge-neutral">Transfers & Contacts</span>
+                    <h1 className="sp-page-title">Beneficiaries</h1>
+                    <p className="sp-page-subtitle">
+                        Manage registered accounts and contacts for rapid peer-to-peer transfers.
                     </p>
                 </div>
-
-                <Link
-                    to="/customer/beneficiaries/add"
-                    className="beneficiary-primary-button"
-                >
-                    + Add Beneficiary
-                </Link>
-            </div>
-
-            {isLoading && (
-                <div className="beneficiaries-card beneficiaries-state">
-                    <p>Loading beneficiaries...</p>
+                <div className="sp-header-actions">
+                    <Link to="/customer/beneficiaries/add" className="sp-btn sp-btn-primary">
+                        + Add Beneficiary
+                    </Link>
                 </div>
-            )}
+            </header>
 
-            {!isLoading && error && (
-                <div className="beneficiaries-card beneficiaries-state beneficiaries-error">
-                    <p>{error}</p>
+            {beneficiaries.length === 0 ? (
+                <div className="sp-card">
+                    <EmptyState
+                        icon="👥"
+                        title="No beneficiaries found"
+                        description="Save friends, colleagues, or vendors to send money without having to enter their full banking details every time."
+                        actionText="+ Add First Beneficiary"
+                        actionTo="/customer/beneficiaries/add"
+                    />
                 </div>
-            )}
-
-            {!isLoading && !error && (
+            ) : (
                 <>
-                    {/* ACTIVE */}
-                    <section>
-                        <div className="beneficiaries-section-header">
-                            <div>
-                                <h2>Active Beneficiaries</h2>
-
-                                <p>
-                                    These beneficiaries are available for
-                                    transfers.
-                                </p>
-                            </div>
-
-                            <span className="beneficiary-count">
-                                {activeBeneficiaries.length}
-                            </span>
+                    {/* Active Beneficiaries */}
+                    <section className="sp-section">
+                        <div className="sp-section-heading">
+                            <h2 className="sp-section-title">
+                                Active Beneficiaries ({activeList.length})
+                            </h2>
+                            <p className="sp-section-subtitle">
+                                Verified accounts ready for instant wallet transfers
+                            </p>
                         </div>
 
-                        {activeBeneficiaries.length > 0 ? (
-                            <div className="beneficiaries-list">
-                                {activeBeneficiaries.map(
-                                    renderBeneficiary,
-                                )}
+                        {activeList.length === 0 ? (
+                            <div className="sp-card sp-card-p-sm">
+                                <p className="sp-text-muted">No active beneficiaries at this moment.</p>
                             </div>
                         ) : (
-                            <div className="beneficiaries-card beneficiaries-state">
-                                <p>No active beneficiaries found.</p>
+                            <div className="sp-beneficiary-grid">
+                                {activeList.map((beneficiary) => (
+                                    <article key={beneficiary.id} className="sp-beneficiary-card">
+                                        <div className="sp-beneficiary-card__header">
+                                            <div className="sp-beneficiary-avatar">
+                                                {beneficiary.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className="sp-beneficiary-info">
+                                                <h3 className="sp-beneficiary-name">{beneficiary.name}</h3>
+                                                <p className="sp-beneficiary-bank">{beneficiary.bankName}</p>
+                                            </div>
+                                            <span className="sp-badge sp-badge-success">
+                                                Active
+                                            </span>
+                                        </div>
+
+                                        <div className="sp-beneficiary-card__details">
+                                            <div className="sp-detail-row">
+                                                <span className="sp-detail-label">Account</span>
+                                                <span className="sp-detail-val">{beneficiary.accountIdentifier}</span>
+                                            </div>
+                                            {beneficiary.recipientEmail && (
+                                                <div className="sp-detail-row">
+                                                    <span className="sp-detail-label">Email</span>
+                                                    <span className="sp-detail-val sp-text-truncate">
+                                                        {beneficiary.recipientEmail}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="sp-beneficiary-card__actions">
+                                            <Link
+                                                to="/customer/send-money"
+                                                className="sp-btn sp-btn-primary sp-btn-sm"
+                                            >
+                                                Send Money
+                                            </Link>
+                                            <Link
+                                                to={`/customer/beneficiaries/${beneficiary.id}`}
+                                                className="sp-btn sp-btn-ghost sp-btn-sm"
+                                            >
+                                                Details
+                                            </Link>
+                                        </div>
+                                    </article>
+                                ))}
                             </div>
                         )}
                     </section>
 
-                    {/* PENDING */}
-                    {pendingBeneficiaries.length > 0 && (
-                        <section>
-                            <div className="beneficiaries-section-header">
-                                <div>
-                                    <h2>Pending Beneficiaries</h2>
-
-                                    <p>
-                                        These beneficiaries are waiting for
-                                        verification.
-                                    </p>
-                                </div>
-
-                                <span className="beneficiary-count">
-                                    {pendingBeneficiaries.length}
-                                </span>
+                    {/* Pending or other beneficiaries if any */}
+                    {otherList.length > 0 && (
+                        <section className="sp-section">
+                            <div className="sp-section-heading">
+                                <h2 className="sp-section-title">
+                                    Other Accounts ({otherList.length})
+                                </h2>
+                                <p className="sp-section-subtitle">
+                                    Beneficiaries under verification or suspended
+                                </p>
                             </div>
 
-                            <div className="beneficiaries-list">
-                                {pendingBeneficiaries.map(
-                                    renderBeneficiary,
-                                )}
-                            </div>
-                        </section>
-                    )}
+                            <div className="sp-beneficiary-grid">
+                                {otherList.map((beneficiary) => (
+                                    <article key={beneficiary.id} className="sp-beneficiary-card sp-beneficiary-card--inactive">
+                                        <div className="sp-beneficiary-card__header">
+                                            <div className="sp-beneficiary-avatar sp-beneficiary-avatar--muted">
+                                                {beneficiary.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className="sp-beneficiary-info">
+                                                <h3 className="sp-beneficiary-name">{beneficiary.name}</h3>
+                                                <p className="sp-beneficiary-bank">{beneficiary.bankName}</p>
+                                            </div>
+                                            <span className={`sp-badge sp-badge-${beneficiary.status.toLowerCase() === 'pending' ? 'warning' : 'danger'}`}>
+                                                {beneficiary.status}
+                                            </span>
+                                        </div>
 
-                    {/* BLOCKED */}
-                    {blockedBeneficiaries.length > 0 && (
-                        <section>
-                            <div className="beneficiaries-section-header">
-                                <div>
-                                    <h2>Blocked Beneficiaries</h2>
+                                        <div className="sp-beneficiary-card__details">
+                                            <div className="sp-detail-row">
+                                                <span className="sp-detail-label">Account</span>
+                                                <span className="sp-detail-val">{beneficiary.accountIdentifier}</span>
+                                            </div>
+                                        </div>
 
-                                    <p>
-                                        These beneficiaries cannot currently
-                                        receive transfers.
-                                    </p>
-                                </div>
-
-                                <span className="beneficiary-count beneficiary-count-blocked">
-                                    {blockedBeneficiaries.length}
-                                </span>
-                            </div>
-
-                            <div className="beneficiaries-list">
-                                {blockedBeneficiaries.map(
-                                    renderBeneficiary,
-                                )}
+                                        <div className="sp-beneficiary-card__actions">
+                                            <Link
+                                                to={`/customer/beneficiaries/${beneficiary.id}`}
+                                                className="sp-btn sp-btn-secondary sp-btn-sm"
+                                            >
+                                                View Status
+                                            </Link>
+                                        </div>
+                                    </article>
+                                ))}
                             </div>
                         </section>
                     )}

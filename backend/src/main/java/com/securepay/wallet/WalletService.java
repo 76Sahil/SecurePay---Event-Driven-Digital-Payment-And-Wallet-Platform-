@@ -24,12 +24,12 @@ public class WalletService {
 
     @Transactional
     public Map<String, Object> getOrCreateWallet(String keycloakUserId) {
+        return getOrCreateWallet(keycloakUserId, null, null);
+    }
 
-        User user = userRepository.findByKeycloakUserId(keycloakUserId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "User profile not found. Please complete registration first."
-                        ));
+    @Transactional
+    public Map<String, Object> getOrCreateWallet(String keycloakUserId, String email, String fullName) {
+        User user = findOrProvisionUser(keycloakUserId, email, fullName);
 
         if (!"CUSTOMER".equalsIgnoreCase(user.getAccountType())) {
             throw new IllegalArgumentException(
@@ -56,5 +56,39 @@ public class WalletService {
         response.put("createdAt", wallet.getCreatedAt().toString());
 
         return response;
+    }
+
+    private User findOrProvisionUser(String keycloakUserId, String email, String fullName) {
+        java.util.Optional<User> byKeycloak = userRepository.findByKeycloakUserId(keycloakUserId);
+        if (byKeycloak.isPresent()) {
+            return byKeycloak.get();
+        }
+
+        String safeEmail = (email != null && !email.isBlank())
+                ? email.trim().toLowerCase(java.util.Locale.ROOT)
+                : (keycloakUserId.contains("@") ? keycloakUserId.trim().toLowerCase(java.util.Locale.ROOT) : null);
+
+        if (safeEmail != null) {
+            java.util.Optional<User> byEmail = userRepository.findByEmail(safeEmail);
+            if (byEmail.isPresent()) {
+                User existing = byEmail.get();
+                existing.setKeycloakUserId(keycloakUserId);
+                existing.setUpdatedAt(java.time.LocalDateTime.now());
+                return userRepository.save(existing);
+            }
+        }
+
+        User newUser = new User();
+        newUser.setKeycloakUserId(keycloakUserId);
+        newUser.setEmail(safeEmail != null ? safeEmail : keycloakUserId + "@securepay.local");
+        String name = (fullName != null && !fullName.isBlank())
+                ? fullName.trim()
+                : (safeEmail != null ? safeEmail.split("@")[0] : "Customer");
+        newUser.setFullName(name);
+        newUser.setAccountType("CUSTOMER");
+        newUser.setStatus("ACTIVE");
+        newUser.setKycStatus("VERIFIED");
+        newUser.setUpdatedAt(java.time.LocalDateTime.now());
+        return userRepository.save(newUser);
     }
 }

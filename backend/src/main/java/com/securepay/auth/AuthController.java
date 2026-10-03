@@ -59,24 +59,39 @@ public class AuthController {
     public ResponseEntity<?> getProfile(
             @AuthenticationPrincipal Jwt jwt) {
 
-        return userRepository
-                .findByKeycloakUserId(jwt.getSubject())
-                .<ResponseEntity<?>>map(user ->
-                        ResponseEntity.ok(Map.of(
-                                "id", user.getId().toString(),
-                                "fullName", user.getFullName(),
-                                "email", user.getEmail(),
-                                "accountType", user.getAccountType(),
-                                "memberSince", user.getCreatedAt().toString(),
-                                "accountStatus", user.getStatus()
-                        ))
-                )
-                .orElseGet(() ->
-                        ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                .body(Map.of(
-                                        "message",
-                                        "User profile not found in SecurePay database."
-                                ))
-                );
+        String keycloakUserId = jwt.getSubject();
+        String email = jwt.getClaimAsString("email");
+        String name = jwt.getClaimAsString("name");
+
+        User user = userRepository.findByKeycloakUserId(keycloakUserId)
+                .or(() -> (email != null && !email.isBlank())
+                        ? userRepository.findByEmail(email.trim().toLowerCase(java.util.Locale.ROOT))
+                        : java.util.Optional.empty())
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setKeycloakUserId(keycloakUserId);
+                    newUser.setEmail(email != null ? email.trim().toLowerCase(java.util.Locale.ROOT) : keycloakUserId + "@securepay.local");
+                    newUser.setFullName(name != null && !name.isBlank() ? name.trim() : newUser.getEmail().split("@")[0]);
+                    newUser.setAccountType("CUSTOMER");
+                    newUser.setStatus("ACTIVE");
+                    newUser.setKycStatus("VERIFIED");
+                    newUser.setUpdatedAt(java.time.LocalDateTime.now());
+                    return userRepository.save(newUser);
+                });
+
+        if (!keycloakUserId.equals(user.getKeycloakUserId())) {
+            user.setKeycloakUserId(keycloakUserId);
+            user.setUpdatedAt(java.time.LocalDateTime.now());
+            user = userRepository.save(user);
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "id", user.getId().toString(),
+                "fullName", user.getFullName(),
+                "email", user.getEmail(),
+                "accountType", user.getAccountType(),
+                "memberSince", user.getCreatedAt().toString(),
+                "accountStatus", user.getStatus()
+        ));
     }
 }

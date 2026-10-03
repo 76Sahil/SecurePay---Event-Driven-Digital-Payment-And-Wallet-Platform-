@@ -25,14 +25,23 @@ public class BeneficiaryController {
 
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> getMyBeneficiaries(@AuthenticationPrincipal Jwt jwt) {
-        return ResponseEntity.ok(beneficiaryService.getMyBeneficiaries(jwt.getSubject()));
+        return ResponseEntity.ok(beneficiaryService.getMyBeneficiaries(
+                jwt.getSubject(),
+                jwt.getClaimAsString("email"),
+                jwt.getClaimAsString("name")
+        ));
     }
 
     @GetMapping("/{beneficiaryId}")
     public ResponseEntity<Map<String, Object>> getMyBeneficiary(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable Long beneficiaryId) {
-        return ResponseEntity.ok(beneficiaryService.getMyBeneficiary(jwt.getSubject(), beneficiaryId));
+        return ResponseEntity.ok(beneficiaryService.getMyBeneficiary(
+                jwt.getSubject(),
+                jwt.getClaimAsString("email"),
+                jwt.getClaimAsString("name"),
+                beneficiaryId
+        ));
     }
 
     @PostMapping
@@ -40,6 +49,11 @@ public class BeneficiaryController {
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody CreateBeneficiaryRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(beneficiaryService.addBeneficiary(jwt.getSubject(), request));
+                .body(beneficiaryService.addBeneficiary(
+                        jwt.getSubject(),
+                        jwt.getClaimAsString("email"),
+                        jwt.getClaimAsString("name"),
+                        request
+                ));
     }
 }

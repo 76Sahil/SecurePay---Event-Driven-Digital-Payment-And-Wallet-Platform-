@@ -7018,3 +7018,1032 @@ a {
     font-size: 0.85rem;
   }
 }
+
+
+/* ==========================================================================
+   SECUREPAY UNIFIED FINTECH DESIGN SYSTEM (PART B UI/UX)
+   ========================================================================== */
+
+.sp-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+/* Page Header */
+.sp-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sp-page-title {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 6px 0 4px;
+  letter-spacing: -0.02em;
+}
+
+.sp-page-subtitle {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.sp-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Primary Hero Balance Card */
+.sp-balance-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 18px;
+  padding: 32px 36px;
+  color: #ffffff;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25), 0 8px 10px -6px rgba(15, 23, 42, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sp-balance-hero::after {
+  content: "";
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.sp-balance-hero__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.sp-balance-hero__label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.sp-balance-hero__amount {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.sp-balance-hero__currency {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #93c5fd;
+}
+
+.sp-balance-hero__value {
+  font-size: 2.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+.sp-balance-hero__badge-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.sp-balance-hero__id {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-family: monospace;
+}
+
+.sp-balance-hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Sections & Headings */
+.sp-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sp-section-heading {
+  margin-bottom: 2px;
+}
+
+.sp-section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sp-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.sp-section-subtitle {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 3px 0 0;
+}
+
+/* Cards */
+.sp-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+}
+
+.sp-card-flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+.sp-card-p-sm {
+  padding: 16px 20px;
+}
+
+.sp-card-header {
+  margin-bottom: 18px;
+}
+
+/* Quick Actions Grid */
+.sp-quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.sp-action-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.sp-action-card:hover {
+  border-color: #93c5fd;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+.sp-action-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sp-action-card__icon--blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.sp-action-card__icon--green {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.sp-action-card__icon--purple {
+  background: #faf5ff;
+  color: #9333ea;
+}
+
+.sp-action-card__icon--amber {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.sp-action-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sp-action-card__content h3 {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 2px;
+}
+
+.sp-action-card__content p {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-action-card__arrow {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.sp-action-card:hover .sp-action-card__arrow {
+  transform: translateX(3px);
+  color: #2563eb;
+}
+
+/* Stats Grid */
+.sp-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.sp-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sp-stat-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sp-stat-value {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.sp-stat-sub {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+/* Transactions List Component */
+.sp-tx-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.sp-tx-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f5f9;
+  gap: 16px;
+}
+
+.sp-tx-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.sp-tx-item:first-child {
+  padding-top: 0;
+}
+
+.sp-tx-item__left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.sp-tx-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sp-tx-icon-sm {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+.sp-tx-icon--credit {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.sp-tx-icon--debit {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.sp-tx-desc {
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-tx-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.sp-tx-ref {
+  font-family: monospace;
+}
+
+.sp-tx-item__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.sp-tx-amount {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.sp-tx-amount--credit {
+  color: #16a34a;
+}
+
+.sp-tx-amount--debit {
+  color: #0f172a;
+}
+
+.sp-tx-amount-table {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Tables */
+.sp-table-wrapper {
+  overflow-x: auto;
+}
+
+.sp-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
+}
+
+.sp-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  padding: 12px 18px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.sp-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+  vertical-align: middle;
+}
+
+.sp-table tr:hover td {
+  background: #f8fafc;
+}
+
+.sp-tx-cell-desc {
+  display: flex;
+  align-items: center;
+}
+
+/* Badges */
+.sp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.sp-badge-xs {
+  font-size: 0.7rem;
+  padding: 2px 7px;
+}
+
+.sp-badge-success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.sp-badge-warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.sp-badge-danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.sp-badge-neutral {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Buttons */
+.sp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.sp-btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+}
+
+.sp-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+}
+
+.sp-btn-primary:hover {
+  background: #1d4ed8;
+  color: #ffffff;
+}
+
+.sp-btn-secondary {
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+}
+
+.sp-btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.sp-btn-ghost {
+  background: transparent;
+  color: #2563eb;
+}
+
+.sp-btn-ghost:hover {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+/* Reusable State Cards (Loading, Error, Empty) */
+.sp-state-card {
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.sp-state-loading {
+  min-height: 220px;
+}
+
+.sp-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: sp-spin 0.8s linear infinite;
+}
+
+@keyframes sp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sp-state-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.sp-state-icon--error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.sp-state-icon--empty {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.sp-state-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 4px 0 0;
+}
+
+.sp-state-message {
+  font-size: 0.9rem;
+  color: #64748b;
+  max-width: 440px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sp-state-retry-btn,
+.sp-state-action-btn {
+  margin-top: 8px;
+}
+
+/* Beneficiaries Grid */
+.sp-beneficiary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 18px;
+}
+
+.sp-beneficiary-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.sp-beneficiary-card:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.sp-beneficiary-card--inactive {
+  background: #fafafa;
+  opacity: 0.85;
+}
+
+.sp-beneficiary-card__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sp-beneficiary-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sp-beneficiary-avatar--muted {
+  background: #94a3b8;
+}
+
+.sp-beneficiary-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sp-beneficiary-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sp-beneficiary-bank {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.sp-beneficiary-card__details {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+
+.sp-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-detail-label {
+  color: #64748b;
+}
+
+.sp-detail-val {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.sp-beneficiary-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Notifications List */
+.sp-notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sp-notification-item {
+  display: flex;
+  gap: 16px;
+  padding: 18px 20px;
+  transition: background 0.15s ease;
+}
+
+.sp-notification-item--unread {
+  border-left: 3px solid #2563eb;
+  background: #f8faff;
+}
+
+.sp-notification-item__icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.sp-notification-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sp-notification-item__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.sp-notification-item__title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sp-notification-item__title {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.sp-notification-item__time {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.sp-notification-item__desc {
+  font-size: 0.88rem;
+  color: #475569;
+  margin: 0 0 10px;
+  line-height: 1.45;
+}
+
+.sp-notification-item__footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Toolbar & Filter Tabs */
+.sp-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sp-filter-tabs {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 10px;
+  gap: 2px;
+}
+
+.sp-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sp-tab-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Security Notice Card */
+.sp-security-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.sp-security-card__icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.sp-security-card__content {
+  flex: 1;
+}
+
+.sp-security-card__content h3 {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 3px;
+}
+
+.sp-security-card__content p {
+  font-size: 0.84rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Profile Elements */
+.sp-profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 28px 32px;
+}
+
+.sp-profile-avatar-lg {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sp-profile-hero-info h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 2px;
+}
+
+.sp-profile-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.sp-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.sp-info-box {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sp-info-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.04em;
+}
+
+.sp-info-value {
+  font-size: 0.98rem;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* Utility Helpers */
+.sp-code {
+  font-family: monospace;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.sp-link {
+  color: #2563eb;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sp-link:hover {
+  text-decoration: underline;
+}
+
+.sp-text-muted {
+  color: #64748b;
+}
+
+.sp-text-success {
+  color: #16a34a;
+}
+
+.sp-text-right {
+  text-align: right;
+}
+
+.sp-text-sm {
+  font-size: 0.8rem;
+}
+
+.sp-text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+.sp-alert {
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.sp-alert-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .sp-page {
+    gap: 20px;
+  }
+
+  .sp-balance-hero {
+    padding: 24px 20px;
+  }
+
+  .sp-balance-hero__value {
+    font-size: 2.2rem;
+  }
+
+  .sp-balance-hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sp-balance-hero__actions .sp-btn {
+    width: 100%;
+  }
+
+  .sp-quick-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sp-security-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sp-profile-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .sp-profile-badges {
+    justify-content: center;
+  }
+}

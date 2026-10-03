@@ -84,8 +84,31 @@ public class NotificationService {
     }
 
     private User getUser(String keycloakUserId) {
-        return userRepository.findByKeycloakUserId(keycloakUserId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + keycloakUserId));
+        java.util.Optional<User> byKeycloak = userRepository.findByKeycloakUserId(keycloakUserId);
+        if (byKeycloak.isPresent()) {
+            return byKeycloak.get();
+        }
+
+        String safeEmail = keycloakUserId.contains("@") ? keycloakUserId.trim().toLowerCase(java.util.Locale.ROOT) : null;
+        if (safeEmail != null) {
+            java.util.Optional<User> byEmail = userRepository.findByEmail(safeEmail);
+            if (byEmail.isPresent()) {
+                User existing = byEmail.get();
+                existing.setKeycloakUserId(keycloakUserId);
+                existing.setUpdatedAt(java.time.LocalDateTime.now());
+                return userRepository.save(existing);
+            }
+        }
+
+        User newUser = new User();
+        newUser.setKeycloakUserId(keycloakUserId);
+        newUser.setEmail(safeEmail != null ? safeEmail : keycloakUserId + "@securepay.local");
+        newUser.setFullName(safeEmail != null ? safeEmail.split("@")[0] : "Customer");
+        newUser.setAccountType("CUSTOMER");
+        newUser.setStatus("ACTIVE");
+        newUser.setKycStatus("VERIFIED");
+        newUser.setUpdatedAt(java.time.LocalDateTime.now());
+        return userRepository.save(newUser);
     }
 
     private Map<String, Object> toResponse(Notification n) {

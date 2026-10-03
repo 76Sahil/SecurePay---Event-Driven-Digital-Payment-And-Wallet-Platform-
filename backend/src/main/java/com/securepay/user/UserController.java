@@ -23,7 +23,16 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getCurrentUserProfile(
             @AuthenticationPrincipal Jwt jwt) {
-        UserProfileResponse profile = userService.getProfileByKeycloakUserId(jwt.getSubject());
+        UserProfileResponse profile;
+        try {
+            profile = userService.getProfileByKeycloakUserId(jwt.getSubject());
+        } catch (IllegalArgumentException e) {
+            profile = userService.getProfile(
+                    jwt.getSubject(),
+                    jwt.getClaimAsString("email"),
+                    jwt.getClaimAsString("name")
+            );
+        }
         return ResponseEntity.ok(profile);
     }
 

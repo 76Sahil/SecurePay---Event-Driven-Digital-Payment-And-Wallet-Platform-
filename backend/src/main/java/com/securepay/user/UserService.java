@@ -18,6 +18,53 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
+    public User getOrCreateUser(String keycloakUserId, String email, String fullName, String accountType) {
+        if (keycloakUserId == null || keycloakUserId.isBlank()) {
+            throw new IllegalArgumentException("Keycloak user ID must not be blank.");
+        }
+
+        java.util.Optional<User> byKeycloak = userRepository.findByKeycloakUserId(keycloakUserId);
+        if (byKeycloak.isPresent()) {
+            return byKeycloak.get();
+        }
+
+        String safeEmail = (email != null && !email.isBlank())
+                ? email.trim().toLowerCase(java.util.Locale.ROOT)
+                : (keycloakUserId.contains("@") ? keycloakUserId.trim().toLowerCase(java.util.Locale.ROOT) : null);
+
+        if (safeEmail != null) {
+            java.util.Optional<User> byEmail = userRepository.findByEmail(safeEmail);
+            if (byEmail.isPresent()) {
+                User existing = byEmail.get();
+                existing.setKeycloakUserId(keycloakUserId);
+                existing.setUpdatedAt(LocalDateTime.now());
+                return userRepository.save(existing);
+            }
+        }
+
+        User newUser = new User();
+        newUser.setKeycloakUserId(keycloakUserId);
+        newUser.setEmail(safeEmail != null ? safeEmail : keycloakUserId + "@securepay.local");
+        String name = (fullName != null && !fullName.isBlank())
+                ? fullName.trim()
+                : (safeEmail != null ? safeEmail.split("@")[0] : "Customer");
+        newUser.setFullName(name);
+        newUser.setAccountType(accountType != null && !accountType.isBlank()
+                ? accountType.toUpperCase(java.util.Locale.ROOT)
+                : "CUSTOMER");
+        newUser.setStatus("ACTIVE");
+        newUser.setKycStatus("VERIFIED");
+        newUser.setUpdatedAt(LocalDateTime.now());
+        return userRepository.save(newUser);
+    }
+
+    @Transactional
+    public UserProfileResponse getProfile(String keycloakUserId, String email, String fullName) {
+        User user = getOrCreateUser(keycloakUserId, email, fullName, "CUSTOMER");
+        return UserProfileResponse.from(user);
+    }
+
     @Transactional(readOnly = true)
     public UserProfileResponse getProfileByKeycloakUserId(String keycloakUserId) {
         User user = getUserByKeycloakUserId(keycloakUserId);

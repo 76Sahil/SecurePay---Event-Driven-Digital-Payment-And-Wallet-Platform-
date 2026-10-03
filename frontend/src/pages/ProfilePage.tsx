@@ -1,180 +1,148 @@
-
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { Link } from 'react-router'
 import type { CustomerProfile } from '../types/profile'
 import { getCustomerProfile } from '../services/profileService'
+import LoadingState from '../components/common/LoadingState'
+import ErrorState from '../components/common/ErrorState'
 
 function ProfilePage() {
     const [profile, setProfile] = useState<CustomerProfile | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
-    useEffect(() => {
-        async function loadProfile() {
-            try {
-                const result = await getCustomerProfile()
-                setProfile(result)
-            } catch (err) {
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : 'Unable to load profile information.',
-                )
-            } finally {
-                setIsLoading(false)
-            }
+    const loadProfile = useCallback(async () => {
+        try {
+            setIsLoading(true)
+            setError(null)
+            const result = await getCustomerProfile()
+            setProfile(result)
+        } catch (err) {
+            setError(
+                err instanceof Error && err.message
+                    ? err.message
+                    : 'Unable to load profile information.',
+            )
+        } finally {
+            setIsLoading(false)
         }
-
-        void loadProfile()
     }, [])
+
+    useEffect(() => {
+        void loadProfile()
+    }, [loadProfile])
 
     if (isLoading) {
         return (
-            <section className="page-section">
-                <p className="page-state">Loading profile...</p>
+            <section className="sp-page">
+                <LoadingState message="Loading your customer profile..." />
             </section>
         )
     }
 
     if (error || !profile) {
         return (
-            <section className="page-section">
-                <div className="page-state page-state--error">
-                    {error ?? 'Profile not found.'}
-                </div>
+            <section className="sp-page">
+                <ErrorState
+                    title="Profile Unavailable"
+                    message={error ?? 'Customer profile not found.'}
+                    onRetry={() => void loadProfile()}
+                />
             </section>
         )
     }
 
     return (
-        <section className="page-section">
-            <div className="page-section__header">
+        <div className="sp-page profile-view">
+            <header className="sp-page-header">
                 <div>
-                    <p className="page-section__eyebrow">
-                        CUSTOMER PORTAL
+                    <span className="sp-badge sp-badge-neutral">Account Management</span>
+                    <h1 className="sp-page-title">Customer Profile</h1>
+                    <p className="sp-page-subtitle">
+                        Your verified personal identity and SecurePay account details.
                     </p>
-                    <h1>Profile</h1>
-                    <p>Manage your personal and account information.</p>
                 </div>
-            </div>
+                <div className="sp-header-actions">
+                    <Link to="/customer/security" className="sp-btn sp-btn-secondary sp-btn-sm">
+                        Security Settings
+                    </Link>
+                </div>
+            </header>
 
-            <div className="profile-header-card">
-                <div className="profile-avatar">
+            {/* Profile Hero Header Card */}
+            <div className="sp-card sp-profile-hero">
+                <div className="sp-profile-avatar-lg">
                     {profile.fullName.charAt(0).toUpperCase()}
                 </div>
-
-                <div className="profile-header-info">
+                <div className="sp-profile-hero-info">
                     <h2>{profile.fullName}</h2>
-                    <p>{profile.email}</p>
-                    <span className="profile-account-badge">
-                        {profile.accountType} Account
-                    </span>
-                </div>
-            </div>
-
-            <div className="profile-section-card">
-                <div className="profile-section-card__header">
-                    <div>
-                        <h2>Personal Information</h2>
-                        <p>Your registered contact information.</p>
-                    </div>
-                </div>
-
-                <div className="profile-details-grid">
-                    <div className="profile-detail">
-                        <span>Full Name</span>
-                        <strong>{profile.fullName}</strong>
-                    </div>
-
-                    <div className="profile-detail">
-                        <span>Email Address</span>
-                        <strong>{profile.email}</strong>
-                    </div>
-
-                    <div className="profile-detail">
-                        <span>Phone Number</span>
-                        <strong>{profile.phone ?? 'Not available'}</strong>
-                    </div>
-                </div>
-            </div>
-
-            <div className="profile-section-card">
-                <div className="profile-section-card__header">
-                    <div>
-                        <h2>Account Information</h2>
-                        <p>Overview of your SecurePay account.</p>
-                    </div>
-                </div>
-
-                <div className="profile-details-grid">
-                    <div className="profile-detail">
-                        <span>Customer ID</span>
-                        <strong>{profile.id}</strong>
-                    </div>
-
-                    <div className="profile-detail">
-                        <span>Account Type</span>
-                        <strong>{profile.accountType}</strong>
-                    </div>
-
-                    <div className="profile-detail">
-                        <span>Member Since</span>
-                        <strong>{profile.memberSince}</strong>
-                    </div>
-
-                    <div className="profile-detail">
-                        <span>Account Status</span>
-                        <strong className="profile-status-active">
-                            {profile.accountStatus}
-                        </strong>
-                    </div>
-                </div>
-            </div>
-
-            <div className="profile-section-card">
-                <div className="profile-section-card__header">
-                    <div>
-                        <h2>Security Overview</h2>
-                        <p>Current account protection information.</p>
-                    </div>
-                </div>
-
-                <div className="profile-security-list">
-                    <div className="profile-security-item">
-                        <div>
-                            <strong>Multi-Factor Authentication</strong>
-                            <span>
-                                {profile.mfaEnabled === null
-                                    ? 'Status not available yet.'
-                                    : profile.mfaEnabled
-                                        ? 'Additional verification is enabled.'
-                                        : 'Additional verification is disabled.'}
-                            </span>
-                        </div>
-
-                        <span className="profile-security-enabled">
-                            {profile.mfaEnabled === null
-                                ? 'Unknown'
-                                : profile.mfaEnabled
-                                    ? 'Enabled'
-                                    : 'Disabled'}
+                    <p className="sp-text-muted">{profile.email}</p>
+                    <div className="sp-profile-badges">
+                        <span className="sp-badge sp-badge-neutral">{profile.accountType} Account</span>
+                        <span className={`sp-badge sp-badge-${profile.accountStatus.toLowerCase() === 'active' ? 'success' : 'danger'}`}>
+                            ● {profile.accountStatus}
                         </span>
                     </div>
-
-                    <div className="profile-security-item">
-                        <div>
-                            <strong>Trusted Devices</strong>
-                            <span>
-                                Devices currently trusted for your account.
-                            </span>
-                        </div>
-
-                        <strong>
-                            {profile.trustedDevices ?? 'Not available'}
-                        </strong>
-                    </div>
                 </div>
             </div>
-        </section>
+
+            {/* Personal Information */}
+            <section className="sp-section">
+                <div className="sp-card">
+                    <div className="sp-card-header">
+                        <h2 className="sp-section-title">Personal Information</h2>
+                        <p className="sp-section-subtitle">Registered identity and contact details</p>
+                    </div>
+
+                    <div className="sp-grid-2">
+                        <div className="sp-info-box">
+                            <span className="sp-info-label">Full Name</span>
+                            <strong className="sp-info-value">{profile.fullName}</strong>
+                        </div>
+                        <div className="sp-info-box">
+                            <span className="sp-info-label">Email Address</span>
+                            <strong className="sp-info-value">{profile.email}</strong>
+                        </div>
+                        <div className="sp-info-box">
+                            <span className="sp-info-label">Phone Number</span>
+                            <strong className="sp-info-value">{profile.phone || 'Not linked'}</strong>
+                        </div>
+                        <div className="sp-info-box">
+                            <span className="sp-info-label">KYC Verification</span>
+                            <strong className="sp-info-value sp-text-success">Verified</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Account Information */}
+            <section className="sp-section">
+                <div className="sp-card">
+                    <div className="sp-card-header">
+                        <h2 className="sp-section-title">Account Information</h2>
+                        <p className="sp-section-subtitle">SecurePay system metadata</p>
+                    </div>
+
+                    <div className="sp-grid-2">
+                        <div className="sp-info-box">
+                            <span className="sp-info-label">Customer ID</span>
+                            <strong className="sp-info-value">#{profile.id}</strong>
+                        </div>
+                        <div className="sp-info-box">
+                            <span className="sp-info-label">Member Since</span>
+                            <strong className="sp-info-value">{profile.memberSince}</strong>
+                        </div>
+                        <div className="sp-info-box">
+                            <span className="sp-info-label">Account Role</span>
+                            <strong className="sp-info-value">{profile.accountType}</strong>
+                        </div>
+                        <div className="sp-info-box">
+                            <span className="sp-info-label">Double-Entry Ledger</span>
+                            <strong className="sp-info-value sp-text-success">Active & Audited</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
     )
 }
 

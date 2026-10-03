@@ -171,15 +171,23 @@ function CustomerLayout() {
                             type="button"
                             className="customer-topbar__notification"
                             aria-label="Notifications"
+                            onClick={() => navigate('/customer/notifications')}
                         >
-                            ♧
-
-                            <span className="customer-topbar__notification-badge">
-                                3
-                            </span>
+                            🔔
                         </button>
 
-                        <div className="customer-topbar__profile">
+                        <div
+                            className="customer-topbar__profile"
+                            onClick={() => navigate('/customer/profile')}
+                            style={{ cursor: 'pointer' }}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    navigate('/customer/profile')
+                                }
+                            }}
+                        >
                             <div className="customer-topbar__avatar">
                                 {user?.email
                                     ?.charAt(0)
