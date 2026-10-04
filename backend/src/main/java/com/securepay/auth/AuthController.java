@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -63,6 +64,14 @@ public class AuthController {
         String email = jwt.getClaimAsString("email");
         String name = jwt.getClaimAsString("name");
 
+        Map<String, Object> realmAccess = jwt.getClaim("realm_access");
+        List<?> rawRoles = realmAccess != null && realmAccess.get("roles") instanceof List<?> list ? list : List.of();
+        List<String> roles = rawRoles.stream().map(Object::toString).toList();
+
+        String determinedAccountType = roles.contains("ADMIN")
+                ? "ADMIN"
+                : (roles.contains("MERCHANT") ? "MERCHANT" : "CUSTOMER");
+
         User user = userRepository.findByKeycloakUserId(keycloakUserId)
                 .or(() -> (email != null && !email.isBlank())
                         ? userRepository.findByEmail(email.trim().toLowerCase(java.util.Locale.ROOT))
@@ -72,15 +81,23 @@ public class AuthController {
                     newUser.setKeycloakUserId(keycloakUserId);
                     newUser.setEmail(email != null ? email.trim().toLowerCase(java.util.Locale.ROOT) : keycloakUserId + "@securepay.local");
                     newUser.setFullName(name != null && !name.isBlank() ? name.trim() : newUser.getEmail().split("@")[0]);
-                    newUser.setAccountType("CUSTOMER");
+                    newUser.setAccountType(determinedAccountType);
                     newUser.setStatus("ACTIVE");
                     newUser.setKycStatus("VERIFIED");
                     newUser.setUpdatedAt(java.time.LocalDateTime.now());
                     return userRepository.save(newUser);
                 });
 
+        boolean modified = false;
         if (!keycloakUserId.equals(user.getKeycloakUserId())) {
             user.setKeycloakUserId(keycloakUserId);
+            modified = true;
+        }
+        if (!determinedAccountType.equals(user.getAccountType())) {
+            user.setAccountType(determinedAccountType);
+            modified = true;
+        }
+        if (modified) {
             user.setUpdatedAt(java.time.LocalDateTime.now());
             user = userRepository.save(user);
         }

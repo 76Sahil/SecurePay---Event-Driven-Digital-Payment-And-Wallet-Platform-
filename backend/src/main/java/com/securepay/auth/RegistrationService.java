@@ -1,9 +1,13 @@
 package com.securepay.auth;
 
 import com.securepay.auth.dto.RegisterRequest;
+import com.securepay.merchant.Merchant;
+import com.securepay.merchant.MerchantRepository;
 import com.securepay.user.User;
 import com.securepay.user.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Locale;
 
@@ -12,14 +16,25 @@ public class RegistrationService {
 
     private final UserRepository userRepository;
     private final KeycloakRegistrationService keycloakService;
+    private final MerchantRepository merchantRepository;
 
     public RegistrationService(
             UserRepository userRepository,
             KeycloakRegistrationService keycloakService) {
-        this.userRepository = userRepository;
-        this.keycloakService = keycloakService;
+        this(userRepository, keycloakService, null);
     }
 
+    @Autowired
+    public RegistrationService(
+            UserRepository userRepository,
+            KeycloakRegistrationService keycloakService,
+            MerchantRepository merchantRepository) {
+        this.userRepository = userRepository;
+        this.keycloakService = keycloakService;
+        this.merchantRepository = merchantRepository;
+    }
+
+    @Transactional
     public void register(RegisterRequest request) {
 
         String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
@@ -44,16 +59,31 @@ public class RegistrationService {
                 request.getPassword()
         );
 
-        if ("MERCHANT".equals(accountType)) {
-            keycloakService.assignRole(keycloakUserId, "MERCHANT");
-        }
-
         User user = new User();
         user.setFullName(request.getFullName().trim());
         user.setEmail(email);
         user.setAccountType(accountType);
         user.setKeycloakUserId(keycloakUserId);
 
-        userRepository.save(user);
+        user = userRepository.save(user);
+
+        if ("MERCHANT".equals(accountType)) {
+            keycloakService.assignRole(keycloakUserId, "MERCHANT");
+
+            if (merchantRepository != null) {
+                Merchant merchant = new Merchant();
+                merchant.setUser(user);
+                merchant.setMerchantId("MER-" + (10000 + user.getId()));
+                merchant.setBusinessName(user.getFullName() + " Store");
+                merchant.setLegalName(user.getFullName() + " Private Limited");
+                merchant.setEmail(user.getEmail());
+                merchant.setPhone(user.getPhoneNumber() != null ? user.getPhoneNumber() : "+91 98765 43210");
+                merchant.setMerchantType("BUSINESS");
+                merchant.setAccountStatus("ACTIVE");
+                merchant.setVerificationStatus("VERIFIED");
+                merchant.setSettlementCurrency("INR");
+                merchantRepository.save(merchant);
+            }
+        }
     }
 }

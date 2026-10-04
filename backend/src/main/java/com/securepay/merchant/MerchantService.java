@@ -137,7 +137,7 @@ public class MerchantService {
         apiKeyRepository.save(apiKey);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public MerchantDashboardSummaryResponse getDashboardSummary(String keycloakUserId) {
         Merchant merchant = getOrCreateMerchant(keycloakUserId);
 
