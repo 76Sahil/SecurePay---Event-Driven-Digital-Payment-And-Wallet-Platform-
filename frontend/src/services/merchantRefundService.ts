@@ -1,133 +1,79 @@
 import type { MerchantRefund } from '../types/merchantRefund'
 
-const mockMerchantRefunds: MerchantRefund[] = [
-    {
-        id: 'refund-001',
-        reference: 'SP-REF-70001',
-        paymentReference: 'SP-PAY-20004',
-        customerName: 'Neha Gupta',
-        amount: 950,
-        currency: 'INR',
-        reason: 'Customer requested refund',
-        status: 'SUCCESS',
-        createdAt: '2026-09-29T15:20:00Z',
-    },
-    {
-        id: 'refund-002',
-        reference: 'SP-REF-70002',
-        paymentReference: 'SP-PAY-20007',
-        customerName: 'Vikram Mehta',
-        amount: 3200,
-        currency: 'INR',
-        reason: 'Duplicate payment',
-        status: 'PENDING',
-        createdAt: '2026-09-30T08:45:00Z',
-    },
-    {
-        id: 'refund-003',
-        reference: 'SP-REF-70003',
-        paymentReference: 'SP-PAY-20009',
-        customerName: 'Ananya Rao',
-        amount: 1500,
-        currency: 'INR',
-        reason: 'Order cancelled',
-        status: 'SUCCESS',
-        createdAt: '2026-09-28T12:10:00Z',
-    },
-    {
-        id: 'refund-004',
-        reference: 'SP-REF-70004',
-        paymentReference: 'SP-PAY-20011',
-        customerName: 'Riya Kapoor',
-        amount: 4250,
-        currency: 'INR',
-        reason: 'Payment dispute',
-        status: 'FAILED',
-        createdAt: '2026-09-27T10:30:00Z',
-    },
-]
-
 const API_BASE_URL = 'http://localhost:8080'
 
 export async function getMerchantRefunds(): Promise<MerchantRefund[]> {
     const token = sessionStorage.getItem('securepay_access_token')
     if (!token) {
-        return Promise.resolve(mockMerchantRefunds)
+        throw new Error('Please log in to view merchant refunds.')
     }
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/merchant/refunds`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-        })
+    const response = await fetch(`${API_BASE_URL}/api/merchant/refunds`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    })
 
-        if (response.ok) {
-            const data = await response.json()
-            return data.map((r: any) => ({
-                id: String(r.id),
-                reference: r.reference,
-                paymentReference: r.paymentReference,
-                customerName: r.customerName,
-                amount: Number(r.amount),
-                currency: r.currency,
-                reason: r.reason,
-                status: r.status,
-                createdAt: r.createdAt,
-            }))
+    if (!response.ok) {
+        if (response.status === 401) {
+            throw new Error('Session expired. Please log in again.')
         }
-    } catch {
-        // Fallback to mock data
+        if (response.status === 403) {
+            throw new Error('Access denied. Merchant role required.')
+        }
+        const errorBody = await response.json().catch(() => null)
+        throw new Error(errorBody?.message || 'Unable to load merchant refunds.')
     }
 
-    return Promise.resolve(mockMerchantRefunds)
+    const data = await response.json()
+    return data.map((r: any) => ({
+        id: String(r.id),
+        reference: String(r.reference),
+        paymentReference: String(r.paymentReference),
+        customerName: String(r.customerName || 'Customer'),
+        amount: Number(r.amount || 0),
+        currency: String(r.currency || 'INR'),
+        reason: String(r.reason || 'Requested by merchant'),
+        status: String(r.status || 'SUCCESS') as any,
+        createdAt: String(r.createdAt || new Date().toISOString()),
+    }))
 }
 
-export async function createMerchantRefund(refundData: {
+export async function processRefund(refundData: {
     paymentReference: string
     amount: number
     reason: string
 }): Promise<MerchantRefund> {
     const token = sessionStorage.getItem('securepay_access_token')
-    if (token) {
-        const response = await fetch(`${API_BASE_URL}/api/merchant/refunds`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(refundData),
-        })
-
-        if (response.ok) {
-            const r = await response.json()
-            return {
-                id: String(r.id),
-                reference: r.reference,
-                paymentReference: r.paymentReference,
-                customerName: r.customerName,
-                amount: Number(r.amount),
-                currency: r.currency,
-                reason: r.reason,
-                status: r.status,
-                createdAt: r.createdAt,
-            }
-        }
+    if (!token) {
+        throw new Error('Please log in to process a refund.')
     }
 
-    // Mock fallback
-    const newRefund: MerchantRefund = {
-        id: `refund-${Date.now()}`,
-        reference: `SP-REF-${Math.floor(70000 + Math.random() * 20000)}`,
-        paymentReference: refundData.paymentReference,
-        customerName: 'Customer',
-        amount: refundData.amount,
-        currency: 'INR',
-        reason: refundData.reason,
-        status: 'SUCCESS',
-        createdAt: new Date().toISOString(),
+    const response = await fetch(`${API_BASE_URL}/api/merchant/refunds`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(refundData),
+    })
+
+    if (!response.ok) {
+        const errorBody = await response.json().catch(() => null)
+        throw new Error(errorBody?.message || 'Refund processing failed.')
     }
-    mockMerchantRefunds.unshift(newRefund)
-    return newRefund
+
+    const r = await response.json()
+    return {
+        id: String(r.id),
+        reference: String(r.reference),
+        paymentReference: String(r.paymentReference),
+        customerName: String(r.customerName || 'Customer'),
+        amount: Number(r.amount || refundData.amount),
+        currency: String(r.currency || 'INR'),
+        reason: String(r.reason || refundData.reason),
+        status: String(r.status || 'SUCCESS') as any,
+        createdAt: String(r.createdAt || new Date().toISOString()),
+    }
 }

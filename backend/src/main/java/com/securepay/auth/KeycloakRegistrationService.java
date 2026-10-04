@@ -1,5 +1,7 @@
 package com.securepay.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -9,9 +11,12 @@ import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class KeycloakRegistrationService {
+
+    private static final Logger log = LoggerFactory.getLogger(KeycloakRegistrationService.class);
 
     private final RestClient restClient = RestClient.create();
 
@@ -64,7 +69,7 @@ public class KeycloakRegistrationService {
                 "firstName", names[0],
                 "lastName", names.length > 1 ? names[1] : "",
                 "enabled", true,
-                "emailVerified", false,
+                "emailVerified", true,
                 "credentials", List.of(Map.of(
                         "type", "password",
                         "value", password,
@@ -104,16 +109,29 @@ public class KeycloakRegistrationService {
                 .retrieve()
                 .toBodilessEntity();
 
-        restClient.put()
-                .uri(serverUrl + "/admin/realms/" + realm
-                        + "/users/" + userId
-                        + "/execute-actions-email")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(List.of("VERIFY_EMAIL"))
-                .retrieve()
-                .toBodilessEntity();
-
         return userId;
+    }
+
+    public void assignRole(String userId, String roleName) {
+        String token = getAdminToken();
+        try {
+            Map<?, ?> role = restClient.get()
+                    .uri(serverUrl + "/admin/realms/" + realm + "/roles/" + roleName)
+                    .header("Authorization", "Bearer " + token)
+                    .retrieve()
+                    .body(Map.class);
+
+            if (role != null) {
+                restClient.post()
+                        .uri(serverUrl + "/admin/realms/" + realm + "/users/" + userId + "/role-mappings/realm")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(List.of(role))
+                        .retrieve()
+                        .toBodilessEntity();
+            }
+        } catch (Exception ex) {
+            log.warn("Could not assign role {} to user {}: {}", roleName, userId, ex.getMessage());
+        }
     }
 }

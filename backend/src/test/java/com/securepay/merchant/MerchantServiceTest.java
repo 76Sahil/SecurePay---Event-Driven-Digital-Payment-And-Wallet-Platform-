@@ -32,6 +32,12 @@ class MerchantServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.securepay.payment.MerchantPaymentRepository paymentRepository;
+
+    @Mock
+    private com.securepay.payment.MerchantRefundRepository refundRepository;
+
     @InjectMocks
     private MerchantService merchantService;
 
@@ -111,11 +117,22 @@ class MerchantServiceTest {
         when(userRepository.findByKeycloakUserId("kc-mer-123")).thenReturn(Optional.of(merchantUser));
         when(merchantRepository.findByUser(merchantUser)).thenReturn(Optional.of(merchant));
 
+        com.securepay.payment.MerchantPayment payment = new com.securepay.payment.MerchantPayment();
+        payment.setId(1L);
+        payment.setReference("SP-PAY-12345");
+        payment.setCustomerName("Alice Customer");
+        payment.setAmount(new java.math.BigDecimal("500.00"));
+        payment.setStatus("SUCCESS");
+
+        when(paymentRepository.findByMerchantOrderByCreatedAtDesc(merchant)).thenReturn(List.of(payment));
+        when(refundRepository.findByMerchantOrderByCreatedAtDesc(merchant)).thenReturn(List.of());
+
         MerchantDashboardSummaryResponse summary = merchantService.getDashboardSummary("kc-mer-123");
 
         assertThat(summary).isNotNull();
         assertThat(summary.currency()).isEqualTo("INR");
-        assertThat(summary.totalRevenue()).isNotNull();
-        assertThat(summary.recentPayments()).isNotEmpty();
+        assertThat(summary.totalRevenue()).isEqualByComparingTo("500.00");
+        assertThat(summary.successfulPayments()).isEqualTo(1);
+        assertThat(summary.recentPayments()).hasSize(1);
     }
 }

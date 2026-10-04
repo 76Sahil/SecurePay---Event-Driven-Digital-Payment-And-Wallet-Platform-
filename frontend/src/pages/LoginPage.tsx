@@ -226,110 +226,144 @@ function LoginPage() {
 
     return (
         <section className="sp-auth-container">
-            <div className="sp-card sp-auth-card">
-                <div className="sp-auth-header">
-                    <div className="sp-auth-logo">
-                        <span>S</span>
-                    </div>
-                    <span className="sp-badge sp-badge-neutral">SecurePay Platform</span>
-                    <h1 className="sp-auth-title">Welcome Back</h1>
-                    <p className="sp-auth-subtitle">
-                        Sign in to securely access your digital wallet, payments, and account services.
+            <div className="sp-auth-split-wrapper">
+                {/* Left: SecurePay Branding and Product Description */}
+                <div className="sp-auth-brand-col">
+                    <span className="sp-auth-brand-badge">
+                        <span>●</span> SecurePay Fintech Platform
+                    </span>
+                    <h1 className="sp-auth-brand-title">
+                        Secure digital payments, wallets and merchant transactions.
+                    </h1>
+                    <p className="sp-auth-brand-subtitle">
+                        Unified payment infrastructure powering fast digital wallet transfers,
+                        developer-ready merchant gateways, and double-entry ledger security.
                     </p>
+
+                    <ul className="sp-auth-feature-list">
+                        <li className="sp-auth-feature-item">
+                            <span className="sp-auth-feature-check">✓</span>
+                            <span>Secure authentication with Keycloak OpenID Connect (OIDC)</span>
+                        </li>
+                        <li className="sp-auth-feature-item">
+                            <span className="sp-auth-feature-check">✓</span>
+                            <span>Digital wallet with instant peer-to-peer transfers</span>
+                        </li>
+                        <li className="sp-auth-feature-item">
+                            <span className="sp-auth-feature-check">✓</span>
+                            <span>Merchant payments, sandbox checkouts and SHA-256 API keys</span>
+                        </li>
+                        <li className="sp-auth-feature-item">
+                            <span className="sp-auth-feature-check">✓</span>
+                            <span>Double-entry ledger & event-driven distributed saga orchestration</span>
+                        </li>
+                    </ul>
                 </div>
 
-                {serverError && (
-                    <div className="sp-alert sp-alert-error" role="alert" style={{ marginBottom: '20px' }}>
-                        {serverError}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} noValidate>
-                    <div className="sp-form-group">
-                        <label htmlFor="login-email" className="sp-form-label">
-                            Email or Username <span style={{ color: '#d93025' }}>*</span>
-                        </label>
-                        <input
-                            id="login-email"
-                            name="email"
-                            type="text"
-                            value={formData.email}
-                            onChange={handleChange}
-                            autoComplete="username"
-                            placeholder="name@example.com"
-                            className="sp-form-input"
-                            aria-invalid={Boolean(errors.email)}
-                            disabled={isSubmitting}
-                        />
-                        {errors.email && (
-                            <p className="sp-form-error" role="alert">
-                                {errors.email}
+                {/* Right: Properly Sized Login Card (420-480px) */}
+                <div className="sp-auth-form-col">
+                    <div className="sp-auth-card">
+                        <div style={{ marginBottom: '24px' }}>
+                            <h2 className="sp-auth-card-title">Sign In</h2>
+                            <p className="sp-auth-card-desc">
+                                Enter your account credentials to access your SecurePay portal.
                             </p>
-                        )}
-                    </div>
+                        </div>
 
-                    <div className="sp-form-group" style={{ marginTop: '18px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                            <label htmlFor="login-password" className="sp-form-label" style={{ margin: 0 }}>
-                                Password <span style={{ color: '#d93025' }}>*</span>
-                            </label>
-                            <Link to="/forgot-password" className="sp-form-link" style={{ fontSize: '13px' }}>
-                                Forgot password?
-                            </Link>
-                        </div>
-                        <div className="sp-password-input-wrapper">
-                            <input
-                                id="login-password"
-                                name="password"
-                                type={showPassword ? 'text' : 'password'}
-                                value={formData.password}
-                                onChange={handleChange}
-                                autoComplete="current-password"
-                                placeholder="••••••••"
-                                className="sp-form-input"
-                                aria-invalid={Boolean(errors.password)}
-                                disabled={isSubmitting}
-                            />
-                            <button
-                                type="button"
-                                className="sp-password-toggle-btn"
-                                onClick={() => setShowPassword((prev) => !prev)}
-                                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                            >
-                                {showPassword ? 'Hide' : 'Show'}
-                            </button>
-                        </div>
-                        {errors.password && (
-                            <p className="sp-form-error" role="alert">
-                                {errors.password}
+                        {serverError && (
+                            <div className="sp-alert sp-alert-error" role="alert" style={{ marginBottom: '20px' }}>
+                                {serverError}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} noValidate>
+                            <div className="sp-form-group">
+                                <label htmlFor="login-email" className="sp-form-label">
+                                    Email or Username <span style={{ color: '#d93025' }}>*</span>
+                                </label>
+                                <input
+                                    id="login-email"
+                                    name="email"
+                                    type="text"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    autoComplete="username"
+                                    placeholder="name@example.com"
+                                    className="sp-form-input"
+                                    aria-invalid={Boolean(errors.email)}
+                                    disabled={isSubmitting}
+                                />
+                                {errors.email && (
+                                    <p className="sp-form-error" role="alert">
+                                        {errors.email}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="sp-form-group" style={{ marginTop: '18px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                    <label htmlFor="login-password" className="sp-form-label" style={{ margin: 0 }}>
+                                        Password <span style={{ color: '#d93025' }}>*</span>
+                                    </label>
+                                    <Link to="/forgot-password" className="sp-form-link" style={{ fontSize: '13px' }}>
+                                        Forgot password?
+                                    </Link>
+                                </div>
+                                <div className="sp-password-input-wrapper">
+                                    <input
+                                        id="login-password"
+                                        name="password"
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        autoComplete="current-password"
+                                        placeholder="••••••••"
+                                        className="sp-form-input"
+                                        aria-invalid={Boolean(errors.password)}
+                                        disabled={isSubmitting}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="sp-password-toggle-btn"
+                                        onClick={() => setShowPassword((prev) => !prev)}
+                                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    >
+                                        {showPassword ? 'Hide' : 'Show'}
+                                    </button>
+                                </div>
+                                {errors.password && (
+                                    <p className="sp-form-error" role="alert">
+                                        {errors.password}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div style={{ marginTop: '26px' }}>
+                                <button
+                                    type="submit"
+                                    className="sp-btn-auth-submit"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                                            <span className="sp-spinner-icon" /> Signing in...
+                                        </span>
+                                    ) : (
+                                        'Sign In →'
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+
+                        <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                            <p style={{ margin: 0, color: '#64748b', fontSize: '14px' }}>
+                                Don't have an account yet?{' '}
+                                <Link to="/register" style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>
+                                    Create an account
+                                </Link>
                             </p>
-                        )}
+                        </div>
                     </div>
-
-                    <div style={{ marginTop: '26px' }}>
-                        <button
-                            type="submit"
-                            className="sp-btn sp-btn-primary sp-btn-full"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                                    <span className="sp-spinner-icon" /> Signing in...
-                                </span>
-                            ) : (
-                                'Sign In →'
-                            )}
-                        </button>
-                    </div>
-                </form>
-
-                <div className="sp-auth-footer" style={{ marginTop: '24px', textAlign: 'center' }}>
-                    <p style={{ margin: 0, color: '#60708a', fontSize: '14px' }}>
-                        Don't have an account yet?{' '}
-                        <Link to="/register" style={{ color: '#1a56db', fontWeight: 600 }}>
-                            Create an account
-                        </Link>
-                    </p>
                 </div>
             </div>
         </section>

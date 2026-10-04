@@ -6,6 +6,11 @@ import com.securepay.merchant.dto.MerchantDashboardSummaryResponse;
 import com.securepay.merchant.dto.MerchantProfileResponse;
 import com.securepay.user.User;
 import com.securepay.user.UserRepository;
+import com.securepay.payment.MerchantPayment;
+import com.securepay.payment.MerchantPaymentRepository;
+import com.securepay.payment.MerchantRefund;
+import com.securepay.payment.MerchantRefundRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,15 +27,29 @@ public class MerchantService {
     private final MerchantRepository merchantRepository;
     private final MerchantApiKeyRepository apiKeyRepository;
     private final UserRepository userRepository;
+    private final MerchantPaymentRepository paymentRepository;
+    private final MerchantRefundRepository refundRepository;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public MerchantService(
             MerchantRepository merchantRepository,
             MerchantApiKeyRepository apiKeyRepository,
             UserRepository userRepository) {
+        this(merchantRepository, apiKeyRepository, userRepository, null, null);
+    }
+
+    @Autowired
+    public MerchantService(
+            MerchantRepository merchantRepository,
+            MerchantApiKeyRepository apiKeyRepository,
+            UserRepository userRepository,
+            MerchantPaymentRepository paymentRepository,
+            MerchantRefundRepository refundRepository) {
         this.merchantRepository = merchantRepository;
         this.apiKeyRepository = apiKeyRepository;
         this.userRepository = userRepository;
+        this.paymentRepository = paymentRepository;
+        this.refundRepository = refundRepository;
     }
 
     @Transactional
@@ -118,35 +137,56 @@ public class MerchantService {
         apiKeyRepository.save(apiKey);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public MerchantDashboardSummaryResponse getDashboardSummary(String keycloakUserId) {
         Merchant merchant = getOrCreateMerchant(keycloakUserId);
 
-        List<Map<String, Object>> recentPayments = List.of(
-                Map.of(
-                        "id", "payment-demo-001",
-                        "reference", "SP-PAY-20001",
-                        "customerName", "Aarav Sharma",
-                        "amount", new BigDecimal("2500.00"),
-                        "status", "SUCCESS",
-                        "createdAt", "2026-09-29T14:30:00Z"
-                ),
-                Map.of(
-                        "id", "payment-demo-002",
-                        "reference", "SP-PAY-20002",
-                        "customerName", "Priya Singh",
-                        "amount", new BigDecimal("1800.00"),
-                        "status", "SUCCESS",
-                        "createdAt", "2026-09-29T13:15:00Z"
-                )
-        );
+        List<MerchantPayment> payments = paymentRepository != null
+                ? paymentRepository.findByMerchantOrderByCreatedAtDesc(merchant)
+                : List.of();
+
+        List<MerchantRefund> refunds = refundRepository != null
+                ? refundRepository.findByMerchantOrderByCreatedAtDesc(merchant)
+                : List.of();
+
+        BigDecimal totalRevenue = payments.stream()
+                .filter(p -> "SUCCESS".equalsIgnoreCase(p.getStatus()) || "REFUNDED".equalsIgnoreCase(p.getStatus()))
+                .map(MerchantPayment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        int successfulPayments = (int) payments.stream()
+                .filter(p -> "SUCCESS".equalsIgnoreCase(p.getStatus()) || "REFUNDED".equalsIgnoreCase(p.getStatus()))
+                .count();
+
+        int pendingPayments = (int) payments.stream()
+                .filter(p -> "PENDING".equalsIgnoreCase(p.getStatus()))
+                .count();
+
+        BigDecimal totalRefunds = refunds.stream()
+                .filter(r -> "SUCCESS".equalsIgnoreCase(r.getStatus()) || "COMPLETED".equalsIgnoreCase(r.getStatus()))
+                .map(MerchantRefund::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        List<Map<String, Object>> recentPayments = payments.stream()
+                .limit(10)
+                .map(p -> {
+                    Map<String, Object> map = new LinkedHashMap<>();
+                    map.put("id", String.valueOf(p.getId()));
+                    map.put("reference", p.getReference());
+                    map.put("customerName", p.getCustomerName());
+                    map.put("amount", p.getAmount());
+                    map.put("status", p.getStatus());
+                    map.put("createdAt", p.getCreatedAt().toString());
+                    return map;
+                })
+                .toList();
 
         return new MerchantDashboardSummaryResponse(
                 merchant.getSettlementCurrency(),
-                new BigDecimal("125000.00"),
-                128,
-                4,
-                new BigDecimal("3200.00"),
+                totalRevenue,
+                successfulPayments,
+                pendingPayments,
+                totalRefunds,
                 recentPayments
         );
     }

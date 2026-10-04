@@ -1,64 +1,43 @@
-import type { AuditLog } from '../types/auditLog'
+import type { AuditLog, AuditLogSeverity } from '../types/auditLog'
 
-const mockAuditLogs: AuditLog[] = [
-    {
-        id: 'AUD-001',
-        eventType: 'LOGIN_SUCCESS',
-        actor: 'admin@securepay.com',
-        description: 'Administrator successfully authenticated.',
-        severity: 'LOW',
-        createdAt: '2026-09-30T09:45:00Z',
-    },
-    {
-        id: 'AUD-002',
-        eventType: 'LOGIN_FAILED',
-        actor: 'rahul@example.com',
-        description: 'Multiple failed login attempts detected.',
-        severity: 'MEDIUM',
-        createdAt: '2026-09-30T08:40:00Z',
-    },
-    {
-        id: 'AUD-003',
-        eventType: 'ACCOUNT_LOCKED',
-        actor: 'rahul@example.com',
-        description: 'Customer account was locked after repeated failed authentication.',
-        severity: 'HIGH',
-        createdAt: '2026-09-30T08:42:00Z',
-    },
-    {
-        id: 'AUD-004',
-        eventType: 'SUSPICIOUS_TRANSACTION',
-        actor: 'vikram@example.com',
-        description: 'Transaction flagged by the fraud detection system.',
-        severity: 'CRITICAL',
-        createdAt: '2026-09-30T08:15:00Z',
-    },
-    {
-        id: 'AUD-005',
-        eventType: 'API_KEY_REVOKED',
-        actor: 'merchant@securepay.com',
-        description: 'Merchant API key was revoked.',
-        severity: 'HIGH',
-        createdAt: '2026-09-29T16:30:00Z',
-    },
-    {
-        id: 'AUD-006',
-        eventType: 'NEW_DEVICE',
-        actor: 'priya@example.com',
-        description: 'A new device was registered for the customer account.',
-        severity: 'MEDIUM',
-        createdAt: '2026-09-29T14:20:00Z',
-    },
-    {
-        id: 'AUD-007',
-        eventType: 'PASSWORD_CHANGED',
-        actor: 'aarav@example.com',
-        description: 'Customer password was successfully changed.',
-        severity: 'LOW',
-        createdAt: '2026-09-29T11:10:00Z',
-    },
-]
+const API_BASE_URL = 'http://localhost:8080'
 
 export async function getAuditLogs(): Promise<AuditLog[]> {
-    return Promise.resolve(mockAuditLogs)
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (!token) {
+        throw new Error('Please log in to view audit logs.')
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/admin/security/events?limit=50`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    })
+
+    if (!response.ok) {
+        if (response.status === 403) {
+            throw new Error('Access denied. Administrator privileges required.')
+        }
+        const errorBody = await response.json().catch(() => null)
+        throw new Error(errorBody?.message || 'Unable to load audit logs.')
+    }
+
+    const data = await response.json()
+    return (Array.isArray(data) ? data : []).map((e: any) => {
+        let mappedSeverity: AuditLogSeverity = 'LOW'
+        const sev = String(e.severity || '').toUpperCase()
+        if (sev === 'CRITICAL') mappedSeverity = 'CRITICAL'
+        else if (sev === 'HIGH' || sev === 'WARN') mappedSeverity = 'HIGH'
+        else if (sev === 'MEDIUM') mappedSeverity = 'MEDIUM'
+
+        return {
+            id: String(e.id),
+            eventType: e.eventType ?? 'AUDIT_EVENT',
+            actor: e.actor ?? e.userEmail ?? 'system',
+            description: e.description ?? e.details ?? 'Security audit event recorded.',
+            severity: mappedSeverity,
+            createdAt: e.createdAt ?? new Date().toISOString(),
+        }
+    })
 }

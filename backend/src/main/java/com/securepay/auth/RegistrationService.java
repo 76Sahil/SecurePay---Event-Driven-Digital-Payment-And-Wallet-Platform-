@@ -44,6 +44,10 @@ public class RegistrationService {
                 request.getPassword()
         );
 
+        if ("MERCHANT".equals(accountType)) {
+            keycloakService.assignRole(keycloakUserId, "MERCHANT");
+        }
+
         User user = new User();
         user.setFullName(request.getFullName().trim());
         user.setEmail(email);

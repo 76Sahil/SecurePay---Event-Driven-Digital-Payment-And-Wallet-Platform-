@@ -1,48 +1,48 @@
 import type { MerchantDashboardSummary } from '../types/merchantDashboard'
 
-const mockMerchantDashboard: MerchantDashboardSummary = {
-    currency: 'INR',
-    totalRevenue: 125000,
-    successfulPayments: 128,
-    pendingPayments: 4,
-    refunds: 3200,
-
-    recentPayments: [
-        {
-            id: 'payment-demo-001',
-            reference: 'SP-PAY-20001',
-            customerName: 'Aarav Sharma',
-            amount: 2500,
-            status: 'SUCCESS',
-            createdAt: '2026-09-29T14:30:00Z',
-        },
-        {
-            id: 'payment-demo-002',
-            reference: 'SP-PAY-20002',
-            customerName: 'Priya Singh',
-            amount: 1800,
-            status: 'SUCCESS',
-            createdAt: '2026-09-29T13:15:00Z',
-        },
-        {
-            id: 'payment-demo-003',
-            reference: 'SP-PAY-20003',
-            customerName: 'Rahul Verma',
-            amount: 4200,
-            status: 'PENDING',
-            createdAt: '2026-09-29T12:40:00Z',
-        },
-        {
-            id: 'payment-demo-004',
-            reference: 'SP-PAY-20004',
-            customerName: 'Neha Gupta',
-            amount: 950,
-            status: 'SUCCESS',
-            createdAt: '2026-09-29T11:20:00Z',
-        },
-    ],
-}
+const API_BASE_URL = 'http://localhost:8080'
 
 export async function getMerchantDashboardSummary(): Promise<MerchantDashboardSummary> {
-    return Promise.resolve(mockMerchantDashboard)
+    const token = sessionStorage.getItem('securepay_access_token')
+
+    if (!token) {
+        throw new Error('Please log in to view the merchant dashboard.')
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/merchant/dashboard/summary`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    })
+
+    if (!response.ok) {
+        if (response.status === 401) {
+            throw new Error('Session expired. Please log in again.')
+        }
+        if (response.status === 403) {
+            throw new Error('Access denied. Merchant credentials required.')
+        }
+        const errorBody = await response.json().catch(() => null)
+        throw new Error(errorBody?.message || 'Unable to load merchant dashboard summary.')
+    }
+
+    const data = await response.json()
+
+    return {
+        currency: data.currency || 'INR',
+        totalRevenue: Number(data.totalRevenue || 0),
+        successfulPayments: Number(data.successfulPayments || 0),
+        pendingPayments: Number(data.pendingPayments || 0),
+        refunds: Number(data.refunds || 0),
+        recentPayments: (data.recentPayments || []).map((p: any) => ({
+            id: String(p.id),
+            reference: String(p.reference),
+            customerName: String(p.customerName || 'Customer'),
+            amount: Number(p.amount || 0),
+            status: String(p.status || 'SUCCESS') as any,
+            createdAt: String(p.createdAt || new Date().toISOString()),
+        })),
+    }
 }

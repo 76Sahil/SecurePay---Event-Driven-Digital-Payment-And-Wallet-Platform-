@@ -1,6 +1,6 @@
 import type { BillProvider } from '../types/billPayment'
 
-const mockBillProviders: BillProvider[] = [
+const SUPPORTED_BILL_PROVIDERS: BillProvider[] = [
     {
         id: 'electricity-maha',
         name: 'Maharashtra Electricity',
@@ -34,5 +34,5 @@ const mockBillProviders: BillProvider[] = [
 ]
 
 export async function getBillProviders(): Promise<BillProvider[]> {
-    return Promise.resolve(mockBillProviders)
+    return Promise.resolve(SUPPORTED_BILL_PROVIDERS)
 }
