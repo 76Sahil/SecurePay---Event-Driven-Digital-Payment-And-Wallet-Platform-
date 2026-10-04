@@ -32,11 +32,28 @@ public class KeycloakRegistrationService {
     @Value("${keycloak.client-secret}")
     private String clientSecret;
 
+    private String resolveClientSecret() {
+        if (clientSecret != null && !clientSecret.isBlank()) {
+            return clientSecret;
+        }
+        String env = System.getenv("KEYCLOAK_CLIENT_SECRET");
+        if (env != null && !env.isBlank()) {
+            return env;
+        }
+        String prop = System.getProperty("KEYCLOAK_CLIENT_SECRET");
+        if (prop != null && !prop.isBlank()) {
+            return prop;
+        }
+        throw new IllegalStateException(
+                "KEYCLOAK_CLIENT_SECRET is missing. Please ensure KEYCLOAK_CLIENT_SECRET is configured in .env or as an environment variable."
+        );
+    }
+
     private String getAdminToken() {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "client_credentials");
         form.add("client_id", clientId);
-        form.add("client_secret", clientSecret);
+        form.add("client_secret", resolveClientSecret());
 
         Map<?, ?> response = restClient.post()
                 .uri(serverUrl + "/realms/" + realm
