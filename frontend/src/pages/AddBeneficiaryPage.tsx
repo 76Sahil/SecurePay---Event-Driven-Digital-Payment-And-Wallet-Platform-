@@ -112,9 +112,11 @@ function AddBeneficiaryPage() {
 
             setCreatedBeneficiaryId(beneficiary.id)
             setStep('SUCCESS')
-        } catch {
+        } catch (err) {
             setError(
-                'Unable to add beneficiary. Please try again.',
+                err instanceof Error && err.message
+                    ? err.message
+                    : 'Unable to add beneficiary. Please try again.',
             )
         } finally {
             setIsSubmitting(false)

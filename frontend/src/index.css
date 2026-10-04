@@ -8932,3 +8932,304 @@ a {
     gap: 4px;
   }
 }
+
+/* ============================================================
+   SecurePay Admin Command Center Design Language Polish
+   ============================================================ */
+
+.page-section {
+  width: 100%;
+}
+
+.page-section__header,
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-section__eyebrow,
+.page-eyebrow {
+  margin: 0 0 6px 0;
+  color: #0284c7;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: inline-block;
+}
+
+.page-section__header h1,
+.page-header h1 {
+  margin: 0 0 8px 0;
+  color: #0f172a;
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.page-section__header p,
+.page-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.admin-security-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.admin-security-stat {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-security-stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0284c7, #2563eb);
+  opacity: 0.8;
+}
+
+.admin-security-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.admin-security-stat__label {
+  display: block;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.admin-security-stat__value {
+  display: block;
+  color: #0f172a;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.admin-security-stat__meta {
+  display: block;
+  margin-top: 10px;
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.admin-security-panel,
+.admin-fraud-panel,
+.admin-security-events-panel,
+.admin-users-card,
+.audit-logs-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+.admin-security-panel__header,
+.admin-users-card__header,
+.audit-logs-card__header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-security-panel__header h2,
+.admin-users-card__header h2,
+.audit-logs-card__header h2 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.admin-security-panel__header p,
+.admin-users-card__header p,
+.audit-logs-card__header p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.admin-security-events {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-security-event {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s ease;
+}
+
+.admin-security-event:last-child {
+  border-bottom: none;
+}
+
+.admin-security-event:hover {
+  background: #f8fafc;
+}
+
+.admin-security-event__main strong {
+  display: block;
+  color: #0f172a;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.admin-security-event__main p {
+  margin: 0 0 4px 0;
+  color: #475569;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.admin-security-event__main span {
+  display: block;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.admin-security-event__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-fraud-table,
+.admin-security-events-table,
+.admin-users-table,
+.audit-logs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.admin-fraud-table th,
+.admin-security-events-table th,
+.admin-users-table th,
+.audit-logs-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 20px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.admin-fraud-table td,
+.admin-security-events-table td,
+.admin-users-table td,
+.audit-logs-table td {
+  padding: 15px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.admin-fraud-table tbody tr:hover,
+.admin-security-events-table tbody tr:hover,
+.admin-users-table tbody tr:hover,
+.audit-logs-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.admin-security-severity,
+.admin-security-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.admin-security-severity--low {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.admin-security-severity--medium {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.admin-security-severity--high {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+}
+
+.admin-security-severity--critical {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.admin-security-status--open {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.admin-security-status--reviewed {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
+
+.admin-security-status--resolved {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.page-state {
+  padding: 36px 20px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.page-state--error {
+  color: #dc2626;
+  background: #fef2f2;
+  border-radius: 12px;
+  padding: 16px 20px;
+}

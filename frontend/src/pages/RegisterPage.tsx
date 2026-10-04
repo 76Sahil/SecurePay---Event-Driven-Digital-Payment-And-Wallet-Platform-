@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 
@@ -21,12 +21,15 @@ type RegisterFormErrors = {
 }
 
 function RegisterPage() {
+    const [searchParams] = useSearchParams()
+    const initialRole: RegisterRole = searchParams.get('role')?.toUpperCase() === 'MERCHANT' ? 'MERCHANT' : 'CUSTOMER'
+
     const [formData, setFormData] = useState<RegisterFormData>({
         fullName: '',
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'CUSTOMER',
+        role: initialRole,
     })
 
     const [showPassword, setShowPassword] = useState(false)
@@ -217,9 +220,13 @@ function RegisterPage() {
                 <div className="sp-auth-form-col">
                     <div className="sp-auth-card sp-auth-card--wide">
                         <div style={{ marginBottom: '20px' }}>
-                            <h2 className="sp-auth-card-title">Create an Account</h2>
+                            <h2 className="sp-auth-card-title">
+                                {formData.role === 'MERCHANT' ? 'Create Merchant Account' : 'Create Customer Account'}
+                            </h2>
                             <p className="sp-auth-card-desc">
-                                Choose your account type and fill in your details to get started.
+                                {formData.role === 'MERCHANT'
+                                    ? 'Register your business to accept digital payments and access developer APIs.'
+                                    : 'Choose your account type and fill in your details to get started.'}
                             </p>
                         </div>
 
@@ -434,6 +441,8 @@ function RegisterPage() {
                                                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                                                     <span className="sp-spinner-icon" /> Creating Account...
                                                 </span>
+                                            ) : formData.role === 'MERCHANT' ? (
+                                                'Create Merchant Account →'
                                             ) : (
                                                 'Create Account →'
                                             )}

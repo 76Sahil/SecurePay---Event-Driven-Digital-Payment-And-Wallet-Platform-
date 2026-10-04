@@ -14,15 +14,17 @@ function AdminLayout() {
         <div className="customer-layout">
             <aside className="customer-sidebar">
                 <div className="customer-sidebar__brand">
-                    <div className="customer-sidebar__logo">S</div>
+                    <div className="customer-sidebar__logo" style={{ background: 'linear-gradient(135deg, #0ea5e9, #2563eb)' }}>
+                        SP
+                    </div>
 
                     <div>
                         <p className="customer-sidebar__brand-name">
                             SecurePay
                         </p>
 
-                        <p className="customer-sidebar__brand-subtitle">
-                            Security Command Center
+                        <p className="customer-sidebar__brand-subtitle" style={{ color: '#94a3b8' }}>
+                            Admin Command Center
                         </p>
                     </div>
                 </div>
@@ -110,20 +112,17 @@ function AdminLayout() {
                             className="customer-topbar__notification"
                             aria-label="Security notifications"
                         >
-                            ♧
-                            <span className="customer-topbar__notification-badge">
-                                4
-                            </span>
+                            🔔
                         </button>
 
                         <div className="customer-topbar__profile">
-                            <div className="customer-topbar__avatar">
+                            <div className="customer-topbar__avatar" style={{ background: '#0f172a', color: '#38bdf8' }}>
                                 {user?.email?.charAt(0).toUpperCase() ?? 'A'}
                             </div>
 
                             <div className="customer-topbar__user">
-                                <p>{user?.email ?? 'Admin'}</p>
-                                <span>Administrator</span>
+                                <p>{user?.email ?? 'admin@gmail.com'}</p>
+                                <span style={{ color: '#0ea5e9', fontWeight: 600 }}>Administrator</span>
                             </div>
 
                             <span className="customer-topbar__chevron">
