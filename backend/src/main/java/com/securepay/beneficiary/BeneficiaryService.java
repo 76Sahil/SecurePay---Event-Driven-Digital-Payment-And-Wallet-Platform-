@@ -80,14 +80,15 @@ public class BeneficiaryService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Recipient must have a registered SecurePay account."));
 
-        if (!"CUSTOMER".equalsIgnoreCase(recipient.getAccountType())) {
-            throw new IllegalArgumentException("This account cannot be added as a customer beneficiary.");
+        if (!"CUSTOMER".equalsIgnoreCase(recipient.getAccountType())
+                && !"MERCHANT".equalsIgnoreCase(recipient.getAccountType())) {
+            throw new IllegalArgumentException("This account cannot be added as a beneficiary.");
         }
         if (owner.getId().equals(recipient.getId())) {
             throw new IllegalArgumentException("You cannot add your own account as a beneficiary.");
         }
         if (beneficiaryRepository.existsByOwnerAndRecipient(owner, recipient)) {
-            throw new IllegalArgumentException("This customer is already in your beneficiaries.");
+            throw new IllegalArgumentException("This account is already in your beneficiaries.");
         }
 
         String accountNumber = request.getAccountNumber().trim();

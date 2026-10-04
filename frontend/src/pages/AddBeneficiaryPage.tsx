@@ -47,7 +47,7 @@ function AddBeneficiaryPage() {
         }
 
         if (!formData.recipientEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.recipientEmail.trim())) {
-            setError('Enter the registered email address of a SecurePay customer.')
+            setError('Enter the registered email address of a SecurePay customer or merchant.')
             return false
         }
 
@@ -238,7 +238,7 @@ function AddBeneficiaryPage() {
                                     autoComplete="email"
                                     value={formData.recipientEmail}
                                     onChange={(event) => updateField('recipientEmail', event.target.value)}
-                                    placeholder="customer@example.com"
+                                    placeholder="recipient@example.com"
                                 />
                             </label>
 
