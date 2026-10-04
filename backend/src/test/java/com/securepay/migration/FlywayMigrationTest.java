@@ -20,7 +20,7 @@ class FlywayMigrationTest {
 
         assertThat(appliedMigrations)
                 .isNotEmpty()
-                .hasSize(11);
+                .hasSize(12);
 
         assertThat(appliedMigrations[0].getDescription()).isEqualTo("create users table");
         assertThat(appliedMigrations[1].getDescription()).isEqualTo("create wallets table");
@@ -33,7 +33,8 @@ class FlywayMigrationTest {
         assertThat(appliedMigrations[8].getDescription()).isEqualTo("create merchant payments and refunds tables");
         assertThat(appliedMigrations[9].getDescription()).isEqualTo("create gateway and outbox tables");
         assertThat(appliedMigrations[10].getDescription()).isEqualTo("create notifications and saga tables");
+        assertThat(appliedMigrations[11].getDescription()).isEqualTo("create password reset tokens table");
 
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("11");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("12");
     }
 }

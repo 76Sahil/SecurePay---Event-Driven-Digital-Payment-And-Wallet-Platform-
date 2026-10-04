@@ -151,4 +151,21 @@ public class KeycloakRegistrationService {
             log.warn("Could not assign role {} to user {}: {}", roleName, userId, ex.getMessage());
         }
     }
+
+    public void resetUserPassword(String userId, String newPassword) {
+        String token = getAdminToken();
+        restClient.put()
+                .uri(serverUrl + "/admin/realms/" + realm
+                        + "/users/" + userId + "/reset-password")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of(
+                        "type", "password",
+                        "value", newPassword,
+                        "temporary", false
+                ))
+                .retrieve()
+                .toBodilessEntity();
+        log.info("Successfully updated Keycloak credentials for user {}", userId);
+    }
 }

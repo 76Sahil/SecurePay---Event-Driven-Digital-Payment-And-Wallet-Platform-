@@ -68,6 +68,8 @@ function PayBillsPage() {
         setProviderId('')
     }
 
+    const [submittedMessage, setSubmittedMessage] = useState<string | null>(null)
+
     function handleSubmit(
         event: FormEvent<HTMLFormElement>,
     ) {
@@ -77,9 +79,7 @@ function PayBillsPage() {
             return
         }
 
-        alert(
-            `Bill payment request created for ₹${amount}.`,
-        )
+        setSubmittedMessage(`Bill payment request submitted for ₹${amount}. Reference: BP-${Math.floor(100000 + Math.random() * 900000)}`)
     }
 
     if (isLoading) {
@@ -151,6 +151,20 @@ function PayBillsPage() {
                         Enter the required details to continue.
                     </p>
                 </div>
+
+                {submittedMessage && (
+                    <div style={{
+                        padding: '12px 16px',
+                        borderRadius: '8px',
+                        background: '#f0fdf4',
+                        border: '1px solid #bbf7d0',
+                        color: '#166534',
+                        fontSize: '14px',
+                        marginBottom: '16px'
+                    }}>
+                        ✓ {submittedMessage}
+                    </div>
+                )}
 
                 <form
                     className="bill-payment-form"

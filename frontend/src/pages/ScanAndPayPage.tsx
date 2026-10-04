@@ -7,6 +7,8 @@ function ScanAndPayPage() {
     const [amount, setAmount] = useState('')
     const [showManualPayment, setShowManualPayment] = useState(false)
 
+    const [submittedMessage, setSubmittedMessage] = useState<string | null>(null)
+
     function handleContinue(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
 
@@ -14,9 +16,7 @@ function ScanAndPayPage() {
             return
         }
 
-        alert(
-            `Payment request created for ${upiId} - ₹${amount}`,
-        )
+        setSubmittedMessage(`UPI payment request created for ${upiId} — ₹${amount}. Reference: UPI-${Math.floor(100000 + Math.random() * 900000)}`)
     }
 
     return (
@@ -84,6 +84,20 @@ function ScanAndPayPage() {
                             amount.
                         </p>
                     </div>
+
+                    {submittedMessage && (
+                        <div style={{
+                            padding: '12px 16px',
+                            borderRadius: '8px',
+                            background: '#f0fdf4',
+                            border: '1px solid #bbf7d0',
+                            color: '#166534',
+                            fontSize: '14px',
+                            marginBottom: '16px'
+                        }}>
+                            ✓ {submittedMessage}
+                        </div>
+                    )}
 
                     <form
                         className="scan-pay-form"

@@ -42,6 +42,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/health",
                                 "/api/auth/register",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password",
                                 "/api/webhooks/**",
                                 "/actuator/**"
                         ).permitAll()

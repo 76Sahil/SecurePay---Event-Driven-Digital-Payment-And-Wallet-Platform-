@@ -151,7 +151,7 @@ function MerchantApiKeysPage() {
                 ),
             )
         } catch (err) {
-            alert(err instanceof Error ? err.message : 'Failed to revoke API key.')
+            setError(err instanceof Error ? err.message : 'Failed to revoke API key.')
         } finally {
             setRevokingId(null)
         }

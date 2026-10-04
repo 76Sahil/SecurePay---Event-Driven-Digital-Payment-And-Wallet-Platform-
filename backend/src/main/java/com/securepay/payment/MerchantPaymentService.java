@@ -16,6 +16,8 @@ import com.securepay.user.User;
 import com.securepay.user.UserRepository;
 import com.securepay.wallet.Wallet;
 import com.securepay.wallet.WalletRepository;
+import com.securepay.notification.NotificationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,9 @@ public class MerchantPaymentService {
     private final WalletTransactionRepository transactionRepository;
     private final LedgerService ledgerService;
     private final SecurityAuditService auditService;
+
+    @Autowired(required = false)
+    private NotificationService notificationService;
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -186,6 +191,17 @@ public class MerchantPaymentService {
 
         MerchantPayment saved = paymentRepository.save(payment);
 
+        if (notificationService != null) {
+            notificationService.createNotification(
+                    merchant.getUser(),
+                    "PAYMENT",
+                    "Payment Collected",
+                    "Collected INR " + amount + " via " + method + " (ref: " + reference + ")",
+                    null,
+                    String.valueOf(saved.getId())
+            );
+        }
+
         auditService.recordEvent(
                 "MERCHANT_PAYMENT_COLLECTED",
                 merchant.getUser(),
@@ -298,6 +314,17 @@ public class MerchantPaymentService {
         refund.setStatus("SUCCESS");
 
         MerchantRefund saved = refundRepository.save(refund);
+
+        if (notificationService != null) {
+            notificationService.createNotification(
+                    merchant.getUser(),
+                    "REFUND",
+                    "Refund Processed",
+                    "Processed refund of INR " + refundAmount + " for " + payment.getReference(),
+                    null,
+                    String.valueOf(payment.getId())
+            );
+        }
 
         auditService.recordEvent(
                 "MERCHANT_REFUND_PROCESSED",

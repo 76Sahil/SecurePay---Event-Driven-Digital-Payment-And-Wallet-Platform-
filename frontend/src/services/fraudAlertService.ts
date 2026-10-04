@@ -1,4 +1,4 @@
-import type { FraudAlert, FraudAlertSeverity } from '../types/fraudAlert'
+import type { FraudAlert, FraudAlertSeverity, FraudAlertStatus } from '../types/fraudAlert'
 
 const API_BASE_URL = 'http://localhost:8080'
 
@@ -8,7 +8,7 @@ export async function getFraudAlerts(): Promise<FraudAlert[]> {
         throw new Error('Please log in to view fraud alerts.')
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/admin/security/events?limit=50`, {
+    const response = await fetch(`${API_BASE_URL}/api/admin/security/fraud-alerts`, {
         headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -24,38 +24,45 @@ export async function getFraudAlerts(): Promise<FraudAlert[]> {
     }
 
     const data = await response.json()
-    const rawEvents = Array.isArray(data) ? data : []
+    const rawAlerts = Array.isArray(data) ? data : []
 
-    // Filter to events that are risk/fraud/blocked alerts
-    const alerts = rawEvents.filter((e: any) => {
-        const type = String(e.eventType || '').toUpperCase()
-        const sev = String(e.severity || '').toUpperCase()
-        return (
-            sev === 'CRITICAL' ||
-            sev === 'WARN' ||
-            type.includes('BLOCKED') ||
-            type.includes('FRAUD') ||
-            type.includes('SUSPICIOUS')
-        )
-    })
-
-    return alerts.map((e: any) => {
+    return rawAlerts.map((e: any) => {
         let mappedSeverity: FraudAlertSeverity = 'MEDIUM'
         const sev = String(e.severity || '').toUpperCase()
         if (sev === 'CRITICAL') mappedSeverity = 'CRITICAL'
         else if (sev === 'WARN' || sev === 'HIGH') mappedSeverity = 'HIGH'
 
         return {
-            id: `FRD-${e.id}`,
+            id: String(e.id || `FRD-${Math.random()}`),
             transactionReference: e.transactionReference || `TXN-REF-${e.id}`,
-            customerName: e.actor || e.userEmail || 'Flagged Account',
+            customerName: e.customerName || e.userEmail || 'Flagged User',
             amount: Number(e.amount || 0),
-            currency: 'INR',
-            riskScore: mappedSeverity === 'CRITICAL' ? 95 : mappedSeverity === 'HIGH' ? 75 : 45,
-            reason: e.description || e.details || 'Risk rule triggered',
+            currency: e.currency || 'INR',
+            riskScore: Number(e.riskScore || (mappedSeverity === 'CRITICAL' ? 95 : 65)),
+            reason: e.reason || 'Risk engine security alert',
             severity: mappedSeverity,
-            status: 'OPEN' as const,
+            status: (e.status === 'RESOLVED' || e.status === 'REVIEWED' ? e.status : 'OPEN') as FraudAlertStatus,
             createdAt: e.createdAt ?? new Date().toISOString(),
         }
     })
+}
+
+export async function resolveFraudAlert(alertId: string): Promise<void> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (!token) {
+        throw new Error('Please log in to update fraud alerts.')
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/admin/security/fraud-alerts/${alertId}/resolve`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    })
+
+    if (!response.ok) {
+        const errorBody = await response.json().catch(() => null)
+        throw new Error(errorBody?.message || 'Failed to resolve fraud alert.')
+    }
 }

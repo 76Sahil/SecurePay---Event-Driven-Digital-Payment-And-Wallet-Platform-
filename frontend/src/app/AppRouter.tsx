@@ -7,6 +7,7 @@ import HomePage from '../pages/HomePage'
 import LoginPage from '../pages/LoginPage'
 import RegisterPage from '../pages/RegisterPage'
 import ForgotPasswordPage from '../pages/ForgotPasswordPage'
+import ResetPasswordPage from '../pages/ResetPasswordPage'
 
 import CustomerPortalPage from '../pages/CustomerPortalPage'
 import MerchantPortalPage from '../pages/MerchantPortalPage'
@@ -75,6 +76,11 @@ function AppRouter() {
                         <Route
                             path="/forgot-password"
                             element={<ForgotPasswordPage />}
+                        />
+
+                        <Route
+                            path="/reset-password"
+                            element={<ResetPasswordPage />}
                         />
                     </Route>
 
@@ -200,6 +206,7 @@ function AppRouter() {
                                 <Route path="/merchant/profile" element={<MerchantProfilePage />} />
                                 <Route path="/merchant/refunds" element={<MerchantRefundsPage />} />
                                 <Route path="/merchant/revenue" element={<MerchantRevenuePage />} />
+                                <Route path="/merchant/notifications" element={<NotificationsPage />} />
                             </Route>
                         </Route>
 

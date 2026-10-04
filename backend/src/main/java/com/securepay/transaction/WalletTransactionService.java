@@ -18,6 +18,9 @@ import com.securepay.user.UserRepository;
 import com.securepay.user.UserService;
 import com.securepay.wallet.Wallet;
 import com.securepay.wallet.WalletRepository;
+import com.securepay.merchant.MerchantRepository;
+import com.securepay.payment.MerchantPayment;
+import com.securepay.payment.MerchantPaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +42,12 @@ public class WalletTransactionService {
     private final NotificationService notificationService;
     private final ObjectMapper objectMapper;
     private final UserService userService;
+
+    @Autowired(required = false)
+    private MerchantRepository merchantRepository;
+
+    @Autowired(required = false)
+    private MerchantPaymentRepository merchantPaymentRepository;
 
     public WalletTransactionService(
             WalletRepository walletRepository,
@@ -291,9 +300,14 @@ public class WalletTransactionService {
                     .orElseThrow(() ->
                             new IllegalArgumentException("Recipient account not found."));
 
-            if (!"CUSTOMER".equalsIgnoreCase(recipient.getAccountType())) {
+            if ("ADMIN".equalsIgnoreCase(recipient.getAccountType())) {
                 throw new IllegalArgumentException(
-                        "Transfers are allowed only to customer accounts.");
+                        "Transfers to administrator accounts are not permitted.");
+            }
+
+            if (!"CUSTOMER".equalsIgnoreCase(recipient.getAccountType()) && !"MERCHANT".equalsIgnoreCase(recipient.getAccountType())) {
+                throw new IllegalArgumentException(
+                        "Transfers are allowed only to customer and merchant accounts.");
             }
 
             if (sender.getId().equals(recipient.getId())) {
@@ -403,6 +417,23 @@ public class WalletTransactionService {
                     "{\"outgoingId\":" + savedOutgoing.getId() + ",\"incomingId\":" + savedIncoming.getId() + ",\"amount\":" + amount + "}"
             );
 
+            if ("MERCHANT".equalsIgnoreCase(recipient.getAccountType())
+                    && merchantRepository != null && merchantPaymentRepository != null) {
+                merchantRepository.findByUser(recipient).ifPresent(merchant -> {
+                    MerchantPayment mp = new MerchantPayment();
+                    mp.setMerchant(merchant);
+                    mp.setReference("SP-PAY-" + savedIncoming.getId());
+                    mp.setCustomerName(sender.getFullName());
+                    mp.setCustomerEmail(sender.getEmail());
+                    mp.setAmount(amount);
+                    mp.setCurrency(senderWallet.getCurrency());
+                    mp.setMethod("WALLET");
+                    mp.setStatus("SUCCESS");
+                    mp.setDescription("Transfer from " + sender.getFullName());
+                    merchantPaymentRepository.save(mp);
+                });
+            }
+
             notificationService.createNotification(
                     sender,
                     "TRANSACTION",
@@ -412,11 +443,17 @@ public class WalletTransactionService {
                     null
             );
 
+            String recipientNotifType = "MERCHANT".equalsIgnoreCase(recipient.getAccountType()) ? "PAYMENT" : "TRANSACTION";
+            String recipientNotifTitle = "MERCHANT".equalsIgnoreCase(recipient.getAccountType()) ? "Payment Received" : "Money Received";
+            String recipientNotifMsg = "MERCHANT".equalsIgnoreCase(recipient.getAccountType())
+                    ? "You received payment of INR " + amount + " from " + sender.getFullName() + " (" + sender.getEmail() + ")."
+                    : "You received INR " + amount + " from " + sender.getFullName() + ".";
+
             notificationService.createNotification(
                     recipient,
-                    "TRANSACTION",
-                    "Money Received",
-                    "You received INR " + amount + " from " + sender.getFullName() + ".",
+                    recipientNotifType,
+                    recipientNotifTitle,
+                    recipientNotifMsg,
                     String.valueOf(savedIncoming.getId()),
                     null
             );

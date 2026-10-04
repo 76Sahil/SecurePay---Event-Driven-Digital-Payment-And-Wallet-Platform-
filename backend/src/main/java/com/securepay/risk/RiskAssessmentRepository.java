@@ -11,4 +11,9 @@ public interface RiskAssessmentRepository extends JpaRepository<RiskAssessment, 
     List<RiskAssessment> findByUserOrderByCreatedAtDesc(User user);
 
     long countByUserAndCreatedAtAfter(User user, LocalDateTime since);
+
+    List<RiskAssessment> findAllByOrderByCreatedAtDesc();
+
+    @org.springframework.data.jpa.repository.Query("SELECT r FROM RiskAssessment r LEFT JOIN FETCH r.user WHERE r.decision IN :decisions ORDER BY r.createdAt DESC")
+    List<RiskAssessment> findByDecisionInOrderByCreatedAtDesc(@org.springframework.data.repository.query.Param("decisions") List<RiskDecision> decisions);
 }

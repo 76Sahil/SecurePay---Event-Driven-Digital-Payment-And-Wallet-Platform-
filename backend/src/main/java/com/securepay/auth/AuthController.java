@@ -19,12 +19,28 @@ public class AuthController {
 
     private final RegistrationService registrationService;
     private final UserRepository userRepository;
+    private final PasswordResetService passwordResetService;
 
     public AuthController(
             RegistrationService registrationService,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            PasswordResetService passwordResetService) {
         this.registrationService = registrationService;
         this.userRepository = userRepository;
+        this.passwordResetService = passwordResetService;
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, Object>> forgotPassword(@RequestBody Map<String, String> body) {
+        String email = body != null ? body.get("email") : null;
+        return ResponseEntity.ok(passwordResetService.requestPasswordReset(email));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody Map<String, String> body) {
+        String token = body != null ? body.get("token") : null;
+        String newPassword = body != null ? body.get("newPassword") : null;
+        return ResponseEntity.ok(passwordResetService.resetPassword(token, newPassword));
     }
 
     @PostMapping("/register")

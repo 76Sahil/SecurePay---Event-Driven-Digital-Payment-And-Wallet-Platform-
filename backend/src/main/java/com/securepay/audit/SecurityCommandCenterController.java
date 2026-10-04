@@ -2,6 +2,10 @@ package com.securepay.audit;
 
 import com.securepay.user.User;
 import com.securepay.user.UserService;
+import com.securepay.risk.RiskAssessment;
+import com.securepay.risk.RiskAssessmentRepository;
+import com.securepay.risk.RiskDecision;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +21,9 @@ public class SecurityCommandCenterController {
 
     private final SecurityAuditService auditService;
     private final UserService userService;
+
+    @Autowired(required = false)
+    private RiskAssessmentRepository riskAssessmentRepository;
 
     public SecurityCommandCenterController(
             SecurityAuditService auditService,
@@ -96,4 +103,73 @@ public class SecurityCommandCenterController {
         response.put("message", "User account unlocked successfully.");
         return ResponseEntity.ok(response);
     }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @GetMapping("/fraud-alerts")
+    public ResponseEntity<List<Map<String, Object>>> getFraudAlerts() {
+        List<Map<String, Object>> alerts = new java.util.ArrayList<>();
+
+        if (riskAssessmentRepository != null) {
+            List<RiskAssessment> risks = riskAssessmentRepository.findByDecisionInOrderByCreatedAtDesc(
+                    List.of(RiskDecision.BLOCKED, RiskDecision.FLAGGED)
+            );
+            for (RiskAssessment ra : risks) {
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("id", "FRD-" + ra.getId());
+                map.put("transactionReference", ra.getTransactionId() != null ? "TXN-" + ra.getTransactionId() : "RISK-EVAL-" + ra.getId());
+                map.put("customerName", ra.getUser() != null ? ra.getUser().getFullName() + " (" + ra.getUser().getEmail() + ")" : "Flagged User");
+                map.put("userEmail", ra.getUser() != null ? ra.getUser().getEmail() : "system");
+                map.put("amount", 0);
+                map.put("currency", "INR");
+                map.put("riskScore", ra.getRiskScore());
+                map.put("reason", ra.getReasons() != null ? ra.getReasons() : "Risk rule triggered");
+                map.put("severity", ra.getDecision() == RiskDecision.BLOCKED ? "CRITICAL" : "HIGH");
+                map.put("status", "OPEN");
+                map.put("createdAt", ra.getCreatedAt().toString());
+                alerts.add(map);
+            }
+        }
+
+        List<Map<String, Object>> events = auditService.getRecentEvents(50);
+        for (Map<String, Object> ev : events) {
+            String type = String.valueOf(ev.getOrDefault("eventType", ""));
+            String sev = String.valueOf(ev.getOrDefault("severity", ""));
+            if ("CRITICAL".equalsIgnoreCase(sev) || "WARN".equalsIgnoreCase(sev) || type.contains("BLOCKED") || type.contains("FRAUD") || type.contains("SUSPICIOUS")) {
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("id", "SEC-" + ev.get("id"));
+                map.put("transactionReference", "TXN-SEC-" + ev.get("id"));
+                map.put("customerName", ev.get("actor") != null ? (String) ev.get("actor") : (String) ev.get("userEmail"));
+                map.put("userEmail", ev.get("userEmail"));
+                map.put("amount", 0);
+                map.put("currency", "INR");
+                map.put("riskScore", "CRITICAL".equalsIgnoreCase(sev) ? 95 : 65);
+                map.put("reason", ev.get("description") != null ? ev.get("description") : ev.get("details"));
+                map.put("severity", "CRITICAL".equalsIgnoreCase(sev) ? "CRITICAL" : "HIGH");
+                map.put("status", "OPEN");
+                map.put("createdAt", ev.get("createdAt"));
+                alerts.add(map);
+            }
+        }
+
+        return ResponseEntity.ok(alerts);
+    }
+
+    @PostMapping("/fraud-alerts/{id}/resolve")
+    public ResponseEntity<Map<String, Object>> resolveAlert(@PathVariable String id) {
+        auditService.recordEvent(
+                "FRAUD_ALERT_RESOLVED",
+                null,
+                SecurityAuditSeverity.INFO,
+                null,
+                null,
+                "Fraud alert " + id + " marked as resolved by administrator."
+        );
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("status", "SUCCESS");
+        response.put("alertId", id);
+        response.put("message", "Alert resolved successfully.");
+        return ResponseEntity.ok(response);
+    }
 }
+

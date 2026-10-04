@@ -74,3 +74,23 @@ export async function markNotificationAsRead(
         action: 'MARK_AS_READ',
     }
 }
+
+export async function getUnreadNotificationCount(): Promise<number> {
+    const token = sessionStorage.getItem('securepay_access_token')
+    if (!token) return 0
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/notifications/unread-count`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+
+        if (!response.ok) return 0
+        const data = await response.json()
+        return Number(data.unreadCount || 0)
+    } catch {
+        return 0
+    }
+}
